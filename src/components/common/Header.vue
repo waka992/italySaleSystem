@@ -1,11 +1,14 @@
 <template>
     <div class="header">
-        <!-- 折叠按钮 -->
-        <div class="collapse-btn" @click="collapseChage">
-            <i v-if="!collapse" class="el-icon-s-fold"></i>
-            <i v-else class="el-icon-s-unfold"></i>
+   
+        <div class="logo">
+            进出库后台
+            <!-- 折叠按钮 -->
+            <div class="collapse-btn" @click="collapseChage">
+                <i v-if="!collapse">-</i>
+                <i v-else>+</i>
+            </div>
         </div>
-        <div class="logo">无忧宝后台管理系统</div>
         <div class="header-right">
             <div class="header-user-con">
                 <!-- 全屏显示 -->
@@ -107,39 +110,57 @@ export default {
         }
     },
     mounted() {
-        if (document.body.clientWidth < 1500) {
-            this.collapseChage();
-        }
+        // if (document.body.clientWidth < 1500) {
+        //     this.collapseChage();
+        // }
     }
 };
 </script>
-<style scoped>
+<style scoped lang="scss">
 .header {
     position: relative;
     box-sizing: border-box;
     width: 100%;
-    height: 70px;
+    height: 48px;
     font-size: 22px;
     color: #fff;
+    background-color: #283457;
 }
 .collapse-btn {
+    position: absolute;
     float: left;
-    padding: 0 21px;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
-    line-height: 70px;
+    background-color: #2183EA;
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+
+    i {
+        font-style: normal;
+    }
 }
 .header .logo {
+    position: relative;
+    box-sizing: border-box;
     float: left;
     width: 250px;
     line-height: 70px;
+    padding-left: 26px;
+    background-color: #001529;
 }
+
 .header-right {
     float: right;
     padding-right: 50px;
 }
 .header-user-con {
     display: flex;
-    height: 70px;
+    height: 48px;
     align-items: center;
 }
 .btn-fullscreen {
@@ -177,8 +198,8 @@ export default {
 }
 .user-avator img {
     display: block;
-    width: 40px;
-    height: 40px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
 }
 .el-dropdown-link {

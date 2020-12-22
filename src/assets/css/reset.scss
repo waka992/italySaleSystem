@@ -1,0 +1,8 @@
+@mixin xycenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+$theme-color:#2183EA;
+$font-color: #1F1F21;

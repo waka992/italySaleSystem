@@ -18,8 +18,8 @@ export default new Router({
                     path: '/dashboard',
                     name: 'dashboard',
                     // component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
-                    component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/main/TypeForm.vue'),
-                    meta: { title: '分类管理' }
+                    component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/main/home/HomePage.vue'),
+                    meta: { title: '首页' }
                 },
                 {
                     path: '/user',

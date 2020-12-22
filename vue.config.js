@@ -2,6 +2,13 @@ module.exports = {
     publicPath: './',
     assetsDir: 'static',
     productionSourceMap: false,
+    css: {
+        loaderOptions: {
+            scss: {
+                additionalData: `@import '~@/assets/css/reset.scss';` //新版本
+            }
+        }
+    }
     // devServer: {
     //     proxy: {
     //         '/api':{
