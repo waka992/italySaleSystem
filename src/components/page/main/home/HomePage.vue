@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <home-search></home-search>
-        <div class="box-container"  v-for="comps in componentInfo" :key="comps.title">
+        <div class="box-container" :class="i % 2 == 0 ? 'left': 'right'"  v-for="(comps, i) in componentInfo" :key="comps.title">
             <div class="title">{{comps.title}}</div>
             <!-- {{comps.comp}} -->
             <components :is="comps.comp"></components>
@@ -65,25 +65,37 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .container {
-        background-color: #F0F2F5;
-        padding: 12px;
+.container {
+    background-color: #F0F2F5;
+    padding: 12px;
+}
+
+.card {
+    border-radius: 2px;
+    background-color: #fff;
+}
+.title {
+    color: #303133;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 8px;
+    margin-bottom: 18px;
+}
+.box-container {
+    position: relative;
+    display: inline-block;
+    width: 49%;
+    height: 307px;
+    padding: 12px;
+    background-color: #fff;
+    margin-bottom: 12px;
+
+    &.left {
+        float: left;
     }
 
-    .card {
-        border-radius: 2px;
-        background-color: #fff;
+    &.right {
+        float: right;
     }
-    .title {
-        color: #303133;
-        font-size: 18px;
-    }
-    .box-container {
-        display: inline-block;
-        width: 46%;
-        padding: 12px;
-        background-color: #fff;
-        margin-right: 12px;
-        margin-bottom: 12px;
-    }
+}
 </style>
