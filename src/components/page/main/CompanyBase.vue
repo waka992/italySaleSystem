@@ -25,6 +25,7 @@
             <el-table
                 :data="tableData"
                 border
+                stripe
                 class="table"
                 ref="multipleTable"
                 header-cell-class-name="table-header"
@@ -75,9 +76,9 @@
                 <el-pagination
                     background
                     layout="total, prev, pager, next"
-                    :current-page="basePage.no"
-                    :page-size="basePage.size"
-                    :total="pageTotal"
+                    :current-page="page.no"
+                    :page-size="page.size"
+                    :total="page.total"
                     @current-change="basePageChange"
                 ></el-pagination>
             </div>
@@ -157,7 +158,7 @@ export default {
             query: {
                 name: '',
             },
-            basePage: {
+            page: {
                 no: 1,
                 total: 0,
                 size: 20
@@ -216,7 +217,7 @@ export default {
 
         // 触发搜索按钮
         search() {
-            this.basePage.no = 1
+            this.page.no = 1
             this.getData();
         },
 
@@ -321,7 +322,7 @@ export default {
 
         // 分页导航
         basePageChange(val) {
-            this.$set(this.basePage, 'no', val);
+            this.$set(this.page, 'no', val);
             this.getData();
         }
     }

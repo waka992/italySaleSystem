@@ -122,7 +122,6 @@ export default {
     mounted() {
         document.addEventListener('click', (e) => { 
             let that = this
-            // if (!that.$el.contains(e.target)) this.dropCollapse = false 
             if (!this.$refs.logo.contains(e.target)) this.dropCollapse = false 
         })
     }
@@ -231,13 +230,14 @@ export default {
     top: 60px;
     left: 63px;
     width: 150px;
-    height: 154px;
-    padding-top: 2px;
+    padding: 2px 0;
     line-height: 1;
     background-color: #fff;
     display: inline-block; 
     box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
     border-radius: 8px;
+    overflow: hidden;
+    
 
     &::after {
         content: '';
@@ -263,6 +263,9 @@ export default {
     cursor: pointer;
     &:last-child {
         border-bottom: none;
+    }
+    &:hover {
+        background-color: rgba(0,0,0,.1);
     }
 }
 </style>

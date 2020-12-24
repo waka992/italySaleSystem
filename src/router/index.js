@@ -22,6 +22,22 @@ export default new Router({
                     meta: { title: '首页' }
                 },
                 {
+                    path: '/baseinfo',
+                    name: 'baseinfo',
+                    // component: () => import(/* webpackChunkName: "baseinfo" */ '../components/page/baseinfo.vue'),
+                    component: () => import(/* webpackChunkName: "baseinfo" */ '../components/page/main/company/CompanyBaseInfo.vue'),
+                    meta: { title: '公司 - 基本信息' }
+                },
+                {
+                    path: '/compbaseinfodetail',
+                    name: 'compbaseinfodetail',
+                    // component: () => import(/* webpackChunkName: "compbaseinfodetail" */ '../components/page/compbaseinfodetail.vue'),
+                    component: () => import(/* webpackChunkName: "compbaseinfodetail" */ '../components/page/main/company/CompanyBaseInfoDetail.vue'),
+                    meta: { title: '公司 - 基本信息 - 详情' }
+                },
+
+
+                {
                     path: '/user',
                     name: 'user',
                     // component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
