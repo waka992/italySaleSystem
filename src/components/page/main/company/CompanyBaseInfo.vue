@@ -15,22 +15,21 @@
             </div>
             <el-table
                 :data="tableData"
-                border
                 stripe
                 class="table"
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="name" label="公司名称" width="100" align="center"></el-table-column>
-                <el-table-column prop="person" label="法人代表" align="center"></el-table-column>
-                <el-table-column label="状态" align="center">
+                <el-table-column prop="name" label="公司名称" align="center"></el-table-column>
+                <el-table-column prop="person" label="法人代表" align="center" width="70"></el-table-column>
+                <el-table-column label="状态" align="center"  width="70">
                     <template slot-scope="scope">{{scope.row.status}}</template>
                 </el-table-column>
                 <el-table-column prop="address" label="地址" align="center"></el-table-column>
-                <el-table-column prop="mobile" label="电话" align="center"></el-table-column>
+                <el-table-column prop="mobile" label="电话" align="center" width="120"></el-table-column>
                 <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
                 
-                <el-table-column label="操作" width="180" align="center">
+                <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
                         <el-button
                             icon="el-icon-s-operation"
@@ -65,13 +64,13 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="公司名称" prop="name">
-                            <el-input v-model="form.name" placeholder="请输入公司名" maxlength="15" show-word-limit></el-input>
+                            <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入公司名" maxlength="15" show-word-limit></el-input>
                         </el-form-item>
 
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="法人代表" prop="person">
-                            <el-input v-model="form.person" placeholder="请输入法人代表" ></el-input>
+                            <el-input size="mini" class="form-input" v-model="form.person" placeholder="请输入法人代表" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -79,12 +78,12 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="营业执照号" prop="license">
-                            <el-input v-model="form.license" placeholder="请输入营业执照注册号" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.license" placeholder="请输入营业执照注册号" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="状态" prop="status">
-                            <el-input v-model="form.status" placeholder="请输入" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.status" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -92,12 +91,12 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="税务代码" prop="code">
-                            <el-input v-model="form.code" placeholder="请输入税务代码" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.code" placeholder="请输入税务代码" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="银行名称" prop="bank">
-                            <el-input v-model="form.bank" placeholder="请输入" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.bank" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -105,12 +104,12 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="地址" prop="address">
-                            <el-input v-model="form.address" placeholder="请输入公司地址" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.address" placeholder="请输入公司地址" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="银行账号" prop="account">
-                            <el-input v-model="form.account" placeholder="请输入" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.account" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -118,12 +117,12 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="电话" prop="mobile">
-                            <el-input v-model="form.mobile" placeholder="请输入联系电话" ></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.mobile" placeholder="请输入联系电话" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="流水初始金额" prop="flow" placeholder="请输入" >
-                            <el-input v-model="form.flow"></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.flow"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -131,12 +130,12 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="邮箱" prop="email" placeholder="请输入联系邮箱" >
-                            <el-input v-model="form.email"></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.email"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="其他备注" prop="remark" placeholder="请输入备注内容" >
-                            <el-input v-model="form.remark"></el-input>
+                            <el-input size="mini"  class="form-input" v-model="form.remark"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -165,7 +164,7 @@ export default {
                 size: 20
             },
             tableData: [
-                {name: '广东沈外贸科技有限公司', person: '李呢发', status: 1, address: '广州', mobile: 13577292902, email: '234234@sina.com'},
+                {name: '广东沈外贸科技有限公司', person: '李呢发', status: 1, address: '广州', mobile: 13577292902, email: '234234@sina.com', id: 1},
                 {name: '广东沈外贸科技有限公司', person: '李呢发', status: 1, address: '广州', mobile: 13577292902, email: '234234@sina.com'},
                 {name: '广东沈外贸科技有限公司', person: '李呢发', status: 1, address: '广州', mobile: 13577292902, email: '234234@sina.com'},
                 {name: '广东沈外贸科技有限公司', person: '李呢发', status: 1, address: '广州', mobile: 13577292902, email: '234234@sina.com'},
@@ -224,7 +223,6 @@ export default {
         addReady() {
             this.resetData()
             this.baseDialogVisible = true;
-            this.baseDialogTitle = '新增'
         },
 
         // 查
@@ -311,5 +309,9 @@ export default {
 }
 .curr-btn {
     width: 75px;
+}
+
+.form-input {
+    width: 220px;
 }
 </style>
