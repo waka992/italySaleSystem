@@ -1,12 +1,12 @@
 <template>
     <div class="header">
-   
-        <div class="logo">
-            进出库后台
-            <!-- 折叠按钮 -->
-            <div class="collapse-btn" @click="collapseChage">
-                <i v-if="!collapse">-</i>
-                <i v-else>+</i>
+        <div class="logo" ref="logo">
+            进出库系统
+            <div class="collapse-btn" @click.stop="showDropList">
+                <i v-if="!collapse">+</i>
+            </div>
+            <div class="drop-list" v-show="dropCollapse">
+                <span class="drop-list-item" v-for="list in headerList" :key="list.name">{{list.name}}</span>
             </div>
         </div>
         <div class="header-right">
@@ -57,9 +57,16 @@ export default {
     data() {
         return {
             collapse: false,
+            dropCollapse: false,
             fullscreen: false,
             name: 'linxin',
-            message: 2
+            message: 2,
+            headerList: [
+                {id: 0, name: '创建销售订单'}, 
+                {id: 1, name: '添加流水'}, 
+                {id: 2, name: '添加单品'}, 
+                {id: 3, name: '添加新客户'}
+            ]
         };
     },
     computed: {
@@ -107,12 +114,17 @@ export default {
                 }
             }
             this.fullscreen = !this.fullscreen;
+        },
+        showDropList() {
+            this.dropCollapse = !this.dropCollapse
         }
     },
     mounted() {
-        // if (document.body.clientWidth < 1500) {
-        //     this.collapseChage();
-        // }
+        document.addEventListener('click', (e) => { 
+            let that = this
+            // if (!that.$el.contains(e.target)) this.dropCollapse = false 
+            if (!this.$refs.logo.contains(e.target)) this.dropCollapse = false 
+        })
     }
 };
 </script>
@@ -134,11 +146,14 @@ export default {
     transform: translateY(-50%);
     cursor: pointer;
     background-color: #2183EA;
-    height: 32px;
-    width: 32px;
+    height: 24px;
+    width: 24px;
     border-radius: 50%;
     text-align: center;
-    line-height: 28px;
+    line-height: 21px;
+    font-size: 22px;
+    color: #fff;
+    user-select: none;
 
     i {
         font-style: normal;
@@ -148,10 +163,11 @@ export default {
     position: relative;
     box-sizing: border-box;
     float: left;
-    width: 250px;
+    width: 165px;
     line-height: 70px;
     padding-left: 26px;
     background-color: #001529;
+    font-size: 14px;
 }
 
 .header-right {
@@ -208,5 +224,45 @@ export default {
 }
 .el-dropdown-menu__item {
     text-align: center;
+}
+.drop-list {
+    position: absolute;
+    z-index: 999;
+    top: 60px;
+    left: 63px;
+    width: 150px;
+    height: 154px;
+    padding-top: 2px;
+    line-height: 1;
+    background-color: #fff;
+    display: inline-block; 
+    box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+    border-radius: 8px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -8px;
+        border: 4px solid transparent;
+        border-bottom: 4px solid #fff;
+
+        @include xcenter;
+    }
+}
+
+.drop-list-item {
+    display: inline-block;
+    border-bottom: 1px solid #E3E3E3;
+    width: 100%;
+    height: 38px;
+    padding: 14px 0 0 12px;
+    font-size: 9px;
+    color: #1F1F21;
+    font-family: SourceHanSansCN-Regular, SourceHanSansCN;
+    font-weight: 400;
+    cursor: pointer;
+    &:last-child {
+        border-bottom: none;
+    }
 }
 </style>

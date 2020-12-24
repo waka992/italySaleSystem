@@ -17,14 +17,14 @@
         <!-- 图表 -->
         <div class="charts">
             <div class="left-chart">
-                <pie-chart ref="pieChart1" :width="'215'" :height="'164'"></pie-chart>
+                <pie-chart ref="pieChart1" :width="'200'" :height="'164'"></pie-chart>
                 <div class="bottom-num">
                     <span>总收入：</span>
                     <span>{{num2}}元</span>
                 </div>
             </div>
             <div class="right-chart">
-                <pie-chart ref="pieChart2" :width="'215'" :height="'164'"></pie-chart>
+                <pie-chart ref="pieChart2" :width="'200'" :height="'164'"></pie-chart>
                 <div class="bottom-num">
                     <span>总支出：</span>
                     <span>{{num2}}元</span>
@@ -140,13 +140,14 @@ export default {
     margin-left: 22px;
 }
 
-.chart {
+.charts {
+    overflow-x: visible;
     height: 134px;
     margin-top: 30px;
 }
 .left-chart, .right-chart {
     display: inline-block;
-    width: 215px;
+    width: 200px;
 }
 .left-chart {
     float: left;

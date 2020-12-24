@@ -42,7 +42,7 @@ export default {
                     legend: {
                         type: 'plain',
                         orient: 'vertical',
-                        left: 120,
+                        left: 100,
                         right: 0,
                         top: 0,
                         bottom: 0,
@@ -60,7 +60,7 @@ export default {
                         {
                             name: '姓名',
                             type: 'pie',
-                            center: ['60px', '50%'],
+                            center: ['45px', '50%'],
                             labelLine: {show:false},
                             label: {show:false},
                             radius: '45px',
