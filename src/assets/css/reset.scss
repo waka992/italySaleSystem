@@ -14,6 +14,11 @@
     top: 50%;
     transform: translateY(-50%);
 }
+
+@mixin flexbox {
+    display: flex;
+}
+
 $theme-color:#2183EA;
 $font-color: #1F1F21;
 
@@ -31,7 +36,7 @@ a, abbr, acronym, address, big, cite, code,
 del, dfn, em, font, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
-dl, dt, dd, ol, ul, li,
+dl, dt, dd, ol, ul,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
 margin: 0;

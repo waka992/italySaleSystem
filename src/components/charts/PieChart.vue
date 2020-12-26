@@ -1,5 +1,5 @@
 <template>
-    <div class="box">
+    <div class="pie-chart-box">
         <div class="line-chart" id="line-chart"></div>
     </div>
 </template>
@@ -60,6 +60,8 @@ export default {
                         {
                             name: '姓名',
                             type: 'pie',
+                            hoverAnimation: false,
+                            animation: false,
                             center: ['45px', '50%'],
                             labelLine: {show:false},
                             label: {show:false},
@@ -88,7 +90,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.box {
+.pie-chart-box {
     width: 100%;
 }
 

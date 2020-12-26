@@ -75,7 +75,7 @@ export default {
                             title: '基本信息'
                         },
                         {
-                            index: 'flowday',
+                            index: 'dailyjournal',
                             title: '流水日记账'
                         },
                         {
@@ -247,5 +247,25 @@ export default {
     width: 24px;
     height: 18px;
     display: inline-block;
+}
+.sidebar-el-menu {
+    .el-submenu.is-opened {
+        ::v-deep .el-submenu__title {
+            background-color: #2183EA !important;
+            color: #fff !important;
+        }
+    }
+    .el-menu-item:not(.is-active) {
+        color: #fff !important;
+    }
+  
+    .el-submenu {
+        ::v-deep .el-submenu__title {
+            color: #fff !important;
+            i {
+                color: #fff !important;
+            }
+        }
+    }
 }
 </style>
