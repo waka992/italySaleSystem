@@ -6,8 +6,8 @@
         <div class="date-switch">
             <div class="tab" :class="dateSelected == i ? 'active' : ''" v-for="(tab, i) in dateTab" :key="tab.name" @click="dateTapClick(i)">{{tab.name}}</div>
         </div>
-        <div>
-            <line-chart ref="lineChart" class="charts" :height="'180px'" :width="'180px'"></line-chart>
+        <div class="charts">
+            <line-chart ref="lineChart"  :height="'180px'" :width="'140px'"></line-chart>
         </div>
     </div>
 </template>
@@ -54,7 +54,19 @@ export default {
                 xData.push(element.x)
                 yData.push(Math.random()*20)
             }
-            this.$refs.lineChart.setData(xData, yData)
+            this.$refs.lineChart.setData({
+                xAxis: {
+                    data: xData,
+                },
+                series: [{
+                    data: yData,
+                    tooltip: {
+                        formatter: (params) => {
+                            console.log(params);
+                        }
+                    }
+                }],
+            })
         }
     }
 };
@@ -129,7 +141,7 @@ export default {
     }
 }
 .charts {
-    width: 180px;
+    width: 300px;
     top: 117px;
     @include xcenter;
 }

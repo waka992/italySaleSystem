@@ -1,5 +1,5 @@
 <template>
-    <div class="box" :style="'width: 80%; overflow-x:auto;'">
+    <div class="box" :style="'width: 100%;'">
         <div class="line-chart" id="line-chart"></div>
     </div>
 </template>
@@ -83,25 +83,18 @@ export default {
                         barWidth: 12,
                         itemStyle: {
                             color: '#2183EA'
-                        }
+                        },
                     }],
                     tooltip: {
                         show: true
-                    }
+                    },
                 }
                 chart.setOption(options);
                 this.chart = chart
             }
         },
-        setData(xdata, seriesdata) {
-            this.chart.setOption({
-                xAxis: {
-                    data: xdata,
-                },
-                series: [{
-                    data: seriesdata
-                }],
-            })
+        setData(data) {
+            this.chart.setOption(data)
         }
     }
 };

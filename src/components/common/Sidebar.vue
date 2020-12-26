@@ -79,7 +79,7 @@ export default {
                             title: '流水日记账'
                         },
                         {
-                            index: 'ratestatics',
+                            index: 'profitstatistics',
                             title: '盈利统计'
                         },
                         

@@ -36,7 +36,13 @@ export default new Router({
                     path: '/dailyjournal',
                     name: 'dailyjournal',
                     component: () => import(/* webpackChunkName: "dailyjournal" */ '../components/page/main/company/DailyJournal.vue'),
-                    meta: { title: '公司 - 基本信息 - 详情' }
+                    meta: { title: '公司 - 流水日记账' }
+                },
+                {
+                    path: '/profitstatistics',
+                    name: 'profitstatistics',
+                    component: () => import(/* webpackChunkName: "profitstatistics" */ '../components/page/main/company/ProfitStatistics.vue'),
+                    meta: { title: '公司 - 盈利统计' }
                 },
 
 
