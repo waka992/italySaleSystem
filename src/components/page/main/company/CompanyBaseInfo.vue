@@ -33,7 +33,7 @@
                     <template slot-scope="scope">
                         <el-button
                             icon="el-icon-s-operation"
-                            @click="checkDetail(scope.$index, scope.row)"
+                            @click="checkDetail(scope.row.id)"
                             type="primary"
                         >查看详情</el-button>
                     </template>

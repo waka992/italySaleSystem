@@ -19,6 +19,18 @@
     display: flex;
 }
 
+@mixin primarybtn {
+    border: 1px solid #2183EA;
+    background-color: #2183EA;
+    color: #fff;
+}
+
+@mixin plainbtn {
+    border: 1px solid #2183EA;
+    background-color: #fff;
+    color: #2183EA;
+}
+
 $theme-color:#2183EA;
 $font-color: #1F1F21;
 
@@ -41,10 +53,11 @@ fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
 margin: 0;
 padding: 0;
-border: 0;
+// border: 0;
 outline: 0;
 vertical-align: baseline;
 background: transparent;
+font-size: 14px;
 }
 body {
 line-height: 1;

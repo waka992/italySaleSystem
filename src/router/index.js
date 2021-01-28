@@ -44,6 +44,54 @@ export default new Router({
                     component: () => import(/* webpackChunkName: "profitstatistics" */ '../components/page/main/company/ProfitStatistics.vue'),
                     meta: { title: '公司 - 盈利统计' }
                 },
+                {
+                    path: '/supplier',
+                    name: 'supplier',
+                    component: () => import(/* webpackChunkName: "supplier" */ '../components/page/main/purchase/Supplier.vue'),
+                    meta: { title: '采购 - 供应商' }
+                },
+                {
+                    path: '/supplierdetail',
+                    name: 'supplierdetail',
+                    component: () => import(/* webpackChunkName: "supplierdetail" */ '../components/page/main/purchase/SupplierDetail.vue'),
+                    meta: { title: '采购 - 供应商 - 详情' }
+                },
+                {
+                    path: '/transitcompany',
+                    name: 'transitcompany',
+                    component: () => import(/* webpackChunkName: "transitcompany" */ '../components/page/main/purchase/TransitCompany.vue'),
+                    meta: { title: '采购 - 运输公司' }
+                },
+                {
+                    path: '/transitcompanydetail',
+                    name: 'transitcompanydetail',
+                    component: () => import(/* webpackChunkName: "transitcompanydetail" */ '../components/page/main/purchase/TransitCompanyDetail.vue'),
+                    meta: { title: '采购 - 运输公司 - 详情' }
+                },
+                {
+                    path: '/containerinfo',
+                    name: 'containerinfo',
+                    component: () => import(/* webpackChunkName: "containerinfo" */ '../components/page/main/purchase/ContainerInfo.vue'),
+                    meta: { title: '采购 - 货柜信息' }
+                },
+                {
+                    path: '/containerinfodetail',
+                    name: 'containerinfodetail',
+                    component: () => import(/* webpackChunkName: "containerinfodetail" */ '../components/page/main/purchase/ContainerInfoDetail.vue'),
+                    meta: { title: '采购 - 货柜信息 - 详情' }
+                },
+                {
+                    path: '/customerinfo',
+                    name: 'customerinfo',
+                    component: () => import(/* webpackChunkName: "customerinfo" */ '../components/page/main/customer/CustomerInfo.vue'),
+                    meta: { title: '客户信息' }
+                },
+                {
+                    path: '/customerinfodetail',
+                    name: 'customerinfodetail',
+                    component: () => import(/* webpackChunkName: "customerinfodetail" */ '../components/page/main/customer/CustomerInfoDetail.vue'),
+                    meta: { title: '客户信息 - 详情' }
+                },
 
 
                 {

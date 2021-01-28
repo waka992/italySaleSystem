@@ -9,7 +9,7 @@ import {cloneDeep} from 'lodash';
 import * as echarts from 'echarts'
 
 export default {
-    name: 'LineChart',
+    name: 'PieChart',
     props: {
         height: {
             type: String,

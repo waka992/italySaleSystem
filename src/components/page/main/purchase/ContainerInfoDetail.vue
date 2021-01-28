@@ -1,0 +1,377 @@
+<template>
+    <div>
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>采购</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{name: 'containerinfo'}">货柜信息</el-breadcrumb-item>
+                <el-breadcrumb-item>详情</el-breadcrumb-item>
+            </el-breadcrumb>
+            <el-popover
+                popper-class="del-confirm"
+                placement="bottom"
+                width="210"
+                v-model="delVisible">
+                <div class="del-word">是否确定到货</div>
+                <div style="text-align: right; margin: 0">
+                    <el-button class="del-btn1" size="mini" type="text" @click="delVisible = false">取消</el-button>
+                    <el-button class="del-btn2" size="mini" @click="arriveConfirm">确定</el-button>
+                </div>
+                <el-button class="del-btn2 outer" slot="reference">确定到货</el-button>
+            </el-popover>
+        </div>
+        <div class="box">
+            
+            <div class="detail-card">
+                <div class="title">{{comInfo.name}}</div>
+                <div class="handle-box">
+                    <!-- <el-button
+                        icon="el-icon-edit"
+                        type="primary"
+                        size="mini"
+                        @click="editReady"
+                        >编辑</el-button> -->
+                </div>
+                <el-row class="detail-row">
+                    <el-col :span="6">
+                        <span class="detail-label">运输商：</span>
+                        <span class="detail-content">{{comInfo.transporter}}</span>
+                    </el-col>
+                    <el-col :span="5">
+                        <span class="detail-label">货柜类型：</span>
+                        <span class="detail-content">{{comInfo.containerType}}</span>
+                    </el-col>
+                    <el-col :span="5">
+                        <span class="detail-label">货柜费用：</span>
+                        <span class="detail-content">{{comInfo.fund}}</span>
+                    </el-col>
+                    <el-col :span="4">
+                        <span class="detail-label">总件数：</span>
+                        <span class="detail-content">{{comInfo.pics}}</span>
+                    </el-col>
+                    <el-col :span="4">
+                        <span class="detail-label">总箱数：</span>
+                        <span class="detail-content">{{comInfo.boxs}}</span>
+                    </el-col>
+                </el-row>
+                <el-row class="detail-row">
+                    <el-col :span="6">
+                        <span class="detail-label">出货日期：</span>
+                        <span class="detail-content">{{comInfo.sellDate}}</span>
+                    </el-col>
+                    <el-col :span="5">
+                        <span class="detail-label">到货日期：</span>
+                        <span class="detail-content">{{comInfo.arriveDate}}</span>
+                    </el-col>
+                    <el-col :span="5">
+                        <span class="detail-label">货物总金额：</span>
+                        <span class="detail-content">{{comInfo.totalValue}}</span>
+                    </el-col>
+                    <el-col :span="4">
+                        <span class="detail-label">平均运费：</span>
+                        <span class="detail-content">{{comInfo.average}}</span>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <div class="record-card">
+                <div class="top">
+                    <div class="title">到货单品</div>
+                    <!-- <div class="search">
+                        <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                    </div> -->
+                    
+                </div>
+                <el-table
+                    :data="tableData"
+                    stripe
+                    class="table"
+                    ref="multipleTable"
+                    header-cell-class-name="table-header"
+                >
+                    <el-table-column prop="name" label="商品名称"  align="center"></el-table-column>
+                    <el-table-column prop="boxs" label="型号" align="center"></el-table-column>
+                    <el-table-column prop="pics" label="特色" align="center"></el-table-column>
+                    <el-table-column prop="value" label="装数" align="center"></el-table-column>
+                    <el-table-column prop="stock" label="箱数" align="center"></el-table-column>
+                    <el-table-column prop="stock" label="件数" align="center"></el-table-column>
+                    <el-table-column prop="stock" label="金额" align="center"></el-table-column>
+                </el-table>
+                <!-- <div class="pagination">
+                    <el-pagination
+                        background
+                        :current-page="page.no"
+                        :page-size="page.size"
+                        :total="page.total"
+                        layout="total, prev, pager, next, sizes, jumper"
+                        @size-change="handleSizeChange"
+                        @current-change="basePageChange"
+                    ></el-pagination>
+                </div> -->
+                <div class="operate">
+                    <el-button plain>返回</el-button>
+                    <el-button type="primary">生成pdf</el-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import {cloneDeep} from 'lodash';
+import qs from 'qs'
+
+export default {
+    name: 'ContainerInfoDetail',
+    data() {
+        return {
+            delVisible: false,
+            page: {
+                no: 1,
+                total: 0,
+                size: 10
+            },
+            // 展示用
+            comInfo: {
+                name: '白云货柜01',
+                transporter: '德邦物流',
+                containerType: '海运',
+                fund: '1000',
+                pics: '12',
+                boxs: '5',
+                sellDate: '2020-11-20',
+                arriveDate: '2020-12-23',
+                totalValue: '15125',
+                average: '5',
+            },
+            // 支出收入列表
+            tableData: [
+                {name: '提臀运动裤', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '卫衣', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
+            ],
+            
+        };
+    },
+    created() {
+        this.getData();
+    },
+    methods: {
+        // 置空数据
+        getDetail() {
+            this.form = {
+                name: '广东沈外贸科技有限公司',
+                address: '广州白云区家和',
+                mobile: '1377292010',
+                otherContact: '390525235@qq.com',
+                remark: '外贸科技供应商',
+                payStatus: '+8000',
+                use: '文案文案',
+            }
+        },
+
+        
+        arriveConfirm() {
+            console.log(this.$route.params);
+            this.delVisible = false
+            this.$router.push({name: 'containerinfo'})
+        },
+
+        // 查
+        getData() {
+            let obj = {
+                pageSize:  this.page.size,
+                page:  this.page.no,
+            }
+            // shopContractList(obj).then(res => {
+            //     this.tableData = res.records
+            //     this.page.total = res.total
+            //     this.page.no = res.current
+            // })
+        },
+
+  
+
+        // 分页导航
+        basePageChange(val) {
+            this.$set(this.page, 'no', val);
+            this.getData();
+        },
+        // 每页数量改变
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`);
+        },
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+.crumbs {
+    position: relative;
+    width: 100%;
+    height: 64px;
+    box-sizing: border-box;
+    padding: 25px;
+    margin: 0 !important;
+}
+
+.box {
+    margin: 0 23px;
+    background-color: transparent;
+}
+
+.detail-card {
+    position: relative;
+    width: 100%;
+    padding: 12px;
+    background-color: #fff;
+    font-size: 12px;
+    padding: 72px 0 20px 0;
+    margin-bottom: 18px;
+    border-radius: 2px;
+
+
+    .title {
+        position: absolute;
+        font-size: 20px;
+        color: #333;
+        top: 24px;
+        left: 23px;
+        font-weight: 500;
+    }
+
+    .detail-row {
+        margin-bottom: 18px;
+    }
+
+    .detail-label {
+        display: inline-block;
+        color:  #999;
+        width: 90px;
+        text-align: right;
+    }
+
+    .detail-content {
+        display: inline-block;
+    }
+}
+
+.record-card  {
+    position: relative;
+    padding: 12px;
+    background-color: #fff;
+    border-radius: 2px;
+    
+    .title {
+        display: inline-block;
+        font-size: 20px;
+        margin-left: 12px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .search {
+        position: absolute;
+        left: 90px;
+        display: inline-block;
+        width: 240px;
+        height: 27px;
+    }
+
+    .top {
+        height: 39px;
+    }
+
+    .operate {
+        margin-top: 50px;
+        text-align: center;
+
+        .el-button  {
+            width: 89px;
+        }
+    }
+
+    .red {
+        color: #FC5634;
+    }
+
+    .green {
+        color: #33C179;
+    }
+}
+
+.handle-box {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+}
+
+.pagination {
+    margin-top: 40px;
+}
+
+.table {
+    width: 100%;
+    font-size: 11px;
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+.el-dialog__header {
+    padding: 30px 48px !important;
+}
+.dialog-footer {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+.curr-btn {
+    width: 75px;
+}
+.form-input {
+    width: 220px;
+}
+
+// 删除弹窗
+.el-popover.del-confirm {
+    width: 249px !important;
+    height: 136px !important;
+    color: #fff;
+    background: #2183EA;
+    box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.3);
+}
+
+.del-word {
+    margin: 20px 9px 12px;
+    font-size: 11px;
+    color: #909399;
+}
+
+.del-btn1, .del-btn2 {
+    width: 89px;
+    height: 32px;
+    background: #FFFFFF;
+    border-radius: 3px;
+    font-size: 11px;
+}
+.del-btn1 {
+    border: 1px solid #C4C9D3;
+    color: #1F1F21;
+}
+.del-btn2 {
+    border: 1px solid #2183EA;
+    background: #2183EA;
+    color: #fff;
+
+    &.outer {
+        position: absolute;
+        top: 16px;
+        right: 36px;
+    }
+}
+</style>

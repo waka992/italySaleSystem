@@ -1,3 +1,4 @@
+const path = require('path')
 module.exports = {
     publicPath: './',
     assetsDir: 'static',
@@ -7,6 +8,13 @@ module.exports = {
             scss: {
                 additionalData: `@import '~@/assets/css/reset.scss';` //新版本
             }
+        }
+    },
+    configureWebpack:{
+        resolve:{
+          alias:{
+            '@':path.resolve('./src')
+          }
         }
     }
     // devServer: {

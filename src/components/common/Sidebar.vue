@@ -91,15 +91,15 @@ export default {
                     title: '采购',
                     subs: [
                         {
-                            index: 'support',
+                            index: 'supplier',
                             title: '供应商'
                         },
                         {
-                            index: 'transport',
+                            index: 'transitcompany',
                             title: '运输公司'
                         },
                         {
-                            index: 'container',
+                            index: 'containerinfo',
                             title: '货柜信息'
                         },
                         
@@ -107,7 +107,7 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-people',
-                    index: 'userinfo',
+                    index: 'customerinfo',
                     title: '客户信息'
                 },
                 {

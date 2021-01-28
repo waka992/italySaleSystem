@@ -1,0 +1,473 @@
+<template>
+    <div>
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>客户信息</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="box">
+            <div class="handle-box">
+                <div class="customer-title">客户信息</div>
+                <el-input class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名称"></el-input>
+                <el-date-picker
+                    v-model="timePicker"
+                    type="daterange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期">
+                </el-date-picker>
+
+                <el-button
+                    class="new-btn"
+                    type="primary"
+                    @click="addReady"
+                    >+客户录入</el-button>
+            </div>
+            <el-table
+                :data="tableData"
+                stripe
+                class="table"
+                ref="multipleTable"
+                header-cell-class-name="table-header"
+            >
+                <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                <el-table-column prop="pics" label="销售箱数" align="center"></el-table-column>
+                <el-table-column prop="debt" label="欠款金额" align="center"></el-table-column>
+                <el-table-column prop="total" label="总金额" align="center"></el-table-column>
+                
+                <el-table-column label="操作" width="130" align="center">
+                    <template slot-scope="scope">
+                        <el-button
+                            type="text"
+                            @click="checkDetail(scope.row.id)"
+                        >详情</el-button>
+                        <el-button
+                            type="text"
+                            @click="checkDetail(scope.row.id)"
+                        >统计</el-button>
+                        <el-button
+                            class="del-btn"
+                            type="text"
+                            @click="checkDetail(scope.row.id)"
+                        >删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination
+                    background
+                    :current-page="page.no"
+                    :page-size="page.size"
+                    :total="page.total"
+                    layout="total, prev, pager, next, sizes, jumper"
+                    @size-change="handleSizeChange"
+                    @current-change="basePageChange"
+                ></el-pagination>
+            </div>
+        </div>
+        <div class="bottom-box">
+            <div class="inner-box">
+                <div class="left-box">
+                    <div class="box-title">本周最佳客户</div>
+                    <el-table
+                        :data="bestTableData"
+                        stripe
+                        class="table"
+                        ref="multipleTable"
+                        header-cell-class-name="table-header"
+                    >
+                        <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="time" label="日期" align="center"></el-table-column>
+                        <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
+                        <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
+                    </el-table>
+                </div>
+                <div class="right-box">
+                    <div class="box-title">常用客户</div>
+                    <el-table
+                        :data="commonTableData"
+                        stripe
+                        class="table"
+                        ref="multipleTable"
+                        header-cell-class-name="table-header"
+                    >
+                        <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="time" label="日期" align="center"></el-table-column>
+                        <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
+                        <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
+                    </el-table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog 
+        :close-on-click-modal='false'
+        :show-close="false"
+        :title="'客户录入'" :visible.sync="baseDialogVisible" width="888px">
+            <el-form ref="form" 
+                :model="form" label-width="120px" :inline="true"
+                :rules="rules"
+            >
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="名称" prop="name">
+                            <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入公司名"></el-input>
+                        </el-form-item>
+
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="其他联系方式" prop="contact">
+                            <el-input size="mini" class="form-input" v-model="form.contact" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="地址" prop="address">
+                            <el-input size="mini"  class="form-input" v-model="form.address" placeholder="请输入供应商地址" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="银行信息" prop="bankInfo">
+                            <el-input size="mini"  class="form-input" v-model="form.bankInfo" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="电话" prop="mobile">
+                            <el-input size="mini"  class="form-input" v-model="form.mobile" placeholder="请输入供应商电话" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="初始欠款" prop="debt">
+                            <el-input size="mini"  class="form-input" v-model="form.debt" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="备忘录" prop="remark">
+                            <el-input size="mini"  class="form-input" v-model="form.remark" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="上传图片" prop="pic">
+                            <el-upload
+                                class="avatar-uploader"
+                                action="https://jsonplaceholder.typicode.com/posts/"
+                                :show-file-list="false"
+                                :on-success="handleAvatarSuccess">
+                                <img v-if="form.pic" :src="form.pic" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button class="curr-btn" plain @click="baseDialogVisible = false">取消</el-button>
+                <el-button class="curr-btn" type="primary" @click="save">保存</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+import {cloneDeep} from 'lodash';
+import qs from 'qs'
+
+export default {
+    name: 'ContainerInfo',
+    data() {
+        return {
+            baseDialogVisible: false,
+            timePicker: [],
+
+            page: {
+                no: 1,
+                total: 0,
+                size: 20
+            },
+            tableData: [
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '7', debt: 4430,  total: '2', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '8', debt: 4440,  total: '3', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4450,  total: '4', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+            ],
+            bestTableData: [
+                {name: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1', id: 1},
+            ],
+            commonTableData: [
+                {name: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1000000', id: 1},
+            ],
+            form: {
+                name: '',
+                contact: '',
+                address: '',
+                bankInfo: '',
+                mobile: '',
+                debt: '',
+                remark: '',
+                pic: '',
+            },
+            rules: {
+                name: [{ required: true, message: '请输入', trigger: 'change' }],
+                address: [{ required: true, message: '请选择', trigger: 'change' }],
+                mobile: [{ required: true, message: '请选择', trigger: 'change' }],
+            }
+        };
+    },
+    created() {
+        this.getData();
+    },
+    methods: {
+        // 置空数据
+        resetData() {
+            this.form = {
+                name: '',
+                contact: '',
+                address: '',
+                bankInfo: '',
+                mobile: '',
+                debt: '',
+                remark: '',
+                pic: '',
+            }
+        },
+
+        // 增准备
+        addReady() {
+            this.resetData()
+            this.baseDialogVisible = true;
+        },
+
+        // 查
+        getData() {
+            let obj = {
+                pageSize:  this.page.size,
+                page:  this.page.no,
+            }
+            // shopContractList(obj).then(res => {
+            //     this.tableData = res.records
+            //     this.page.total = res.total
+            //     this.page.no = res.current
+            // })
+        },
+
+  
+        // 保存编辑
+        save() {
+            let params = cloneDeep(this.form)
+            this.$refs.form.validate(valid => {
+                console.log(valid);
+                if (valid) {
+                    // 校验通过
+                    // userUpdate(params).then(res => {
+                    //     if (res) {
+                    //         this.$message.success({message: '添加成功',});
+                    //         this.dialogVisible = false
+                    //         this.getData()
+                    //     }
+                    // })
+                }
+            })
+        },
+
+        checkDetail(id) {
+            this.$router.push({name: 'customerinfodetail', params: {id: id}})
+        },
+
+        // 图片上传
+        handleAvatarSuccess(res, file) {
+            this.form.pic = URL.createObjectURL(file.raw);
+        },
+
+        // 分页导航
+        basePageChange(val) {
+            this.$set(this.page, 'no', val);
+            this.getData();
+        },
+        // 每页数量改变
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`);
+        },
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+
+.box {
+    position: relative;
+    padding: 12px;
+    margin: 0 23px;
+    background-color: #fff;
+}
+
+.bottom-box {
+    position: relative;
+    margin: 12px 23px;
+    background-color: #F0F2F5;
+    
+    .inner-box {
+        background-color: #fff;
+    }
+
+    .left-box, .right-box {
+        padding: 14px;
+        position: relative;
+        display: inline-block;
+        width: 49%;
+        background-color: #fff;
+        height: 174px;
+
+        .box-title {
+            height: 46px;
+            line-height: 38px;
+            color: #303133;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    }
+
+    .left-box {
+        float: left;
+    }
+
+    .right-box {
+        float: right;
+    }
+}
+
+.handle-box {
+    width: 100%;
+    margin-bottom: 20px;
+
+    .customer-title {
+        display: inline-block;
+        color: #303133;
+        padding: 10px 16px;
+        font-size: 16px;
+        margin-right: 11px;
+    }
+    .label {
+        width: 50px;
+        font-size: 12px;
+        color: #1F1F21;
+        margin-right: 18px;
+    }
+    
+    .name-search {
+        display: inline-block;
+        width: 178px;
+        margin-right: 36px;
+    }
+
+    .status,.time {
+        display: inline-block;
+        width: 230px;
+
+        .el-select {
+            display: inline-block;
+            width: 142px;
+        }
+    }
+
+    .new-btn {
+        float: right;
+        margin-top: 2px;
+    }
+    
+}
+
+.title {
+    position: absolute;
+    top: 22px;
+    left: 28px;
+    font-size: 16px;
+    color: #303133;
+    font-weight: 500;
+}
+
+.pagination {
+    margin-top: 40px;
+}
+
+.table {
+    width: 100%;
+    font-size: 11px;
+
+    .del-btn {
+        color: #FC5634;
+    }
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+.el-dialog__header {
+    padding: 30px 48px !important;
+}
+.dialog-footer {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+.curr-btn {
+    width: 75px;
+}
+
+.form-input {
+    width: 284px;
+}
+
+// 上传
+.avatar-uploader {
+    width: 71px;
+    height: 71px;
+}
+
+.avatar-uploader {
+    ::v-deep .el-upload {
+        display: inline-block;
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        width: 71px !important;
+        height: 71px !important;
+    }
+    ::v-deep .el-upload--text {
+        width: 71px !important;
+        height: 71px !important;
+    }
+    .el-upload:hover {
+        border-color: #409EFF;
+    }
+}
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 71px;
+    height: 71px;
+    line-height: 71px;
+    text-align: center;
+}
+.avatar {
+    width: 71px;
+    height: 71px;
+    display: block;
+}
+</style>

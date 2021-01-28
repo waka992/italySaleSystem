@@ -250,7 +250,7 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import DateSelector from '../../../public/DateSelector'
-import PieChart from '../../../charts/PieChart.vue'
+import PieChart from '@/components/charts/PieChart.vue'
 
 export default {
     name: 'CompanyBaseInfo',
