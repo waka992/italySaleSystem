@@ -197,7 +197,7 @@ export default {
         return {
             newOrderDialog: false,
             billDialog: false,
-            soldDialog: true,
+            soldDialog: false,
             page: {
                 no: 1,
                 total: 0,

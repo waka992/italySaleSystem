@@ -92,6 +92,24 @@ export default new Router({
                     component: () => import(/* webpackChunkName: "customerinfodetail" */ '../components/page/main/customer/CustomerInfoDetail.vue'),
                     meta: { title: '客户信息 - 详情' }
                 },
+                {
+                    path: '/singleinfo',
+                    name: 'singleinfo',
+                    component: () => import(/* webpackChunkName: "singleinfo" */ '../components/page/main/single/SingleInfo.vue'),
+                    meta: { title: '单品 - 入库详情' }
+                },
+                {
+                    path: '/singleinfonew',
+                    name: 'singleinfonew',
+                    component: () => import(/* webpackChunkName: "singleinfonew" */ '../components/page/main/single/SingleInfoNew.vue'),
+                    meta: { title: '单品 - 添加单品' }
+                },
+                {
+                    path: '/singleinfonedit',
+                    name: 'singleinfonedit',
+                    component: () => import(/* webpackChunkName: "singleinfonedit" */ '../components/page/main/single/SingleInfoEdit.vue'),
+                    meta: { title: '单品 - 查看单品信息' }
+                },
 
 
                 {

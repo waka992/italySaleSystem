@@ -112,7 +112,7 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-people',
-                    index: 'single',
+                    index: 'singleinfo',
                     title: '单品'
                 },
                 {
