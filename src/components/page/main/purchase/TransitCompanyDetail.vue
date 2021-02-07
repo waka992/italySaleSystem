@@ -21,20 +21,20 @@
                 </div>
                 <el-row class="detail-row">
                     <el-col :span="6">
-                        <span class="detail-label">名称：</span>
-                        <span class="detail-content">{{comInfo.name}}</span>
+                        <span class="detail-label">公司名称：</span>
+                        <span class="detail-content">{{comInfo.transporterName}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">地址：</span>
-                        <span class="detail-content">{{comInfo.address}}</span>
+                        <span class="detail-content">{{comInfo.transporterAddress}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">电话：</span>
-                        <span class="detail-content">{{comInfo.mobile}}</span>
+                        <span class="detail-content">{{comInfo.transporterMobile}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">其他联系方式：</span>
-                        <span class="detail-content">{{comInfo.otherContact}}</span>
+                        <span class="detail-content">{{comInfo.transporterOther}}</span>
                     </el-col>
                 </el-row>
             </div>
@@ -120,20 +120,20 @@
                 :model="form" label-width="158px"
                 :rules="rules"
             >
-                <el-form-item label="供应商名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="供应商名称" prop="transporterName">
+                    <el-input size="mini" class="form-input" v-model="form.transporterName" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
-                <el-form-item label="地址" prop="address">
-                    <el-input size="mini" class="form-input" v-model="form.address" placeholder="请输入供应商地址" ></el-input>
+                <el-form-item label="地址" prop="transporterAddress">
+                    <el-input size="mini" class="form-input" v-model="form.transporterAddress" placeholder="请输入供应商地址" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="电话" prop="mobile">
-                    <el-input size="mini" class="form-input" v-model="form.mobile" placeholder="请输入供应商电话" ></el-input>
+                <el-form-item label="电话" prop="transporterMobile">
+                    <el-input size="mini" class="form-input" v-model="form.transporterMobile" placeholder="请输入供应商电话" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="其他联系方式" prop="otherContact">
-                    <el-input size="mini" class="form-input" v-model="form.otherContact" placeholder="请输入" ></el-input>
+                <el-form-item label="其他联系方式" prop="transporterOther">
+                    <el-input size="mini" class="form-input" v-model="form.transporterOther" placeholder="请输入" ></el-input>
                 </el-form-item>
                 
             </el-form>
@@ -183,6 +183,12 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import {
+    addOrUpdateTransporter,
+    delTransporter,
+    getAllTransporter,
+    getTransporterPage,
+} from '@/api/index';
 
 export default {
     name: 'CompanyBaseInfo',
@@ -226,9 +232,9 @@ export default {
                 remark: '',
             },
             rules: {
-                name: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
-                address: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
-                mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
+                transporterName: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
+                transporterAddress: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
+                transporterMobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             },
             incomerules: {
                 name: [{ required: true, message: '请输入客户名', trigger: 'change' }],
@@ -238,22 +244,25 @@ export default {
         };
     },
     created() {
-        this.getData();
+        let data = this.$route.params.data
+        this.comInfo = {
+            id: data.id,
+            transporterName: data.transporterName,
+            transporterAddress: data.transporterAddress,
+            transporterMobile: data.transporterMobile,
+            transporterOther: data.transporterOther,
+        }
     },
     methods: {
         // 置空数据
         getDetail() {
             this.form = {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
             }
         },
 
         
         editReady() {
-            this.getDetail()
+            this.form = cloneDeep(this.comInfo)
             this.baseDialogVisible = true;
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
@@ -285,16 +294,15 @@ export default {
         save() {
             let params = cloneDeep(this.form)
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                   addOrUpdateTransporter(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '修改成功',});
+                            this.baseDialogVisible = false
+                            this.comInfo = cloneDeep(this.form) // 更新数据
+                        }
+                    })
                 }
             })
         },
@@ -377,7 +385,7 @@ export default {
     .detail-label {
         display: inline-block;
         color:  #999;
-        width: 90px;
+        width: 100px;
         text-align: right;
     }
 

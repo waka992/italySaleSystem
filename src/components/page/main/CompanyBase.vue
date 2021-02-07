@@ -79,6 +79,7 @@
                     :current-page="page.no"
                     :page-size="page.size"
                     :total="page.total"
+                    @size-change="handleSizeChange"
                     @current-change="basePageChange"
                 ></el-pagination>
             </div>
@@ -150,7 +151,15 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import uploadPic from '../../../utils/uploadPic';
-
+import { 
+addCompAccount,
+addCompOrUpdate,
+delComp,
+delCompAccount,
+getCompDetail,
+getCompPage,
+getCompPayLog,
+profitSum, } from '@/api/index';
 export default {
     name: 'basetable',
     data() {
@@ -282,11 +291,11 @@ export default {
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getCompPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
 
         // 多选操作
@@ -324,7 +333,13 @@ export default {
         basePageChange(val) {
             this.$set(this.page, 'no', val);
             this.getData();
-        }
+        },
+        // 每页数量改变
+        handleSizeChange(val) {
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
+        },
     }
 };
 </script>

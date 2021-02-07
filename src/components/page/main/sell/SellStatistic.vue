@@ -2,8 +2,8 @@
     <div>
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>采购</el-breadcrumb-item>
-                <el-breadcrumb-item>货柜信息</el-breadcrumb-item>
+                <el-breadcrumb-item>销售</el-breadcrumb-item>
+                <el-breadcrumb-item>销售统计</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="box">
@@ -46,17 +46,13 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="container" label="货柜名称" align="center"></el-table-column>
-                <el-table-column prop="startTime" label="出货时间" align="center">
+                <el-table-column prop="name" label="货柜名称" align="center"></el-table-column>
+                <el-table-column prop="time" label="出货时间" align="center"></el-table-column>
+                <el-table-column prop="transporter" label="运输商" align="center"></el-table-column>
+                <el-table-column prop="pics" label="箱数" align="center"></el-table-column>
+                <el-table-column prop="status" label="状态" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{timeFormat(scope.row.startTime)}}
-                    </template>
-                </el-table-column>
-                <el-table-column prop="transpoterName" label="运输商" align="center"></el-table-column>
-                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
-                <el-table-column prop="contaninerType" label="状态" align="center" width="120">
-                    <template  slot-scope="scope">
-                        {{scope.row.contaninerType}}
+                        {{scope.row.status == 1 ? '已到货' : '即将到货'}}
                     </template>
                 </el-table-column>
                 
@@ -64,7 +60,7 @@
                     <template slot-scope="scope">
                         <el-button
                             icon="el-icon-s-operation"
-                            @click="checkDetail(scope.row)"
+                            @click="checkDetail(scope.row.id)"
                             type="primary"
                         >查看详情</el-button>
                     </template>
@@ -92,12 +88,12 @@
                 :model="form" label-width="158px"
                 :rules="rules"
             >
-                <el-form-item label="货柜名称" prop="container">
-                    <el-input size="mini" class="form-input" v-model="form.container" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="货柜名称" prop="name">
+                    <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
-                <el-form-item label="季度" prop="quarter">
-                    <el-select class="form-input" size="mini" v-model="form.quarter" placeholder="请选择">
+                <el-form-item label="季度" prop="season">
+                    <el-select class="form-input" size="mini" v-model="form.season" placeholder="请选择">
                         <el-option
                         v-for="item in seasonOptions"
                         :key="item.value"
@@ -107,20 +103,20 @@
                     </el-select>
                 </el-form-item>
 
-                <el-form-item label="运输商" prop="transpoterName">
-                    <el-select class="form-input" size="mini" v-model="form.transpoterName" placeholder="请选择">
+                <el-form-item label="运输商" prop="transporter">
+                    <el-select class="form-input" size="mini" v-model="form.transporter" placeholder="请选择">
                         <el-option
                         v-for="item in transporterOptions"
-                        :key="item.id"
-                        :label="item.transporterName"
-                        :value="item.transporterName">
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
 
-                <el-form-item label="货柜类型" prop="transpoterType">
+                <el-form-item label="货柜类型" prop="containerType">
                         
-                    <el-select class="form-input" size="mini" v-model="form.transpoterType" placeholder="请选择">
+                    <el-select class="form-input" size="mini" v-model="form.containerType" placeholder="请选择">
                         <el-option
                         v-for="item in containerTypeOptions"
                         :key="item.value"
@@ -130,23 +126,23 @@
                     </el-select>
                 </el-form-item>
 
-                <el-form-item label="货柜费用" prop="cost">
-                    <el-input size="mini" class="form-input" v-model="form.cost" placeholder="请输入" ></el-input>
+                <el-form-item label="货柜费用" prop="fund">
+                    <el-input size="mini" class="form-input" v-model="form.fund" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="预计到货日期" prop="estimate">
+                <el-form-item label="预计到货日期" prop="arriveTime">
                     <el-date-picker
                         class="form-input"
-                        v-model="form.estimate"
+                        v-model="form.arriveTime"
                         type="date"
                         placeholder="请选择日期">
                     </el-date-picker>
                 </el-form-item>
 
-                <el-form-item label="出货日期" prop="startTime">
+                <el-form-item label="出货日期" prop="sellTime">
                     <el-date-picker
                         class="form-input"
-                        v-model="form.startTime"
+                        v-model="form.sellTime"
                         type="date"
                         placeholder="请选择日期">
                     </el-date-picker>
@@ -163,15 +159,6 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
-import moment from 'moment'
-import { 
-    addGoodsToContainer,
-    addOrUpdateContainer,
-    confirmArrival,
-    delContainer,
-    getContainerPage,
-    getAllTransporter,
-     } from '@/api/index';
 
 export default {
     name: 'ContainerInfo',
@@ -188,7 +175,11 @@ export default {
                 {label: '2021春', value: 0},
                 {label: '2021秋', value: 1},
             ],
-            transporterOptions: [],
+            transporterOptions: [
+                {label: '德邦物流', value: 0},
+                {label: '顺丰物流', value: 1},
+                {label: 'UPS', value: 2},
+            ],
             containerTypeOptions: [
                 {label: '海运', value: 0},
                 {label: '陆运', value: 1},
@@ -199,30 +190,47 @@ export default {
                 total: 0,
                 size: 20
             },
-            tableData: [],
-            form: {},
+            tableData: [
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流2', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
+            ],
+            form: {
+                name: '',
+                season: '',
+                transporter: '',
+                containerType: '',
+                fund: '',
+                arriveTime: '',
+                sellTime: '',
+            },
             rules: {
-                container: [{ required: true, message: '请输入', trigger: 'change' }],
-                quarter: [{ required: true, message: '请选择', trigger: 'change' }],
-                transpoterName: [{ required: true, message: '请选择', trigger: 'change' }],
+                name: [{ required: true, message: '请输入', trigger: 'change' }],
+                season: [{ required: true, message: '请选择', trigger: 'change' }],
+                transporter: [{ required: true, message: '请选择', trigger: 'change' }],
             }
         };
     },
     created() {
         this.getData();
-        this.getTransporter()
     },
     methods: {
         // 置空数据
         resetData() {
             this.form = {
-                container: '',
-                quarter: '',
-                transpoterName: '',
-                transpoterType: '',
-                cost: '',
-                estimate: '',
-                startTime: '',
+                name: '',
+                season: '',
+                transporter: '',
+                containerType: '',
+                fund: '',
+                arriveTime: '',
+                sellTime: '',
             }
         },
 
@@ -230,9 +238,6 @@ export default {
         addReady() {
             this.resetData()
             this.baseDialogVisible = true;
-            this.$nextTick(() => {
-                this.$refs.form.clearValidate()
-            })
         },
 
         // 查
@@ -241,48 +246,35 @@ export default {
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }
-            getContainerPage(obj).then(res => {
-                this.tableData = res.records
-                this.page.total = res.total
-                this.page.no = res.current
-            })
+            // shopContractList(obj).then(res => {
+            //     this.tableData = res.records
+            //     this.page.total = res.total
+            //     this.page.no = res.current
+            // })
         },
-        getTransporter() {
-            // 获取运输商
-            getAllTransporter({}).then(res => {
-                this.transporterOptions = res
-            })
-        },
+
   
         // 保存编辑
         save() {
             let params = cloneDeep(this.form)
-            // 获取运输商id
-            for (let i = 0; i < this.transporterOptions.length; i++) {
-                const element = this.transporterOptions[i];
-                if (params.transpoterName === element.transporterName) {
-                    params.transpoterId = element.id
-                    break
-                }
-            }
             this.$refs.form.validate(valid => {
+                console.log(valid);
                 if (valid) {
                     // 校验通过
-                    addOrUpdateContainer(params).then(res => {
-                        if (res) {
-                            this.$message.success({message: '添加成功',});
-                            this.baseDialogVisible = false
-                            this.getData()
-                        }
-                    })
+                    // userUpdate(params).then(res => {
+                    //     if (res) {
+                    //         this.$message.success({message: '添加成功',});
+                    //         this.dialogVisible = false
+                    //         this.getData()
+                    //     }
+                    // })
                 }
             })
         },
 
-        checkDetail(data) {
-            this.$router.push({name: 'containerinfodetail', params: {data: data}})
+        checkDetail(id) {
+            this.$router.push({name: 'containerinfodetail', params: {id: id}})
         },
-       
 
         // 分页导航
         basePageChange(val) {
@@ -291,12 +283,7 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            this.$set(this.page, 'size', val);
-            this.$set(this.page, 'no', 1);
-            this.getData();
-        },
-        timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            console.log(`每页 ${val} 条`);
         },
     }
 };

@@ -31,17 +31,17 @@
                 <el-row class="detail-row">
                     <el-col :span="12">
                         <span class="detail-label">法人代表：</span>
-                        <span class="detail-content">{{comInfo.person}}</span>
+                        <span class="detail-content">{{comInfo.corporation}}</span>
                     </el-col>
                     <el-col :span="12">
                         <span class="detail-label">税务码：</span>
-                        <span class="detail-content">{{comInfo.code}}</span>
+                        <span class="detail-content">{{comInfo.taxation}}</span>
                     </el-col>
                 </el-row>
                 <el-row class="detail-row">
                     <el-col :span="12">
                         <span class="detail-label">电话：</span>
-                        <span class="detail-content">{{comInfo.mobile}}</span>
+                        <span class="detail-content">{{comInfo.phone}}</span>
                     </el-col>
                     <el-col :span="12">
                         <span class="detail-label">地址：</span>
@@ -55,7 +55,7 @@
                     </el-col>
                     <el-col :span="12">
                         <span class="detail-label">账号信息：</span>
-                        <span class="detail-content">{{comInfo.account}}</span>
+                        <span class="detail-content">-</span>
                     </el-col>
                 </el-row>
             </div>
@@ -136,8 +136,8 @@
 
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="法人代表" prop="person">
-                            <el-input size="mini" class="form-input" v-model="form.person" placeholder="请输入法人代表" ></el-input>
+                        <el-form-item label="法人代表" prop="corporation">
+                            <el-input size="mini" class="form-input" v-model="form.corporation" placeholder="请输入法人代表" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -150,20 +150,23 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="状态" prop="status">
-                            <el-input size="mini"  class="form-input" v-model="form.status" placeholder="请输入" ></el-input>
+                            <el-select class="form-input" v-model="form.status" placeholder="请选择">
+                                <el-option label="注销" :value="0"></el-option>
+                                <el-option label="正常" :value="1"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
 
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="税务代码" prop="code">
-                            <el-input size="mini"  class="form-input" v-model="form.code" placeholder="请输入税务代码" ></el-input>
+                        <el-form-item label="税务代码" prop="taxation">
+                            <el-input size="mini"  class="form-input" v-model="form.taxation" placeholder="请输入税务代码" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="银行名称" prop="bank">
-                            <el-input size="mini"  class="form-input" v-model="form.bank" placeholder="请输入" ></el-input>
+                        <el-form-item label="银行名称" prop="bankName">
+                            <el-input size="mini"  class="form-input" v-model="form.bankName" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -183,26 +186,47 @@
 
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="电话" prop="mobile">
-                            <el-input size="mini"  class="form-input" v-model="form.mobile" placeholder="请输入联系电话" ></el-input>
+                        <el-form-item label="密码" prop="password">
+                            <el-input size="mini"  class="form-input" v-model="form.password"  placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="流水初始金额" prop="flow" placeholder="请输入" >
-                            <el-input size="mini"  class="form-input" v-model="form.flow"></el-input>
+                        <el-form-item label="银行卡号" prop="cardNo">
+                            <el-input size="mini"  class="form-input" v-model="form.cardNo" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
 
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="邮箱" prop="email" placeholder="请输入联系邮箱" >
-                            <el-input size="mini"  class="form-input" v-model="form.email"></el-input>
+                        <el-form-item label="流水初始金额" prop="balance" >
+                            <el-input size="mini"  class="form-input" v-model="form.balance" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="其他备注" prop="remark" placeholder="请输入备注内容" >
-                            <el-input size="mini"  class="form-input" v-model="form.remark"></el-input>
+                        <el-form-item label="银行所在地" prop="bankAddress">
+                            <el-input size="mini"  class="form-input" v-model="form.bankAddress" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="电话" prop="phone">
+                            <el-input size="mini"  class="form-input" v-model="form.phone" placeholder="请输入联系电话" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                     <el-col :span="12">
+                        <el-form-item label="邮箱" prop="email">
+                            <el-input size="mini"  class="form-input" v-model="form.email"  placeholder="请输入联系邮箱" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="其他备注" prop="remark">
+                            <el-input size="mini"  class="form-input" v-model="form.remark"  placeholder="请输入备注内容" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -254,6 +278,15 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import { 
+addCompAccount,
+addCompOrUpdate,
+delComp,
+delCompAccount,
+getCompDetail,
+getCompPage,
+getCompPayLog,
+profitSum, } from '@/api/index';
 
 export default {
     name: 'CompanyBaseInfo',
@@ -262,57 +295,19 @@ export default {
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
+            id: '',
             page: {
                 no: 1,
                 total: 0,
                 size: 20
             },
             // 展示用
-            comInfo: {
-                name: '广东沈外贸科技有限公司',
-                license: '李呢发', 
-                person: '李呢发', 
-                code: '广州', 
-                mobile: 13577292902, 
-                address: '234234@sina.com',
-                email: '234234@sina.com',
-                account: '-',
-            },
+            comInfo: {},
             // 支出收入列表
-            tableData: [
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: -3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 6000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 55000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: -3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 3000, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 30400, from: '支付宝', remark: 13577292902, rest: 67000},
-                {name: '广东沈外贸科技有限公司', date: '2020.11.03 10:05', income: 3000, from: '支付宝', remark: 13577292902, rest: 67000},
-            ],
+            tableData: [],
             // 修改用
-            form: {
-                name: '',
-                person: '',
-                license: '',
-                status: '',
-                code: '',
-                bank: '',
-                address: '',
-                account: '',
-                mobile: '',
-                flow: '',
-                email: '',
-                remark: '',
-            },
-            incomeform: {
-                name: '',
-                date: '',
-                income: '',
-                status: '',
-                remark: '',
-            },
+            form: {},
+            incomeform: {},
             rules: {
                 name: [{ required: true, message: '请输入公司名', trigger: 'change' }],
                 person: [{ required: true, message: '请输入法人代表', trigger: 'change' }],
@@ -328,30 +323,12 @@ export default {
         };
     },
     created() {
+        this.id = this.$route.params.data.id
         this.getData();
+        this.getPayLog()
     },
-    methods: {
-        // 置空数据
-        getDetail() {
-            this.form = {
-                name: '公司名称',
-                person: '法人代表',
-                license: '3902423940273',
-                status: '',
-                code: '1290412094712',
-                bank: '中国工商银行',
-                address: '广州天河林和105',
-                account: '912873192461',
-                mobile: '1314251125',
-                flow: '32444',
-                email: 'xxx@qq.com',
-                remark: '备注',
-            }
-        },
-
-        
+    methods: { 
         editReady() {
-            this.getDetail()
             this.baseDialogVisible = true;
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
@@ -359,40 +336,103 @@ export default {
         },
 
         delConfirm() {
-            console.log(this.$route.params);
-            this.delVisible = false
-            this.baseDialogVisible = false
-            this.$router.push({name: 'baseinfo'})
+            let id = this.id
+            delComp({id: id}).then(res => {
+                if (res) {
+                    this.$message.success('删除成功')
+                    this.delVisible = false
+                    this.baseDialogVisible = false
+                    this.$router.push({name: 'baseinfo'})
+                }
+            })
         },
 
         // 查
         getData() {
             let obj = {
-                pageSize:  this.page.size,
-                page:  this.page.no,
+                id: this.id
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getCompDetail(obj).then(res => {
+                if (res) {
+                    this.comInfo = {
+                        name: res.name,
+                        corporation: res.corporation,
+                        license: res.license,
+                        taxation: res.taxation,
+                        phone: res.phone,
+                        address: res.address,
+                        email: res.email,
+                    }
+                    let bankInfo = res.banks[0]
+                    this.form = {
+                        name: res.name,
+                        corporation: res.corporation,
+                        license: res.license,
+                        status: 1,
+                        taxation: res.taxation,
+                        address: res.address,
+                        phone: res.phone,
+                        balance: res.balance,
+                        email: res.email,
+                        remark: res.remark,
+                        bankName: bankInfo.bankName,
+                        bankAddress: bankInfo.address,
+                        account: bankInfo.account,
+                        cardNo: bankInfo.cardNo,
+                        password: bankInfo.password,
+                        bankCompanyId: bankInfo.companyId,
+                        bankId: bankInfo.id
+                    }
+                }
+            })
         },
-
+        // 获取支出收入记录
+        getPayLog() {
+            let obj = {
+                id: this.id,
+                page: this.page.no,
+                pageSize: this.page.size,
+            }
+            getCompPayLog(obj).then(res => {
+                if (res) {
+                    let account = res.account
+                    this.tableData = account.records
+                    this.page.total = account.total
+                    this.page.no = account.current
+                }
+            })
+        },
   
         // 保存编辑
         save() {
             let params = cloneDeep(this.form)
+            let banks = [
+                {
+                    account: this.form.account,
+                    address: this.form.bankAddress,
+                    bankName: this.form.bankName,
+                    cardNo: this.form.cardNo,
+                    password: this.form.password,
+                    id: this.form.bankId,
+                    companyId: this.form.bankCompanyId,
+                }
+            ]
+            delete params.account;
+            delete params.bankAddress;
+            delete params.bankName;
+            delete params.cardNo;
+            delete params.password;
+            params.banks = banks
+            params.id = this.id
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
-                    // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addCompOrUpdate(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '修改成功',});
+                            this.baseDialogVisible = false
+                            this.comInfo = cloneDeep(this.form) // 更新数据
+                        }
+                    })
                 }
             })
         },
@@ -465,7 +505,7 @@ export default {
     .detail-label {
         display: inline-block;
         color:  #999;
-        width: 100px;
+        width: 120px;
         text-align: right;
     }
 

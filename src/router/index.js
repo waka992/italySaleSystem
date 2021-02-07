@@ -93,24 +93,41 @@ export default new Router({
                     meta: { title: '客户信息 - 详情' }
                 },
                 {
-                    path: '/singleinfo',
-                    name: 'singleinfo',
-                    component: () => import(/* webpackChunkName: "singleinfo" */ '../components/page/main/single/SingleInfo.vue'),
+                    path: '/iteminfo',
+                    name: 'iteminfo',
+                    component: () => import(/* webpackChunkName: "iteminfo" */ '../components/page/main/single/SingleInfo.vue'),
                     meta: { title: '单品 - 入库详情' }
                 },
                 {
-                    path: '/singleinfonew',
-                    name: 'singleinfonew',
-                    component: () => import(/* webpackChunkName: "singleinfonew" */ '../components/page/main/single/SingleInfoNew.vue'),
+                    path: '/iteminfonew',
+                    name: 'iteminfonew',
+                    component: () => import(/* webpackChunkName: "iteminfonew" */ '../components/page/main/single/SingleInfoNew.vue'),
                     meta: { title: '单品 - 添加单品' }
                 },
                 {
-                    path: '/singleinfonedit',
-                    name: 'singleinfonedit',
-                    component: () => import(/* webpackChunkName: "singleinfonedit" */ '../components/page/main/single/SingleInfoEdit.vue'),
+                    path: '/iteminfonedit',
+                    name: 'iteminfonedit',
+                    component: () => import(/* webpackChunkName: "iteminfonedit" */ '../components/page/main/single/SingleInfoEdit.vue'),
                     meta: { title: '单品 - 查看单品信息' }
                 },
-
+                {
+                    path: '/order',
+                    name: 'order',
+                    component: () => import(/* webpackChunkName: "order" */ '../components/page/main/sell/Order.vue'),
+                    meta: { title: '销售 - 销售订单' }
+                },
+                {
+                    path: '/sellstatistic',
+                    name: 'sellstatistic',
+                    component: () => import(/* webpackChunkName: "sellstatistic" */ '../components/page/main/sell/SellStatistic.vue'),
+                    meta: { title: '销售 - 销售统计' }
+                },
+                {
+                    path: '/setting',
+                    name: 'setting',
+                    component: () => import(/* webpackChunkName: "setting" */ '../components/page/main/setting/Setting.vue'),
+                    meta: { title: '参数配置' }
+                },
 
                 {
                     path: '/user',
@@ -201,7 +218,7 @@ export default new Router({
                     path: '/donate',
                     component: () => import(/* webpackChunkName: "donate" */ '../components/page/Donate.vue'),
                     meta: { title: '支持作者' }
-                }
+                },
             ]
         },
         {

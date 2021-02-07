@@ -2,7 +2,7 @@
     <div>
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{name: 'singleinfo'}">单品</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{name: 'iteminfo'}">单品</el-breadcrumb-item>
                 <el-breadcrumb-item>查看单品信息</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="edit-btn">
@@ -227,7 +227,7 @@ import qs from 'qs'
 import uploadPic from '@/utils/uploadPic.js';
 
 export default {
-    name: 'ContainerInfo',
+    name: 'SingleInfoEdit',
     data() {
         return {
             todo: 'check', // check edit
@@ -240,11 +240,6 @@ export default {
             },
             sellTableData: [
                 {time: '2021.11.13 13:05', buyer: 'testman', color: '白色', size: 'L', amount: '2', value: '34'}
-            ],
-            statusOptions: [
-                {label: '全部', value: 0},
-                {label: '已到货', value: 1},
-                {label: '即将到货', value: 2},
             ],
            
             form: {
@@ -327,7 +322,7 @@ export default {
             this.$refs.form.validate(valid => {
                 console.log(valid);
                 if (valid) {
-                    // this.$router.push({name: 'singleinfo', params: {}})
+                    // this.$router.push({name: 'iteminfo', params: {}})
                     this.todo = 'check'
                     return
                 }
@@ -335,7 +330,7 @@ export default {
             })
         },
         cancel() {
-            this.$router.push({name: 'singleinfo', params: {}})
+            this.$router.push({name: 'iteminfo', params: {}})
         },
         // 生成pdf
         getPDF() {

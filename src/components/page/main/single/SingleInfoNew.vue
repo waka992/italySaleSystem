@@ -2,7 +2,7 @@
     <div>
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{name: 'singleinfo'}">单品</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{name: 'iteminfo'}">单品</el-breadcrumb-item>
                 <el-breadcrumb-item>添加单品</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -23,10 +23,20 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                         <el-form-item label="运输商">
-                            <el-select v-model="form.transporter" placeholder="请选择">
-                                <el-option label="区域一" value="shanghai"></el-option>
-                                <el-option label="区域二" value="beijing"></el-option>
+                         <!-- <el-form-item label="运输商">
+                            <el-select size="mini" v-model="form.transpoterName" placeholder="请选择">
+                                <el-option
+                                v-for="item in transporterOptions"
+                                :key="item.id"
+                                :label="item.transporterName"
+                                :value="item.transporterName">
+                                </el-option>
+                            </el-select>
+                        </el-form-item> -->
+                        <el-form-item label="单品类型">
+                            <el-select v-model="form.skuType" placeholder="请选择">
+                                <el-option label="入货" :value="0"></el-option>
+                                <el-option label="加单" :value="1"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -34,23 +44,27 @@
 <!-- 二 -->
                 <el-row>
                     <el-col :span="8">
-                        <el-form-item prop="code">
+                        <el-form-item prop="specification">
                             <span slot="label" style="color: #F25643;">型号编码</span>
-                            <el-input v-model="form.code" placeholder="请输入"></el-input>
+                            <el-input v-model="form.specification" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
-                        <el-form-item prop="inprice">
+                        <el-form-item prop="costPrice">
                             <span slot="label" style="color: #F25643;">进价</span>
-                            <el-input v-model="form.inprice" placeholder="请输入"></el-input>
+                            <el-input v-model="form.costPrice" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                          <el-form-item label="供应商">
-                            <el-select v-model="form.supplier" placeholder="请选择">
-                                <el-option label="区域一" value="shanghai"></el-option>
-                                <el-option label="区域二" value="beijing"></el-option>
+                            <el-select v-model="form.supplierName" placeholder="请选择">
+                                <el-option
+                                v-for="item in supplierOptions"
+                                :key="item.id"
+                                :label="item.supplierName"
+                                :value="item.supplierName">
+                                </el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -58,20 +72,20 @@
 <!-- 三 -->
                 <el-row>
                     <el-col :span="8">
-                        <el-form-item prop="sellprice">
+                        <el-form-item prop="salePrice">
                             <span slot="label" style="color: #F25643;">售价</span>
-                            <el-input v-model="form.sellprice" placeholder="请输入"></el-input>
+                            <el-input v-model="form.salePrice" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
                         <el-form-item>
                             <span slot="label" style="color: #F25643;"><span>*</span>总数量</span>
-                            <el-input class="small-input" v-model="form.boxes" placeholder="箱数">
+                            <el-input class="small-input" v-model="form.caseNum" placeholder="箱数">
                                 <template slot="append">箱</template>
                             </el-input>
                             X
-                            <el-input class="mid-input" v-model="form.pics" placeholder="每箱件数">
+                            <el-input class="mid-input" v-model="form.goodsTotal" placeholder="每箱件数">
                                 <template slot="append">件</template>
                             </el-input>
                         </el-form-item>
@@ -86,18 +100,18 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="商品特色">
-                            <el-input v-model="form.characteristic" placeholder="请输入"></el-input>
+                            <el-input v-model="form.label" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
                         <el-form-item>
                             <span slot="label" style="color: #F25643;"><span>*</span>尾箱</span>
-                            <el-input class="small-input" v-model="form.restboxes" placeholder="箱数">
+                            <el-input class="small-input" v-model="form.tailBox" placeholder="箱数">
                                 <template slot="append">箱</template>
                             </el-input>
                             X
-                            <el-input class="mid-input" v-model="form.restpics" placeholder="每箱件数">
+                            <el-input class="mid-input" v-model="form.tailTotal" placeholder="每箱件数">
                                 <template slot="append">件</template>
                             </el-input>
                         </el-form-item>
@@ -114,7 +128,7 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="面料信息">
-                            <el-input v-model="form.material" placeholder="请输入"></el-input>
+                            <el-input v-model="form.component" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
@@ -126,7 +140,7 @@
 
                     <el-col :span="8">
                         <el-form-item label="配比">
-                            <el-input v-model="form.property" placeholder="请输入"></el-input>
+                            <el-input v-model="form.mixtureAtio" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -140,17 +154,17 @@
 
                      <el-col :span="8">
                         <el-form-item label="季度">
-                            <el-input v-model="form.season" placeholder="请输入"></el-input>
+                            <el-input v-model="form.quarter" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
-                         <el-form-item label="单品类型">
-                            <el-select v-model="form.type" placeholder="请选择">
-                                <el-option label="区域一" value="shanghai"></el-option>
-                                <el-option label="区域二" value="beijing"></el-option>
+                         <!-- <el-form-item label="单品类型">
+                            <el-select v-model="form.skuType" placeholder="请选择">
+                                <el-option label="入货" :value="0"></el-option>
+                                <el-option label="加单" :value="1"></el-option>
                             </el-select>
-                        </el-form-item>
+                        </el-form-item> -->
                     </el-col>
                 </el-row>
               
@@ -178,7 +192,7 @@
             </el-form>
 
             <div class="form-btns">
-                <el-button>取消</el-button>
+                <el-button @click="back">取消</el-button>
                 <el-button type="primary" @click="save">保存</el-button>
             </div>
         </div>
@@ -189,54 +203,34 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import uploadPic from '@/utils/uploadPic.js';
+import { 
+    createGoods,
+    updateGoods,
+    getAllTransporter,
+    getSupplier, } from '@/api/index';
 
 export default {
-    name: 'ContainerInfo',
+    name: 'SingleInfoNew',
     data() {
         return {
             pic: [],
             goodsImgListNum: 0,
-            statusOptions: [
-                {label: '全部', value: 0},
-                {label: '已到货', value: 1},
-                {label: '即将到货', value: 2},
-            ],
-           
-            form: {
-                name: '',
-                size: '',
-                transporter: '',
-                code: '',
-                inprice: '',
-                supplier: '',
-                sellprice: '',
-                boxes: '',
-                pics: '',
-                profit: '',
-                characteristic: '',
-                restboxes: '',
-                restpics: '',
-                noticenum: '',
-                material: '',
-                container: '',
-                property: '',
-                color: '',
-                season: '',
-                type: '',
-                goodsImgList: []
-            },
+            transporterOptions: [],
+            supplierOptions: [],
+            form: {goodsImgList: []},
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 size: [{ required: true, message: '请输入', trigger: 'change' }],
                 transporter: [{ required: true, message: '请选择', trigger: 'change' }],
-                code: [{ required: true, message: '请输入', trigger: 'change' }],
-                inprice: [{ required: true, message: '请输入', trigger: 'change' }],
-                sellprice: [{ required: true, message: '请输入', trigger: 'change' }],
+                specification: [{ required: true, message: '请输入', trigger: 'change' }],
+                costPrice: [{ required: true, message: '请输入', trigger: 'change' }],
+                salePrice: [{ required: true, message: '请输入', trigger: 'change' }],
             }
         };
     },
     mounted() {
         this.resetData();
+        this.getSelector()
     },
     methods: {
         // 置空数据
@@ -246,49 +240,67 @@ export default {
             this.form = {
                 name: '',
                 size: '',
-                transporter: '',
-                code: '',
-                inprice: '',
-                supplier: '',
-                sellprice: '',
-                boxes: '',
-                pics: '',
+                // transporterName: '',
+                // transporterId: '',
+                specification: '',
+                costPrice: '',
+                supplierName: '',
+                supplierId: '',
+                salePrice: '',
+                caseNum: '',
+                goodsTotal: '',
                 profit: '',
-                characteristic: '',
-                restboxes: '',
-                restpics: '',
+                label: '',
+                tailBox: '',
+                tailTotal: '',
                 noticenum: '',
-                material: '',
+                component: '',
                 container: '',
-                property: '',
+                mixtureAtio: '',
                 color: '',
-                season: '',
-                type: '',
+                quarter: '',
+                skuType: '',
                 goodsImgList: []
             }
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })
         },
-        
+        back() {
+            this.$router.push({name: 'iteminfo', params: {}})
+        },
         // 增准备
         save() {
-            let {boxes,pics,restboxes,restpics} = this.form
-            if (this.judgeBlank([boxes,pics,restboxes,restpics])) {
+            let {caseNum,goodsTotal,tailBox,tailTotal} = this.form
+            if (this.judgeBlank([caseNum,goodsTotal,tailBox,tailTotal])) {
                 this.$message.warning('请填写总数量和尾箱')
                 return
             }
             this.$refs.form.validate(valid => {
                 console.log(valid);
                 if (valid) {
-                    this.$router.push({name: 'singleinfo', params: {}})
+                    
+                    if (this.form.supplierName) {
+                        for (let i = 0; i < this.supplierOptions.length; i++) {
+                            const element = this.supplierOptions[i];
+                            if (element.supplierName == this.form.supplierName) {
+                                this.form.supplierId = element.id
+                                break
+                            }
+                        }
+                    }
+                    createGoods(this.form).then(res => {
+                        this.$message.success('添加成功')
+                        // console.log(res);
+                    })
+                    // this.$router.push({name: 'iteminfo', params: {}})
                     return
                 }
                 this.$message.warning('请填写单品相关必填项')
             })
         },
         cancel() {
-            this.$router.push({name: 'singleinfo', params: {}})
+            this.$router.push({name: 'iteminfo', params: {}})
         },
         // 判断是否 === ‘’
         judgeBlank(value) {
@@ -350,7 +362,17 @@ export default {
                 // })
             })
             .catch(() => {});
-        }
+        },
+        getSelector() {
+            // 获取运输商
+            getAllTransporter({}).then(res => {
+                this.transporterOptions = res
+            })
+            // 获取供应商
+            getSupplier({}).then(res => {
+                this.supplierOptions = res
+            })
+        },
     }
 };
 </script>

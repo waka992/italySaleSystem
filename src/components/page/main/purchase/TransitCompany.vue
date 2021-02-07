@@ -21,7 +21,7 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="name" label="运输方名称" align="center"></el-table-column>
+                <el-table-column prop="transporterName" label="运输方名称" align="center"></el-table-column>
                 <el-table-column prop="goods" label="货物" align="center"></el-table-column>
                 <el-table-column prop="status" label="状态" align="center">
                      <template slot-scope="scope">
@@ -29,14 +29,14 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="date" label="日期" align="center" width="120"></el-table-column>
-                <el-table-column prop="mobile" label="电话" align="center"></el-table-column>
-                <el-table-column prop="address" label="地址" align="center"></el-table-column>
+                <el-table-column prop="transporterMobile" label="电话" align="center"></el-table-column>
+                <el-table-column prop="transporterAddress" label="地址" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
                         <el-button
                             icon="el-icon-s-operation"
-                            @click="checkDetail(scope.row.id)"
+                            @click="checkDetail(scope.row)"
                             type="primary"
                         >查看详情</el-button>
                     </template>
@@ -64,20 +64,20 @@
                 :model="form" label-width="158px"
                 :rules="rules"
             >
-                <el-form-item label="名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="名称" prop="transporterName">
+                    <el-input size="mini" class="form-input" v-model="form.transporterName" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
-                <el-form-item label="地址" prop="address">
-                    <el-input size="mini" class="form-input" v-model="form.address" placeholder="请输入供应商地址" ></el-input>
+                <el-form-item label="地址" prop="transporterAddress">
+                    <el-input size="mini" class="form-input" v-model="form.transporterAddress" placeholder="请输入供应商地址" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="电话" prop="mobile">
-                    <el-input size="mini" class="form-input" v-model="form.mobile" placeholder="请输入供应商电话" ></el-input>
+                <el-form-item label="电话" prop="transporterMobile">
+                    <el-input size="mini" class="form-input" v-model="form.transporterMobile" placeholder="请输入供应商电话" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="其他联系方式" prop="otherContact">
-                    <el-input size="mini" class="form-input" v-model="form.otherContact" placeholder="请输入" ></el-input>
+                <el-form-item label="其他联系方式" prop="transporterOther">
+                    <el-input size="mini" class="form-input" v-model="form.transporterOther" placeholder="请输入" ></el-input>
                 </el-form-item>
                 
             </el-form>
@@ -92,38 +92,30 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import {
+    addOrUpdateTransporter,
+    delTransporter,
+    getAllTransporter,
+    getTransporterPage,
+} from '@/api/index';
 
 export default {
     name: 'Supplier',
     data() {
         return {
             baseDialogVisible: false,
+            flag: true,
             page: {
                 no: 1,
                 total: 0,
                 size: 20
             },
-            tableData: [
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '1', date: '2020.11.22', mobile: 1385719374, id: 1},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '0', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '卫衣', status: '1', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '0', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '打底裤', status: '1', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '1', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '1', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '1', date: '2020.11.22', mobile: 1385719374},
-                {name: '广东沈外贸科技有限公司', address: '广州', goods: '提臀款牛仔裤', status: '1', date: '2020.11.22', mobile: 1385719374},
-            ],
-            form: {
-                name: '',
-                address: '',
-                mobile: '',
-                otherContact: '',
-            },
+            tableData: [],
+            form: {},
             rules: {
-                name: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
-                address: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
-                mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
+                transporterName: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
+                transporterAddress: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
+                transporterMobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             }
         };
     },
@@ -134,10 +126,10 @@ export default {
         // 置空数据
         resetData() {
             this.form = {
-                name: '',
-                address: '',
-                mobile: '',
-                otherContact: '',
+                transporterName: '',
+                transporterAddress: '',
+                transporterMobile: '',
+                transporterOther: '',
             }
         },
 
@@ -153,11 +145,11 @@ export default {
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getTransporterPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
 
   
@@ -165,22 +157,24 @@ export default {
         save() {
             let params = cloneDeep(this.form)
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
+                    if (!this.flag) {return}
+                    this.flag = false
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addOrUpdateTransporter(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '添加成功',});
+                            this.baseDialogVisible = false
+                            this.flag = true
+                            this.getData()
+                        }
+                    })
                 }
             })
         },
 
-        checkDetail(id) {
-            this.$router.push({name: 'transitcompanydetail', params: {id: id}})
+        checkDetail(data) {
+            this.$router.push({name: 'transitcompanydetail', params: {data: data}})
         },
 
         // 分页导航

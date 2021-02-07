@@ -502,7 +502,7 @@ export default {
 .new-btn {
     position: absolute;
     top: 21px;
-    right: 41px;
+    right: 15px;
 }
 
 .operate  {
@@ -543,7 +543,6 @@ export default {
     padding: 12px;
     background-color: #fff;
     width: 100%;
-    height: 480px;
     margin-bottom: 12px;
 
     .title {
@@ -554,7 +553,7 @@ export default {
 }
 
 .pagination {
-    margin-top: 20px;
+    padding: 20px 0 !important;
 }
 
 .table {
@@ -593,7 +592,8 @@ export default {
     .right-box {
         position: relative;
         width: 290px;
-        margin-right: 15px;
+        margin-right: 12px;
+        margin-bottom: 15px;
         background-color: #fff;
 
         .title {

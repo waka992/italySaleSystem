@@ -21,21 +21,21 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="name" label="供应商名称" align="center"></el-table-column>
-                <el-table-column prop="use" label="作用" align="center"></el-table-column>
-                <el-table-column prop="address" label="地址" align="center"></el-table-column>
-                <el-table-column prop="mobile" label="联系方式" align="center" width="120">
+                <el-table-column prop="supplierName" label="供应商名称" align="center"></el-table-column>
+                <el-table-column prop="effect" label="作用" align="center"></el-table-column>
+                <el-table-column prop="supplierAddress" label="地址" align="center"></el-table-column>
+                <el-table-column prop="supplierMobile" label="联系方式" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{scope.row.mobile + ' ' + scope.row.otherContact}}
+                        {{scope.row.supplierMobile + ' ' + scope.row.supplierOther}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="remark" label="备忘录" align="center"></el-table-column>
+                <el-table-column prop="memorandum" label="备忘录" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
                         <el-button
                             icon="el-icon-s-operation"
-                            @click="checkDetail(scope.row.id)"
+                            @click="checkDetail(scope.row)"
                             type="primary"
                         >查看详情</el-button>
                     </template>
@@ -63,32 +63,32 @@
                 :model="form" label-width="158px"
                 :rules="rules"
             >
-                <el-form-item label="供应商名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="供应商名称" prop="supplierName">
+                    <el-input size="mini" class="form-input" v-model="form.supplierName" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
-                <el-form-item label="地址" prop="address">
-                    <el-input size="mini" class="form-input" v-model="form.address" placeholder="请输入供应商地址" ></el-input>
+                <el-form-item label="地址" prop="supplierAddress">
+                    <el-input size="mini" class="form-input" v-model="form.supplierAddress" placeholder="请输入供应商地址" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="电话" prop="mobile">
-                    <el-input size="mini" class="form-input" v-model="form.mobile" placeholder="请输入供应商电话" ></el-input>
+                <el-form-item label="电话" prop="supplierMobile">
+                    <el-input size="mini" class="form-input" v-model="form.supplierMobile" placeholder="请输入供应商电话" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="其他联系方式" prop="otherContact">
-                    <el-input size="mini" class="form-input" v-model="form.otherContact" placeholder="请输入" ></el-input>
+                <el-form-item label="其他联系方式" prop="supplierOther">
+                    <el-input size="mini" class="form-input" v-model="form.supplierOther" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="备忘录" prop="remark">
-                    <el-input size="mini" class="form-input" v-model="form.remark" placeholder="请输入" ></el-input>
+                <el-form-item label="备忘录" prop="memorandum">
+                    <el-input size="mini" class="form-input" v-model="form.memorandum" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="支付款详情" prop="payStatus">
-                    <el-input size="mini" class="form-input" v-model="form.payStatus" placeholder="例如-1000" ></el-input>
+                <el-form-item label="支付款详情" prop="payDetail">
+                    <el-input size="mini" class="form-input" v-model="form.payDetail" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="作用" prop="use">
-                    <el-input size="mini" class="form-input" v-model="form.use" placeholder="请输入" ></el-input>
+                <el-form-item label="作用" prop="effect">
+                    <el-input size="mini" class="form-input" v-model="form.effect" placeholder="请输入" ></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -102,41 +102,38 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import { 
+    addSupplier,
+    delSupplier,
+    getSupplier,
+    getSupplierPage, } from '@/api/index';
 
 export default {
     name: 'Supplier',
     data() {
         return {
             baseDialogVisible: false,
+            flag: false,
             page: {
                 no: 1,
                 total: 0,
                 size: 20
             },
             tableData: [
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清', id: 1},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '欠款，追账'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '15号付款'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
-                {name: '广东沈外贸科技有限公司', use: '作用', address: '广州', mobile: 13577292902, remark: '已结清'},
             ],
             form: {
-                name: '',
-                address: '',
-                mobile: '',
-                otherContact: '',
-                remark: '',
-                payStatus: '',
-                use: '',
+                supplierName: '',
+                supplierAddress: '',
+                supplierMobile: '',
+                supplierOther: '',
+                memorandum: '',
+                payDetail: '',
+                effect: '',
             },
             rules: {
-                name: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
-                address: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
-                mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
+                supplierName: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
+                supplierAddress: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
+                supplierMobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             }
         };
     },
@@ -147,13 +144,13 @@ export default {
         // 置空数据
         resetData() {
             this.form = {
-                name: '',
-                address: '',
-                mobile: '',
-                otherContact: '',
-                remark: '',
-                payStatus: '',
-                use: '',
+                supplierName: '',
+                supplierAddress: '',
+                supplierMobile: '',
+                supplierOther: '',
+                memorandum: '',
+                payDetail: '',
+                effect: '',
             }
         },
 
@@ -169,34 +166,35 @@ export default {
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getSupplierPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
-
   
         // 保存编辑
         save() {
             let params = cloneDeep(this.form)
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
+                    if (!this.flag) {return}
+                    this.flag = false
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addSupplier(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '添加成功',});
+                            this.baseDialogVisible = false
+                            this.flag = true
+                            this.getData()
+                        }
+                    })
                 }
             })
         },
 
-        checkDetail(id) {
-            this.$router.push({name: 'supplierdetail', params: {id: id}})
+        checkDetail(data) {
+            this.$router.push({name: 'supplierdetail', params: {data: data}})
         },
 
         // 分页导航
@@ -206,7 +204,9 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
     }
 };

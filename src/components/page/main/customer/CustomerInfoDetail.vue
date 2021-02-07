@@ -13,7 +13,7 @@
         </div>
         <div class="box">
             <div class="detail-card">
-                <div class="title">{{comInfo.name}}</div>
+                <div class="title">{{comInfo.memberName}}</div>
                 
                 <div class="handle-box">
                 </div>
@@ -28,22 +28,32 @@
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">银行信息：</span>
-                        <span class="detail-content">{{comInfo.bankinfo}}</span>
+                        <span class="detail-content">{{comInfo.bank}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">初始欠款：</span>
-                        <span class="detail-content">{{comInfo.dept}}</span>
+                        <span class="detail-content">{{comInfo.arrears}}</span>
                     </el-col>
                    
                 </el-row>
                 <el-row class="detail-row">
                     <el-col :span="6">
-                        <span class="detail-label">其他联系方式：</span>
-                        <span class="detail-content">{{comInfo.contact}}</span>
+                        <span class="detail-label">会员昵称：</span>
+                        <span class="detail-content">{{comInfo.appName}}</span>
                     </el-col>
+                    <el-col :span="6">
+                        <span class="detail-label">等级：</span>
+                        <span class="detail-content">{{comInfo.level == 1 ? '游客' : comInfo.level == 2 ? '普通' : comInfo.level == 3 ? 'VIP' : ''}}</span>
+                    </el-col>
+                    <el-col :span="6">
+                        <span class="detail-label">状态：</span>
+                        <span class="detail-content">{{comInfo.status == 1 ? '激活' : '注销'}}</span>
+                    </el-col>
+                </el-row>
+                <el-row class="detail-row">
                     <el-col :span="18">
                         <span class="detail-label">备忘：</span>
-                        <span class="detail-content">{{comInfo.remark}}</span>
+                        <span class="detail-content">{{comInfo.remarks}}</span>
                     </el-col>
                 </el-row>
             </div>
@@ -85,7 +95,7 @@
                         </template>
                     </el-table-column>
                 </el-table>
-                <!-- <div class="pagination">
+                <div class="pagination">
                     <el-pagination
                         background
                         :current-page="page.no"
@@ -95,7 +105,7 @@
                         @size-change="handleSizeChange"
                         @current-change="basePageChange"
                     ></el-pagination>
-                </div> -->
+                </div>
                 <!-- <div class="operate">
                     <el-button plain>返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
@@ -186,6 +196,10 @@ import DialogNewOrder from './DialogNewOrder';
 import DialogBill from './DialogBill';
 import DialogSold from './DialogSold';
 
+import { 
+    customerList,
+    registerCustomer,
+    getOrderByCustomer} from '@/api/index';
 export default {
     name: 'CustomerInfoDetail',
     components: {
@@ -195,6 +209,7 @@ export default {
     },
     data() {
         return {
+            id: '',
             newOrderDialog: false,
             billDialog: false,
             soldDialog: false,
@@ -204,15 +219,7 @@ export default {
                 size: 10
             },
             // 展示用
-            comInfo: {
-                name: '广州市歌莉娅制衣有限公司',
-                address: '德邦物流2楼',
-                mobile: '13535355533',
-                bankinfo: '622700029202929',
-                dept: '12',
-                contact: '13136383947',
-                remark: '2020-11-20',
-            },
+            comInfo: {},
             // 支出收入列表
             tableData: [
                 {date: '2020-11-23 13:05', boxs: 3, value: 34952, payStatus: 1, verifyStatus: 1, id: 1},
@@ -238,7 +245,22 @@ export default {
     },
     created() {
         this.getDict = dict.getDict // 获取字典
-        this.getData();
+        let data = this.$route.params.data
+        this.id = data.id
+        this.comInfo = {
+            id: data.id,
+            memberName: data.memberName,
+            address: data.address,
+            mobile: data.mobile,
+            bank: data.bank,
+            arrears: data.arrears,
+            appName: data.appName,
+            remarks: data.remarks,
+            level: data.level,
+            status: data.status,
+        }
+        this.getOrders()
+        // this.getData();
     },
     methods: {
         // 置空数据
@@ -266,15 +288,30 @@ export default {
             //     this.page.no = res.current
             // })
         },
+        getOrders() {
+            if (!this.id){return}
+            let obj = {
+                pageSize:  this.page.size,
+                page:  this.page.no,
+                customerId: this.id,
+            }
+            getOrderByCustomer(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
+        },
 
         // 分页导航
         basePageChange(val) {
             this.$set(this.page, 'no', val);
-            this.getData();
+            this.getOrders();
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getOrders();
         },
 
         save() {
@@ -299,7 +336,7 @@ export default {
             if (tar == 'new') {
                 this.newOrderDialog = true
                 this.$nextTick(() => {
-                    this.$refs.newOrderDialog.resetData()
+                    this.$refs.newOrderDialog.resetData({memberName: this.comInfo.memberName, id: this.id})
                 })
             }
             // 账单总汇

@@ -30,16 +30,16 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
                 <el-table-column prop="pics" label="销售箱数" align="center"></el-table-column>
-                <el-table-column prop="debt" label="欠款金额" align="center"></el-table-column>
+                <el-table-column prop="arrears" label="欠款金额" align="center"></el-table-column>
                 <el-table-column prop="total" label="总金额" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
                         <el-button
                             type="text"
-                            @click="checkDetail(scope.row.id)"
+                            @click="checkDetail(scope.row)"
                         >详情</el-button>
                         <el-button
                             type="text"
@@ -76,7 +76,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
                         <el-table-column prop="time" label="日期" align="center"></el-table-column>
                         <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
                         <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
@@ -91,7 +91,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="name" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
                         <el-table-column prop="time" label="日期" align="center"></el-table-column>
                         <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
                         <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
@@ -111,16 +111,20 @@
             >
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="名称" prop="name">
-                            <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入公司名"></el-input>
+                        <el-form-item label="名称" prop="memberName">
+                            <el-input size="mini" class="form-input" v-model="form.memberName" placeholder="请输入公司名"></el-input>
                         </el-form-item>
-
                     </el-col>
-                    <el-col :span="12">
+                     <el-col :span="12">
+                        <el-form-item label="备忘录" prop="remarks">
+                            <el-input size="mini"  class="form-input" v-model="form.remarks" placeholder="请输入" ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <!-- <el-col :span="12">
                         <el-form-item label="其他联系方式" prop="contact">
                             <el-input size="mini" class="form-input" v-model="form.contact" placeholder="请输入" ></el-input>
                         </el-form-item>
-                    </el-col>
+                    </el-col> -->
                 </el-row>
                 
                 <el-row>
@@ -130,8 +134,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="银行信息" prop="bankInfo">
-                            <el-input size="mini"  class="form-input" v-model="form.bankInfo" placeholder="请输入" ></el-input>
+                        <el-form-item label="银行信息" prop="bank">
+                            <el-input size="mini"  class="form-input" v-model="form.bank" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -143,26 +147,53 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="初始欠款" prop="debt">
-                            <el-input size="mini"  class="form-input" v-model="form.debt" placeholder="请输入" ></el-input>
+                        <el-form-item label="初始欠款" prop="arrears">
+                            <el-input size="mini"  class="form-input" v-model="form.arrears" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
-
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="备忘录" prop="remark">
-                            <el-input size="mini"  class="form-input" v-model="form.remark" placeholder="请输入" ></el-input>
+                        <el-form-item label="会员呢称" prop="appName">
+                            <el-input class="form-input" placeholder="app登录账号" v-model="form.appName"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="上传图片" prop="pic">
+                        <el-form-item label="会员密码"  prop="password" v-if="operate === 'create'">
+                            <el-input class="form-input" placeholder="app登录密码" v-model="form.password"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="会员状态" prop="status">
+                            <!-- 0注销,1激活 -->
+                            <el-select class="form-input" :disabled="operate === 'create'" v-model="form.status"  placeholder="请选择会员状态"> 
+                                <el-option :value="0" label="注销"></el-option>
+                                <el-option :value="1" label="激活"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="会员等级" prop="level">
+                            <el-select class="form-input"  v-model="form.level"  placeholder="请选择会员等级"> 
+                                <el-option :value="1" label="游客"></el-option>
+                                <el-option :value="2" label="普通"></el-option>
+                                <el-option :value="3" label="VIP"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="上传图片" prop="cnImgUrl">
                             <el-upload
                                 class="avatar-uploader"
                                 action="https://jsonplaceholder.typicode.com/posts/"
                                 :show-file-list="false"
                                 :on-success="handleAvatarSuccess">
-                                <img v-if="form.pic" :src="form.pic" class="avatar">
+                                <img v-if="form.cnImgUrl" :src="form.cnImgUrl" class="avatar">
                                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                             </el-upload>
                         </el-form-item>
@@ -181,6 +212,9 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import { 
+    customerList,
+    registerCustomer,} from '@/api/index';
 
 export default {
     name: 'ContainerInfo',
@@ -188,43 +222,28 @@ export default {
         return {
             baseDialogVisible: false,
             timePicker: [],
-
+            operate: 'create',
             page: {
                 no: 1,
                 total: 0,
                 size: 20
             },
             tableData: [
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '7', debt: 4430,  total: '2', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '8', debt: 4440,  total: '3', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4450,  total: '4', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', pics: '6', debt: 4420,  total: '1', id: 1},
+                {memberName: '广东沈外贸科技有限公司', pics: '6', arrears: 4420,  total: '1', id: 1},
             ],
             bestTableData: [
-                {name: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1', id: 1},
+                {memberName: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1', id: 1},
             ],
             commonTableData: [
-                {name: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1000000', id: 1},
+                {memberName: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1000000', id: 1},
             ],
-            form: {
-                name: '',
-                contact: '',
-                address: '',
-                bankInfo: '',
-                mobile: '',
-                debt: '',
-                remark: '',
-                pic: '',
-            },
+            form: {},
             rules: {
-                name: [{ required: true, message: '请输入', trigger: 'change' }],
+                memberName: [{ required: true, message: '请输入', trigger: 'change' }],
                 address: [{ required: true, message: '请选择', trigger: 'change' }],
                 mobile: [{ required: true, message: '请选择', trigger: 'change' }],
+                appName: [{ required: true, message: '请输入', trigger: 'change' }],
+                password: [{ required: true, message: '请输入', trigger: 'change' }],
             }
         };
     },
@@ -235,14 +254,18 @@ export default {
         // 置空数据
         resetData() {
             this.form = {
-                name: '',
-                contact: '',
+                memberName: '',
+                appName: '',
+                password: '',
+                status: 1,
+                level: 1,
+                // contact: '',
                 address: '',
-                bankInfo: '',
+                bank: '',
                 mobile: '',
-                debt: '',
-                remark: '',
-                pic: '',
+                arrears: '',
+                remarks: '',
+                cnImgUrl: '',
             }
         },
 
@@ -258,11 +281,11 @@ export default {
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            customerList(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
 
   
@@ -270,27 +293,29 @@ export default {
         save() {
             let params = cloneDeep(this.form)
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
+                    if (params.password) {
+                        params.password = window.btoa(params.password)
+                    }
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    registerCustomer(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '添加成功',});
+                            this.baseDialogVisible = false
+                            this.getData()
+                        }
+                    })
                 }
             })
         },
 
-        checkDetail(id) {
-            this.$router.push({name: 'customerinfodetail', params: {id: id}})
+        checkDetail(data) {
+            this.$router.push({name: 'customerinfodetail', params: {data: data}})
         },
 
         // 图片上传
         handleAvatarSuccess(res, file) {
-            this.form.pic = URL.createObjectURL(file.raw);
+            this.form.cnImgUrl = URL.createObjectURL(file.raw);
         },
 
         // 分页导航

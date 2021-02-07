@@ -22,33 +22,33 @@
                 <el-row class="detail-row">
                     <el-col :span="6">
                         <span class="detail-label">名称：</span>
-                        <span class="detail-content">{{comInfo.name}}</span>
+                        <span class="detail-content">{{comInfo.supplierName}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">地址：</span>
-                        <span class="detail-content">{{comInfo.address}}</span>
+                        <span class="detail-content">{{comInfo.supplierAddress}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">电话：</span>
-                        <span class="detail-content">{{comInfo.mobile}}</span>
+                        <span class="detail-content">{{comInfo.supplierMobile}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">其他联系方式：</span>
-                        <span class="detail-content">{{comInfo.otherContact}}</span>
+                        <span class="detail-content">{{comInfo.supplierOther}}</span>
                     </el-col>
                 </el-row>
                 <el-row class="detail-row">
                     <el-col :span="6">
                         <span class="detail-label">备忘：</span>
-                        <span class="detail-content">{{comInfo.remark}}</span>
+                        <span class="detail-content">{{comInfo.memorandum}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">支付款详情：</span>
-                        <span class="detail-content">{{comInfo.payStatus}}</span>
+                        <span class="detail-content">{{comInfo.payDetail}}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">作用：</span>
-                        <span class="detail-content">{{comInfo.use}}</span>
+                        <span class="detail-content">{{comInfo.effect}}</span>
                     </el-col>
                 </el-row>
             </div>
@@ -121,32 +121,32 @@
                 :model="form" label-width="158px"
                 :rules="rules"
             >
-                <el-form-item label="供应商名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="供应商名称" prop="supplierName">
+                    <el-input size="mini" class="form-input" v-model="form.supplierName" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
-                <el-form-item label="地址" prop="address">
-                    <el-input size="mini" class="form-input" v-model="form.address" placeholder="请输入供应商地址" ></el-input>
+                <el-form-item label="地址" prop="supplierAddress">
+                    <el-input size="mini" class="form-input" v-model="form.supplierAddress" placeholder="请输入供应商地址" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="电话" prop="mobile">
-                    <el-input size="mini" class="form-input" v-model="form.mobile" placeholder="请输入供应商电话" ></el-input>
+                <el-form-item label="电话" prop="supplierMobile">
+                    <el-input size="mini" class="form-input" v-model="form.supplierMobile" placeholder="请输入供应商电话" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="其他联系方式" prop="otherContact">
-                    <el-input size="mini" class="form-input" v-model="form.otherContact" placeholder="请输入" ></el-input>
+                <el-form-item label="其他联系方式" prop="supplierOther">
+                    <el-input size="mini" class="form-input" v-model="form.supplierOther" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="备忘录" prop="remark">
-                    <el-input size="mini" class="form-input" v-model="form.remark" placeholder="请输入" ></el-input>
+                <el-form-item label="备忘录" prop="memorandum">
+                    <el-input size="mini" class="form-input" v-model="form.memorandum" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="支付款详情" prop="payStatus">
-                    <el-input size="mini" class="form-input" v-model="form.payStatus" placeholder="例如-1000" ></el-input>
+                <el-form-item label="支付款详情" prop="payDetail">
+                    <el-input size="mini" class="form-input" v-model="form.payDetail" placeholder="例如-1000" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="作用" prop="use">
-                    <el-input size="mini" class="form-input" v-model="form.use" placeholder="请输入" ></el-input>
+                <el-form-item label="作用" prop="effect">
+                    <el-input size="mini" class="form-input" v-model="form.effect" placeholder="请输入" ></el-input>
                 </el-form-item>
                 
             </el-form>
@@ -196,9 +196,12 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import { 
+    addSupplier,
+    delSupplier, } from '@/api/index';
 
 export default {
-    name: 'CompanyBaseInfo',
+    name: 'SupplierDetail',
     data() {
         return {
             delVisible: false,
@@ -211,23 +214,17 @@ export default {
             },
             // 展示用
             comInfo: {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
-                remark: '外贸科技供应商',
-                payStatus: '+8000',
-                use: '文案文案',
+                id: '',
+                supplierName: '',
+                supplierAddress: '',
+                supplierMobile: '',
+                supplierOther: '',
+                memorandum: '',
+                payDetail: '',
+                effect: '',
             },
             // 支出收入列表
             tableData: [
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
                 {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
             ],
             // 修改用
@@ -248,9 +245,9 @@ export default {
                 remark: '',
             },
             rules: {
-                name: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
-                address: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
-                mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
+                supplierName: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
+                supplierAddress: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
+                supplierMobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             },
             incomerules: {
                 name: [{ required: true, message: '请输入客户名', trigger: 'change' }],
@@ -260,25 +257,21 @@ export default {
         };
     },
     created() {
-        this.getData();
+        let data = this.$route.params.data
+        this.comInfo = {
+            id: data.id,
+            supplierName: data.supplierName,
+            supplierAddress: data.supplierAddress,
+            supplierMobile: data.supplierMobile,
+            supplierOther: data.supplierOther,
+            memorandum: data.memorandum,
+            payDetail: data.payDetail,
+            effect: data.effect,
+        }
     },
     methods: {
-        // 置空数据
-        getDetail() {
-            this.form = {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
-                remark: '外贸科技供应商',
-                payStatus: '+8000',
-                use: '文案文案',
-            }
-        },
-
-        
         editReady() {
-            this.getDetail()
+            this.form = cloneDeep(this.comInfo)
             this.baseDialogVisible = true;
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
@@ -286,10 +279,15 @@ export default {
         },
 
         delConfirm() {
-            console.log(this.$route.params);
-            this.delVisible = false
-            this.baseDialogVisible = false
-            this.$router.push({name: 'supplier'})
+            let id = this.$route.params.data.id
+            delSupplier({id: id}).then(res => {
+                if (res) {
+                    this.$message.success('删除成功')
+                    this.delVisible = false
+                    this.baseDialogVisible = false
+                    this.$router.push({name: 'supplier'})
+                }
+            })
         },
 
         // 查
@@ -310,16 +308,15 @@ export default {
         save() {
             let params = cloneDeep(this.form)
             this.$refs.form.validate(valid => {
-                console.log(valid);
                 if (valid) {
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addSupplier(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '修改成功',});
+                            this.baseDialogVisible = false
+                            this.comInfo = cloneDeep(this.form) // 更新数据
+                        }
+                    })
                 }
             })
         },
@@ -402,7 +399,7 @@ export default {
     .detail-label {
         display: inline-block;
         color:  #999;
-        width: 90px;
+        width: 100px;
         text-align: right;
     }
 

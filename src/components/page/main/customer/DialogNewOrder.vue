@@ -2,7 +2,7 @@
     <div >
         <el-form ref="form" :model="form" :rules="rules" label-width="80px" :inline="true">
             <el-form-item label="客户" prop="name">
-                <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入" maxlength="15" show-word-limit></el-input>
+                <el-input size="mini" class="form-input" v-model="form.customerName" placeholder="请输入" maxlength="15" show-word-limit></el-input>
             </el-form-item>
 
             <el-form-item label="地址" prop="address">
@@ -13,12 +13,12 @@
                 <el-input size="mini" class="form-input" v-model="form.transportor" placeholder="请输入" ></el-input>
             </el-form-item>
 
-            <el-form-item label="支付方式" prop="payWay">
-                <el-input size="mini" class="form-input" v-model="form.payWay" placeholder="请输入" ></el-input>
+            <el-form-item label="支付方式" prop="payType">
+                <el-input size="mini" class="form-input" v-model="form.payType" placeholder="请输入" ></el-input>
             </el-form-item>
 
-            <el-form-item label="货币" prop="currency">
-                <el-input size="mini" class="form-input" v-model="form.currency" placeholder="请输入" ></el-input>
+            <el-form-item label="货币" prop="monetaryUnit">
+                <el-input size="mini" class="form-input" v-model="form.monetaryUnit" placeholder="请输入" ></el-input>
             </el-form-item>
 
             <el-form-item label="折扣" prop="discount">
@@ -68,14 +68,7 @@ export default {
     name: 'DialogNewOrder',
     data() {
         return {
-            form: {
-                name: '',
-                address: '',
-                transportor: '',
-                payWay: '',
-                currency: '',
-                discount: '',
-            },
+            form: {},
             tableTitles: [
                 {label: '型号', name: 'type'},
                 {label: '箱数', name: 'boxes'},
@@ -86,7 +79,7 @@ export default {
             tableList: [
                 {type: '1', boxes: '1', pics: '3', price: '2', total: '6'}
             ],
-            // list基本式
+            // list基本式(添加用)
             listOrigin: {type: '', boxes: '', pics: '', price: '', total: ''},
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -115,14 +108,16 @@ export default {
             this.$emit('saveData', data)
         },
         // 置空数据
-        resetData() {
+        resetData(data) {
             this.form = {
-                name: '',
+                customerId: data.id,
+                customerName: data.memberName ? data.memberName : '',
                 address: '',
                 transportor: '',
-                payWay: '',
-                currency: '',
+                payType: '',
+                monetaryUnit: '',
                 discount: '',
+                exchangeRate: '',
             }
             this.tableList = [
                 {type: '', boxes: '', pics: '', price: '', total: ''}
@@ -130,7 +125,14 @@ export default {
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })
-        }
+        },
+        editData(data) {
+            this.form = data.form
+            this.tableList = data.tableList
+            this.$nextTick(() => {
+                this.$refs.form.clearValidate()
+            })
+        },
     }
 
 }

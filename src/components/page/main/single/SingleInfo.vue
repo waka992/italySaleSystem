@@ -8,10 +8,10 @@
         </div>
         <div class="box">
             <div class="handle-box">
-                <el-input class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                <el-input class="name-search" v-model="search.name" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
                 <div class="status">
                     <span class="label">尺码</span>
-                    <el-select size="mini" v-model="status" placeholder="请选择">
+                    <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
                         <el-option
                         v-for="item in statusOptions"
                         :key="item.value"
@@ -22,7 +22,7 @@
                 </div>
                 <div class="status">
                     <span class="label">特色</span>
-                    <el-select size="mini" v-model="status" placeholder="请选择">
+                    <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
                         <el-option
                         v-for="item in statusOptions"
                         :key="item.value"
@@ -33,7 +33,7 @@
                 </div>
                 <div class="status">
                     <span class="label">面料</span>
-                    <el-select size="mini" v-model="status" placeholder="请选择">
+                    <el-select size="mini" multiple v-model="search.component" placeholder="请选择">
                         <el-option
                         v-for="item in statusOptions"
                         :key="item.value"
@@ -42,6 +42,18 @@
                         </el-option>
                     </el-select>
                 </div>
+                <div class="status">
+                    <span class="label">状态</span>
+                    <el-select size="mini" v-model="search.skuStatus" placeholder="请选择">
+                        <el-option
+                        v-for="item in soldStatus"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+                <el-button icon="el-icon-search" circle @click="getData"></el-button>
 
                 <el-button
                     class="new-btn"
@@ -49,11 +61,11 @@
                     @click="addReady"
                     >添加单品</el-button>
 
-                <el-button
+                <!-- <el-button
                     class="new-btn"
                     @click="checkHot"
                     plain
-                >查看热销商品</el-button>
+                >查看热销商品</el-button> -->
             </div>
             <el-table
                 :data="tableData"
@@ -75,13 +87,15 @@
                 </el-table-column>
                 <el-table-column prop="boxes" label="箱数" align="center"></el-table-column>
                 <el-table-column prop="price" label="售价" align="center"></el-table-column>
+                <el-table-column prop="price" label="售价" align="center" v-if="false"></el-table-column>
+                <el-table-column prop="price" label="售价" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
-                        <el-button
+                        <!-- <el-button
                             @click="checkDetail(scope.row.id, 'edit')"
                             type="text"
-                        >编辑</el-button>
+                        >编辑</el-button> -->
                         <el-button
                             @click="checkDetail(scope.row.id, 'check')"
                             type="text"
@@ -107,18 +121,26 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import { 
+    getGoods} from '@/api/index';
+import dict from '@/components/common/dict.js'
 
 export default {
-    name: 'ContainerInfo',
+    name: 'SingleInfo',
     data() {
         return {
             status: 0,
+            search: {
+                name: '',
+                size: [],
+                label: [],
+                color: [],
+                component: [],
+                skuStatus: 1,
+            },
+            getDict: null,
+            soldStatus: [],
             statusOptions: [
-                {label: '全部', value: 0},
-                {label: '已到货', value: 1},
-                {label: '即将到货', value: 2},
-            ],
-            seasonOptions: [
                 {label: '2021春', value: 0},
                 {label: '2021秋', value: 1},
             ],
@@ -157,6 +179,8 @@ export default {
         };
     },
     created() {
+        this.getDict = dict.getDict // 获取字典
+        this.soldStatus = dict.soldStatus
         this.getData();
     },
     methods: {
@@ -175,7 +199,7 @@ export default {
 
         // 增准备
         addReady() {
-            this.$router.push({name: 'singleinfonew', params: {}})
+            this.$router.push({name: 'iteminfonew', params: {}})
         },
         checkHot() {
 
@@ -186,16 +210,24 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                component: this.search.component,
+                sizes: this.search.size,
+                color: this.search.color,
+                label: this.search.label,
+                name: this.search.name,
+                isSell: '',
+                skuStatus: this.search.skuStatus
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getGoods(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
+       
 
         checkDetail(id, todo) {
-            this.$router.push({name: 'singleinfonedit', params: {id: id, todo: todo}})
+            this.$router.push({name: 'iteminfonedit', params: {id: id, todo: todo}})
         },
 
         // 分页导航
@@ -239,11 +271,11 @@ export default {
 
     .status,.time {
         display: inline-block;
-        width: 180px;
+        width: 160px;
 
         .el-select {
             display: inline-block;
-            width: 80px;
+            width: 90px;
         }
     }
 

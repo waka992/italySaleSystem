@@ -12,6 +12,19 @@ const dict =  {
         {value: 0, label: 'PAID'},
         {value: 1, label: 'UNPAID'},
     ],
+    soldStatus: [
+        {value: '', label: '预录入'},
+        {value: 0, label: '即将到货'},
+        {value: 1, label: '现货'},
+        {value: 2, label: '售罄'},
+    ],
+    settingItemValue: [
+        {value: 5, label: '特色/Special'},
+        {value: 0, label: '颜色/Color'},
+        {value: 1, label: '尺码/Size'},
+        {value: 2, label: '面料/Material'},
+    ],
+
 
     // 字典
     getDict: function(value, dictName) {

@@ -22,7 +22,7 @@
         <div class="box">
             
             <div class="detail-card">
-                <div class="title">{{comInfo.name}}</div>
+                <div class="title">{{comInfo.container}}</div>
                 <div class="handle-box">
                     <!-- <el-button
                         icon="el-icon-edit"
@@ -34,41 +34,41 @@
                 <el-row class="detail-row">
                     <el-col :span="6">
                         <span class="detail-label">运输商：</span>
-                        <span class="detail-content">{{comInfo.transporter}}</span>
+                        <span class="detail-content">{{comInfo.transpoterName}}</span>
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">货柜类型：</span>
-                        <span class="detail-content">{{comInfo.containerType}}</span>
+                        <span class="detail-content">{{comInfo.transpoterType}}</span>
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">货柜费用：</span>
-                        <span class="detail-content">{{comInfo.fund}}</span>
+                        <span class="detail-content">{{comInfo.cost}}</span>
                     </el-col>
                     <el-col :span="4">
                         <span class="detail-label">总件数：</span>
-                        <span class="detail-content">{{comInfo.pics}}</span>
+                        <span class="detail-content">{{comInfo.goodsTotal}}</span>
                     </el-col>
                     <el-col :span="4">
                         <span class="detail-label">总箱数：</span>
-                        <span class="detail-content">{{comInfo.boxs}}</span>
+                        <span class="detail-content">{{comInfo.caseNum}}</span>
                     </el-col>
                 </el-row>
                 <el-row class="detail-row">
                     <el-col :span="6">
                         <span class="detail-label">出货日期：</span>
-                        <span class="detail-content">{{comInfo.sellDate}}</span>
+                        <span class="detail-content">{{timeFormat(comInfo.startTime)}}</span>
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">到货日期：</span>
-                        <span class="detail-content">{{comInfo.arriveDate}}</span>
+                        <span class="detail-content">{{timeFormat(comInfo.estimate)}}</span>
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">货物总金额：</span>
-                        <span class="detail-content">{{comInfo.totalValue}}</span>
+                        <span class="detail-content">{{comInfo.goodsCost}}</span>
                     </el-col>
                     <el-col :span="4">
                         <span class="detail-label">平均运费：</span>
-                        <span class="detail-content">{{comInfo.average}}</span>
+                        <span class="detail-content">{{comInfo.averageCost}}</span>
                     </el-col>
                 </el-row>
             </div>
@@ -108,7 +108,7 @@
                     ></el-pagination>
                 </div> -->
                 <div class="operate">
-                    <el-button plain>返回</el-button>
+                    <el-button plain @click="back">返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
                 </div>
             </div>
@@ -119,82 +119,98 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
+import moment from 'moment'
+import { 
+    addGoodsToContainer,
+    addOrUpdateContainer,
+    confirmArrival,
+    delContainer,
+    getContainerPage,
+    containerDetail,
+    } from '@/api/index';
 
 export default {
     name: 'ContainerInfoDetail',
     data() {
         return {
             delVisible: false,
+            id: '',
             page: {
                 no: 1,
                 total: 0,
                 size: 10
             },
             // 展示用
-            comInfo: {
-                name: '白云货柜01',
-                transporter: '德邦物流',
-                containerType: '海运',
-                fund: '1000',
-                pics: '12',
-                boxs: '5',
-                sellDate: '2020-11-20',
-                arriveDate: '2020-12-23',
-                totalValue: '15125',
-                average: '5',
-            },
+            comInfo: {},
             // 支出收入列表
-            tableData: [
-                {name: '提臀运动裤', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '卫衣', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-                {name: '2020春新款', boxs: 3, pics: 120, value: 34982, stock: 43535},
-            ],
+            tableData: [],
             
         };
     },
     created() {
-        this.getData();
+        let data = this.$route.params.data
+        this.id = data.id
+        this.comInfo = {
+            id: data.id,
+            container: data.container,
+            transpoterName: data.transpoterName,
+            transpoterType: data.transpoterType,
+            cost: data.cost,
+            goodsTotal: data.goodsTotal,
+            goodsCost: data.goodsCost,
+            caseNum: data.caseNum,
+            startTime: data.startTime,
+            estimate: data.estimate,
+        }
+        this.getData()
     },
     methods: {
-        // 置空数据
-        getDetail() {
-            this.form = {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
-                remark: '外贸科技供应商',
-                payStatus: '+8000',
-                use: '文案文案',
-            }
-        },
-
-        
         arriveConfirm() {
-            console.log(this.$route.params);
-            this.delVisible = false
-            this.$router.push({name: 'containerinfo'})
+            let obj = {
+                id: this.id
+            }
+            confirmArrival(obj).then(res => {
+                this.$message.success('操作成功')
+                this.delVisible = false
+                // this.$router.push({name: 'containerinfo'})
+            })
         },
 
         // 查
         getData() {
             let obj = {
-                pageSize:  this.page.size,
-                page:  this.page.no,
+                id: this.id
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            containerDetail(obj).then(res => {
+                let {
+                    container,
+                    transpoterName,
+                    transpoterType,
+                    cost,
+                    goodsTotal,
+                    goodsCost,
+                    caseNum,
+                    startTime,
+                    estimate,
+                    averageCost,
+                } = res
+                this.comInfo = {
+                    container: container,
+                    transpoterName: transpoterName,
+                    transpoterType: transpoterType,
+                    cost: cost,
+                    goodsTotal: goodsTotal,
+                    goodsCost: goodsCost,
+                    caseNum: caseNum,
+                    startTime: startTime,
+                    estimate: estimate,
+                    averageCost: averageCost,
+                }
+            })
         },
-
-  
+        back() {
+            this.$router.push({name: 'containerinfo', params: {}})
+        },
 
         // 分页导航
         basePageChange(val) {
@@ -203,7 +219,12 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
+        },
+        timeFormat(time) {
+            return moment(time).format('YYYY-MM-DD')
         },
     }
 };
@@ -371,7 +392,7 @@ export default {
     &.outer {
         position: absolute;
         top: 16px;
-        right: 36px;
+        right: 23px;
     }
 }
 </style>

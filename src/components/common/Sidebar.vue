@@ -112,7 +112,7 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-people',
-                    index: 'singleinfo',
+                    index: 'iteminfo',
                     title: '单品'
                 },
                 {
@@ -121,11 +121,11 @@ export default {
                     title: '销售',
                     subs: [
                         {
-                            index: 'soldorder',
+                            index: 'order',
                             title: '销售订单'
                         },
                         {
-                            index: 'soldstatics',
+                            index: 'sellstatistic',
                             title: '销售统计'
                         },
                     ]
@@ -134,6 +134,11 @@ export default {
                     icon: 'el-icon-lx-people',
                     index: 'user',
                     title: '用户管理'
+                },
+                {
+                    icon: 'el-icon-lx-people',
+                    index: 'setting',
+                    title: '参数设置'
                 },
                 // {
                 //     icon: 'el-icon-lx-copy',

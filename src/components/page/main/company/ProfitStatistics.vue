@@ -32,8 +32,10 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
-import LineChart from '../../../charts/LineChart'
-import DateSelector from '../../../public/DateSelector'
+import LineChart from '@/components/charts/LineChart'
+import DateSelector from '@/components/public/DateSelector'
+import { 
+profitSum, } from '@/api/index';
 
 export default {
     name: 'ProfitStatistics',
@@ -65,11 +67,9 @@ export default {
     methods: {
         // 查
         getData() {
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            profitSum({}).then(res => {
+                console.log(res);
+            })
         },
         getSellDate(date) {
             console.log(date);
