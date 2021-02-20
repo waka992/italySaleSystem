@@ -512,7 +512,7 @@ export default {
     .name-search {
         width: 178px;
         margin-right: 36px;
-        margin-left: 28px;
+        margin-left: 16px;
     }
 
     .timer,.selector {
@@ -520,7 +520,7 @@ export default {
     }
 
     .timer {
-        width: 200px;
+        width: 220px;
         margin-right: 36px;
 
         .el-date-editor {

@@ -75,7 +75,8 @@
 
             <div class="record-card">
                 <div class="top">
-                    <div class="title">到货单品</div>
+                    <div class="title">货柜单品</div>
+                    <el-button class="add-goods" slot="reference" @click="addGoods">添加单品</el-button>
                     <!-- <div class="search">
                         <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
                     </div> -->
@@ -89,12 +90,16 @@
                     header-cell-class-name="table-header"
                 >
                     <el-table-column prop="name" label="商品名称"  align="center"></el-table-column>
-                    <el-table-column prop="boxs" label="型号" align="center"></el-table-column>
-                    <el-table-column prop="pics" label="特色" align="center"></el-table-column>
-                    <el-table-column prop="value" label="装数" align="center"></el-table-column>
-                    <el-table-column prop="stock" label="箱数" align="center"></el-table-column>
+                    <el-table-column prop="specification" label="型号" align="center"></el-table-column>
+                    <el-table-column prop="label" label="特色" align="center"></el-table-column>
+                    <!-- <el-table-column prop="value" label="装数" align="center"></el-table-column> -->
+                    <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
                     <el-table-column prop="stock" label="件数" align="center"></el-table-column>
-                    <el-table-column prop="stock" label="金额" align="center"></el-table-column>
+                    <el-table-column label="金额" align="center">
+                        <template slot-scope="scope">
+                            {{scope.row.caseNum * scope.row.costPrice}}
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <!-- <div class="pagination">
                     <el-pagination
@@ -112,6 +117,16 @@
                     <el-button type="primary">生成pdf</el-button>
                 </div>
             </div>
+            <el-dialog
+                class="custom-dialog"
+                :close-on-click-modal='false'
+                :show-close="false"
+                :title="'单品列表'" :visible.sync="baseDialogVisible" width="980px">
+                    <good-list :id="id" @addSuccess="getData"></good-list>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button class="curr-btn" plain @click="baseDialogVisible = false">完成</el-button>
+                    </span>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -120,6 +135,7 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import moment from 'moment'
+import GoodList from './GoodList'
 import { 
     addGoodsToContainer,
     addOrUpdateContainer,
@@ -131,9 +147,13 @@ import {
 
 export default {
     name: 'ContainerInfoDetail',
+    components: {
+        GoodList
+    },
     data() {
         return {
             delVisible: false,
+            baseDialogVisible: false,
             id: '',
             page: {
                 no: 1,
@@ -193,6 +213,7 @@ export default {
                     startTime,
                     estimate,
                     averageCost,
+                    details
                 } = res
                 this.comInfo = {
                     container: container,
@@ -206,6 +227,7 @@ export default {
                     estimate: estimate,
                     averageCost: averageCost,
                 }
+                this.tableData = details
             })
         },
         back() {
@@ -225,6 +247,9 @@ export default {
         },
         timeFormat(time) {
             return moment(time).format('YYYY-MM-DD')
+        },
+        addGoods() {
+            this.baseDialogVisible = true
         },
     }
 };
@@ -293,6 +318,14 @@ export default {
         margin-left: 12px;
         color: #333;
         font-weight: 500;
+    }
+
+    .add-goods {
+        position: absolute;
+        right: 12px;
+        top: 10px;
+
+        @include primarybtn;
     }
 
     .search {

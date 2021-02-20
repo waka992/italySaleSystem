@@ -94,7 +94,7 @@
                     ></el-pagination>
                 </div> -->
                 <div class="operate">
-                    <el-button plain>返回</el-button>
+                    <el-button plain @click="back">返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
                 </div>
             </div>
@@ -351,7 +351,10 @@ export default {
                 }
             })
         },
-
+        // 返回
+        back() {
+            this.$router.push({name: 'supplier'})
+        },
         // 分页导航
         basePageChange(val) {
             this.$set(this.page, 'no', val);
@@ -359,7 +362,9 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
     }
 };

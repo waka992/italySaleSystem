@@ -82,14 +82,14 @@
                     ref="multipleTable"
                     header-cell-class-name="table-header"
                 >
-                    <el-table-column prop="name" label="公司名称"  align="center"></el-table-column>
-                    <el-table-column prop="date" label="日期" align="center"></el-table-column>
-                    <el-table-column prop="income" label="收入/支出" width="120" align="center">
+                    <el-table-column prop="customerName" label="公司名称"  align="center"></el-table-column>
+                    <el-table-column prop="createTime" label="日期" align="center"></el-table-column>
+                    <el-table-column prop="money" label="收入/支出" width="120" align="center">
                         <template slot-scope="scope">
-                            <span :class="scope.row.income >= 0 ? 'red' : 'green'">{{scope.row.income}}</span>
+                            <span :class="scope.row.money >= 0 ? 'red' : 'green'">{{scope.row.money}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="from" label="资金来源" width="120" align="center"></el-table-column>
+                    <el-table-column prop="accountType" label="资金来源" width="120" align="center"></el-table-column>
                     <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                     <el-table-column prop="rest" label="余额"  width="120" align="center"></el-table-column>
                 </el-table>
@@ -247,21 +247,36 @@
                 :model="incomeform" label-width="178px"
                 :rules="incomerules"
             >
-                <el-form-item label="客户名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="incomeform.name" placeholder="请输入客户名" maxlength="15" show-word-limit></el-input>
+                <el-form-item label="客户名称" prop="customerName">
+                    <el-autocomplete
+                        size="mini"
+                        class="form-input"
+                        v-model="incomeform.customerName"
+                        :fetch-suggestions="queryName"
+                        :maxlength="15" 
+                        show-word-limit
+                        placeholder="请输入客户名"
+                        @select="handleSelect"
+                    ></el-autocomplete>
                 </el-form-item>
-                <el-form-item label="日期" prop="date">
+                <el-form-item label="日期" prop="createTime">
                     <el-date-picker
-                        v-model="incomeform.date"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        v-model="incomeform.createTime"
                         type="datetime"
                         placeholder="选择今日日期时间">
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="收入/支出" prop="income">
-                    <el-input size="mini" class="form-input" v-model="incomeform.income" placeholder="例如+1000" ></el-input>
+                <el-form-item label="收入/支出" prop="money">
+                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="例如+1000" ></el-input>
                 </el-form-item>
-                <el-form-item label="资金状态" prop="status">
-                    <el-input size="mini" class="form-input" v-model="incomeform.status" placeholder="请输入客户资金状态" ></el-input>
+                <el-form-item label="资金状态" prop="accountType">
+                    <el-select class="form-input" size="mini" v-model="incomeform.accountType" placeholder="请选择">
+                        <el-option :label="'现金'" :value="0"></el-option>
+                        <el-option :label="'转账'" :value="1"></el-option>
+                        <el-option :label="'微信'" :value="2"></el-option>
+                        <el-option :label="'发票'" :value="3"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="备注" prop="remark">
                     <el-input size="mini" class="form-input" v-model="incomeform.remark" placeholder="请输入备注内容" ></el-input>
@@ -286,7 +301,8 @@ delCompAccount,
 getCompDetail,
 getCompPage,
 getCompPayLog,
-profitSum, } from '@/api/index';
+profitSum, 
+userList,} from '@/api/index';
 
 export default {
     name: 'CompanyBaseInfo',
@@ -316,9 +332,9 @@ export default {
                 mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             },
             incomerules: {
-                name: [{ required: true, message: '请输入客户名', trigger: 'change' }],
-                date: [{ required: true, message: '请输入日期', trigger: 'change' }],
-                income: [{ required: true, message: '请输入', trigger: 'change' }],
+                customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
+                createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
+                money: [{ required: true, message: '请输入', trigger: 'change' }],
             },
         };
     },
@@ -439,11 +455,13 @@ export default {
 
         addIncomeReady() {
             this.incomeform = {
-                name: '',
-                date: '',
-                income: '',
-                status: '',
+                companyId: this.id,
+                customerName: '',
+                customerId: '',
+                createTime: '',
+                money: '',
                 remark: '',
+                accountType: '', //0现金1转账2现金3微信
             },
             this.incomeDialogVisible = true;
             this.$nextTick(() => {
@@ -453,29 +471,61 @@ export default {
 
         saveIncome() {
             let params = cloneDeep(this.incomeform)
+            if (params.money < 0) {
+                params.bookType = 0 // 支出
+            }
+            else {
+                params.bookType = 1 // 收入
+            }
+            params.money = Math.abs(params.money)
+            console.log(this.incomeform);
             this.$refs.incomeform.validate(valid => {
-                console.log(valid);
                 if (valid) {
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addCompAccount(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '新增成功',});
+                            this.incomeDialogVisible = false
+                            this.getPayLog()
+                        }
+                    })
                 }
             })
         },
-
+        // 查询客户名
+        queryName(queryString, cb) {
+            userList({
+                level: '',
+                status: '',
+                page: 1,
+                pageSize: 5,
+                userName: queryString
+                }).then(res => {
+                    let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        arr.push({
+                            value: ele.memberName,
+                            id: ele.id,
+                            memberName: ele.memberName
+                        })
+                    }
+                cb(arr)
+            })
+        },
+        handleSelect(item) {
+            this.incomeform.customerId = item.id
+        },
         // 分页导航
         basePageChange(val) {
             this.$set(this.page, 'no', val);
-            this.getData();
+            this.getPayLog();
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getPayLog();
         },
     }
 };

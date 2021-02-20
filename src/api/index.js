@@ -149,6 +149,9 @@ export const registerCustomer = query => {
 export const createGoods = query => {
     return post('ht/createGoods', query)
 }
+export const goodsDetail = query => {
+    return post('ht/goodsForDetail', query)
+}
 export const updateGoods = query => {
     return post('ht/goodsForUpdate', query)
 }
@@ -188,7 +191,7 @@ export const settleOrder= query => {
     return post('order/settle', query)
 }
 export const checkSkuOrder = query => {
-    return post('order/orderSku', query)
+    return post('sku/orderSku', query)
 }
 
 /**

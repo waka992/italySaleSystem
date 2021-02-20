@@ -23,6 +23,7 @@ const dict =  {
         {value: 0, label: '颜色/Color'},
         {value: 1, label: '尺码/Size'},
         {value: 2, label: '面料/Material'},
+        {value: 4, label: '配比/Ratio'},
     ],
 
 

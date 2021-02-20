@@ -355,6 +355,9 @@ export default {
         getData() {
             let obj = {
             }
+            goodsDetail(obj).then(res => {
+                console.log();
+            })
         },
 
 

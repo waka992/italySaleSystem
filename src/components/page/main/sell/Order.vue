@@ -141,13 +141,7 @@ export default {
                 total: 0,
                 size: 20
             },
-            tableData: [
-                {name: '客户A', time: '2020-11-16 14:45', boxes: 5, value: 5, payStatus: '1', id: 1},
-                {name: '客户A', time: '2020-11-16 14:45', boxes: 5, value: 5, payStatus: '1', id: 1},
-                {name: '客户A', time: '2020-11-16 14:45', boxes: 5, value: 5, payStatus: '1', id: 1},
-                {name: '客户A', time: '2020-11-16 14:45', boxes: 5, value: 5, payStatus: '1', id: 1},
-                {name: '客户A', time: '2020-11-16 14:45', boxes: 5, value: 5, payStatus: '1', id: 1},
-            ],
+            tableData: [],
             form: {
                 name: '',
                 season: '',

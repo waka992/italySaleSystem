@@ -2,15 +2,20 @@
     <div >
         <el-form ref="form" :model="form" :rules="rules" label-width="80px" :inline="true">
             <el-form-item label="客户" prop="name">
-                <el-input size="mini" class="form-input" v-model="form.customerName" placeholder="请输入" maxlength="15" show-word-limit></el-input>
+                <customer-name-selector
+                style="margin-right:90px;"
+                :width="'200px'"
+                @selectData="handleSelect"
+                >
+                </customer-name-selector>
             </el-form-item>
 
-            <el-form-item label="地址" prop="address">
-                <el-input size="mini" class="form-input" v-model="form.address" placeholder="请输入" ></el-input>
+            <el-form-item label="地址" prop="customerAddress">
+                <el-input size="mini" class="form-input" v-model="form.customerAddress" placeholder="请输入" ></el-input>
             </el-form-item>
 
-            <el-form-item label="托运部" prop="transportor" >
-                <el-input size="mini" class="form-input" v-model="form.transportor" placeholder="请输入" ></el-input>
+            <el-form-item label="托运部" prop="transportName" >
+                <el-input size="mini" class="form-input" v-model="form.transportName" placeholder="请输入" ></el-input>
             </el-form-item>
 
             <el-form-item label="支付方式" prop="payType">
@@ -35,6 +40,13 @@
                 <!-- 表格 -->
                 <div class="table-list" v-for="(list, i) in tableList" :key="i">
                     <div class="list-item">
+                        <el-autocomplete
+                            size="mini"
+                            v-model="list.type"
+                            :fetch-suggestions="queryProduct"
+                            placeholder="请输入产品名"
+                            @select="handleProductSelect(list)"
+                        ></el-autocomplete>
                         <el-input v-model="list.type" @change="changaItem(list.type, i, 'type')"></el-input>
                     </div>
                     <div class="list-item">
@@ -64,8 +76,17 @@
 </template>
 <script>
 import {cloneDeep} from 'lodash';
+
+import { 
+userList,
+checkSkuOrder } from '@/api/index';
+import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
+
 export default {
     name: 'DialogNewOrder',
+    components: {
+        CustomerNameSelector
+    },
     data() {
         return {
             form: {},
@@ -76,14 +97,12 @@ export default {
                 {label: '售价', name: 'price'},
                 {label: '总计', name: 'total'},
             ],
-            tableList: [
-                {type: '1', boxes: '1', pics: '3', price: '2', total: '6'}
-            ],
+            tableList: [],
             // list基本式(添加用)
             listOrigin: {type: '', boxes: '', pics: '', price: '', total: ''},
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
-                transportor: [{ required: true, message: '请输入', trigger: 'change' }],
+                transportName: [{ required: true, message: '请输入', trigger: 'change' }],
             }
         }
     },
@@ -103,6 +122,8 @@ export default {
         },
         // 保存提交
         saveSubmit() {
+            console.log(this.form);
+            return
             let data = cloneDeep(this.form)
             data.product = cloneDeep(this.tableList)
             this.$emit('saveData', data)
@@ -110,10 +131,10 @@ export default {
         // 置空数据
         resetData(data) {
             this.form = {
-                customerId: data.id,
-                customerName: data.memberName ? data.memberName : '',
-                address: '',
-                transportor: '',
+                customerId: '',
+                customerName: '',
+                customerAddress: '',
+                transportName: '',
                 payType: '',
                 monetaryUnit: '',
                 discount: '',
@@ -132,6 +153,44 @@ export default {
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })
+        },
+        // 查询客户名
+        queryName(queryString, cb) {
+            userList({
+                level: '',
+                status: '',
+                page: 1,
+                pageSize: 10,
+                userName: queryString
+                }).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        arr.push({
+                            value: ele.memberName,
+                            id: ele.id,
+                            memberName: ele.memberName
+                        })
+                    }
+                cb(arr)
+            })
+        },
+        queryProduct(qs, cb) {
+            checkSkuOrder({
+                page: 1,
+                pageSize: 5,
+                specification: qs
+            }).then(res => {
+                console.log(res);
+            })
+        },
+        handleProductSelect(item) {
+            console.log(item);
+        },
+        handleSelect(item) {
+            console.log(item);
+            this.form.customerName = item.memberName
+            this.form.id = item.id
         },
     }
 

@@ -105,9 +105,9 @@ export default new Router({
                     meta: { title: '单品 - 添加单品' }
                 },
                 {
-                    path: '/iteminfonedit',
-                    name: 'iteminfonedit',
-                    component: () => import(/* webpackChunkName: "iteminfonedit" */ '../components/page/main/single/SingleInfoEdit.vue'),
+                    path: '/iteminfoedit',
+                    name: 'iteminfoedit',
+                    component: () => import(/* webpackChunkName: "iteminfoedit" */ '../components/page/main/single/SingleInfoEdit.vue'),
                     meta: { title: '单品 - 查看单品信息' }
                 },
                 {

@@ -13,10 +13,10 @@
                     <span class="label">尺码</span>
                     <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
                         <el-option
-                        v-for="item in statusOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="(item,i) in sizeOptions"
+                        :key="i"
+                        :label="item.arrtibute"
+                        :value="item.arrtibute">
                         </el-option>
                     </el-select>
                 </div>
@@ -24,10 +24,10 @@
                     <span class="label">特色</span>
                     <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
                         <el-option
-                        v-for="item in statusOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="(item,i) in labelOptions"
+                        :key="i"
+                        :label="item.arrtibute"
+                        :value="item.arrtibute">
                         </el-option>
                     </el-select>
                 </div>
@@ -35,10 +35,10 @@
                     <span class="label">面料</span>
                     <el-select size="mini" multiple v-model="search.component" placeholder="请选择">
                         <el-option
-                        v-for="item in statusOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="(item,i) in componentOptions"
+                        :key="i"
+                        :label="item.arrtibute"
+                        :value="item.arrtibute">
                         </el-option>
                     </el-select>
                 </div>
@@ -74,21 +74,25 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="type" label="型号" align="center"></el-table-column>
+                <el-table-column prop="specification" label="型号" align="center"></el-table-column>
                 <el-table-column prop="name" label="名称" align="center"></el-table-column>
-                <el-table-column prop="characteristic" label="特色" align="center"></el-table-column>
-                <el-table-column prop="material" label="面料" align="center"></el-table-column>
+                <el-table-column prop="label" label="特色" align="center"></el-table-column>
+                <el-table-column prop="component" label="面料" align="center"></el-table-column>
                 <el-table-column prop="size" label="尺码" align="center"></el-table-column>
                 <el-table-column prop="color" label="颜色" align="center"></el-table-column>
-                <el-table-column prop="status" label="状态" align="center" width="120">
+                <el-table-column prop="skuStatus" label="状态" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{scope.row.status == 1 ? '有货' : '售罄'}}
+                        {{
+                        scope.row.skuStatus === 0 ? '即将到货' 
+                        : scope.row.skuStatus === 1 ? '现货'
+                        : scope.row.skuStatus === 2 ? '售罄' : '预录入'}}
                     </template>
                 </el-table-column>
                 <el-table-column prop="boxes" label="箱数" align="center"></el-table-column>
-                <el-table-column prop="price" label="售价" align="center"></el-table-column>
-                <el-table-column prop="price" label="售价" align="center" v-if="false"></el-table-column>
-                <el-table-column prop="price" label="售价" align="center"></el-table-column>
+                <el-table-column prop="salePrice" label="售价" align="center"></el-table-column>
+                <el-table-column prop="price" label="总销售箱/件" align="center" v-if="false">
+
+                </el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
@@ -122,7 +126,8 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import { 
-    getGoods} from '@/api/index';
+    getGoods,
+    getAttrList,} from '@/api/index';
 import dict from '@/components/common/dict.js'
 
 export default {
@@ -140,28 +145,15 @@ export default {
             },
             getDict: null,
             soldStatus: [],
-            statusOptions: [
-                {label: '2021春', value: 0},
-                {label: '2021秋', value: 1},
-            ],
-            transporterOptions: [
-                {label: '德邦物流', value: 0},
-                {label: '顺丰物流', value: 1},
-                {label: 'UPS', value: 2},
-            ],
-            containerTypeOptions: [
-                {label: '海运', value: 0},
-                {label: '陆运', value: 1},
-                {label: '空运', value: 2},
-            ],
+            sizeOptions: [],
+            labelOptions: [],
+            componentOptions: [],
             page: {
                 no: 1,
                 total: 0,
                 size: 20
             },
-            tableData: [
-                {type: 'H105', name: '提臀运动裤', characteristic: '进口', material: '棉', size: 'L', color: '白色', status: 1, boxes: 1, price: 100},
-            ],
+            tableData: [],
             form: {
                 name: '',
                 season: '',
@@ -182,6 +174,7 @@ export default {
         this.getDict = dict.getDict // 获取字典
         this.soldStatus = dict.soldStatus
         this.getData();
+        this.getOptions()
     },
     methods: {
         // 置空数据
@@ -199,11 +192,9 @@ export default {
 
         // 增准备
         addReady() {
-            this.$router.push({name: 'iteminfonew', params: {}})
+            this.$router.push({name: 'iteminfonew', params: {todo: 'new'}})
         },
-        checkHot() {
-
-        },
+        checkHot() {},
 
         // 查
         getData() {
@@ -224,10 +215,19 @@ export default {
                 this.page.no = res.current
             })
         },
+
+        getOptions() {
+            // 获取属性
+            getAttrList().then(res => {
+                this.sizeOptions = res[1]
+                this.labelOptions = res[5]
+                this.componentOptions = res[2]
+            })
+        },
        
 
         checkDetail(id, todo) {
-            this.$router.push({name: 'iteminfonedit', params: {id: id, todo: todo}})
+            this.$router.push({name: 'iteminfonew', params: {id: id, todo: todo}})
         },
 
         // 分页导航
@@ -237,7 +237,9 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
     }
 };
