@@ -8,15 +8,15 @@
         <div class="box">
             <div class="handle-box">
                 <div class="customer-title">客户信息</div>
-                <el-input class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名称"></el-input>
-                <el-date-picker
+                <el-input v-model="userName" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名称"></el-input>
+                <!-- <el-date-picker
                     v-model="timePicker"
                     type="daterange"
                     range-separator="至"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期">
-                </el-date-picker>
-
+                </el-date-picker> -->
+                <el-button icon="el-icon-search" circle @click="getData"></el-button>
                 <el-button
                     class="new-btn"
                     type="primary"
@@ -31,9 +31,9 @@
                 header-cell-class-name="table-header"
             >
                 <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
-                <el-table-column prop="pics" label="销售箱数" align="center"></el-table-column>
+                <el-table-column prop="caseNum" label="销售箱数" align="center"></el-table-column>
                 <el-table-column prop="arrears" label="欠款金额" align="center"></el-table-column>
-                <el-table-column prop="total" label="总金额" align="center"></el-table-column>
+                <el-table-column prop="price" label="总金额" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
@@ -43,7 +43,7 @@
                         >详情</el-button>
                         <el-button
                             type="text"
-                            @click="checkDetail(scope.row.id)"
+                            @click="checkDetail(scope.row)"
                         >统计</el-button>
                         <el-button
                             class="del-btn"
@@ -58,6 +58,7 @@
                     background
                     :current-page="page.no"
                     :page-size="page.size"
+                    :page-sizes="[5,10,20]"
                     :total="page.total"
                     layout="total, prev, pager, next, sizes, jumper"
                     @size-change="handleSizeChange"
@@ -223,14 +224,13 @@ export default {
             baseDialogVisible: false,
             timePicker: [],
             operate: 'create',
+            userName: '',
             page: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 5
             },
-            tableData: [
-                {memberName: '广东沈外贸科技有限公司', pics: '6', arrears: 4420,  total: '1', id: 1},
-            ],
+            tableData: [],
             bestTableData: [
                 {memberName: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1', id: 1},
             ],
@@ -280,6 +280,7 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                userName: this.userName
             }
             customerList(obj).then(res => {
                 this.tableData = res.records
@@ -325,7 +326,9 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
     }
 };

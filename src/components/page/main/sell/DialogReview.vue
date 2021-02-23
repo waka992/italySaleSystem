@@ -21,6 +21,7 @@
                 <el-col :span="8">
                     <span class="title">订单状态</span>
                     <span class="value">{{form.orderStatus}}</span>
+                    <!-- 0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货 -->
                 </el-col>
             </el-row>
             <el-row>
@@ -38,10 +39,10 @@
                     <span class="value" v-if="language == 'CN'">{{dateFormat(form.date, 'CN')}}</span>
                     <span class="value" v-else>{{dateFormat(form.date, 'EN')}}</span>
                 </el-col>
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.taxFee}}</span>
                     <span class="value">{{form.taxFee}}</span>
-                </el-col>
+                </el-col> -->
                 <el-col :span="8">
                     <span class="title">{{labels.pieces}}</span>
                     <span class="value">{{form.pieces}}</span>
@@ -49,18 +50,18 @@
             </el-row>
 <!-- 二 -->
             <el-row>
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.salesInTotal}}</span>
                     <span class="value">{{form.salesInTotal}}</span>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.paymentMethod}}</span>
                     <span class="value">{{form.paymentMethod}}</span>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.price}}</span>
                     <span class="value">{{form.price}}</span>
-                </el-col>
+                </el-col> -->
             </el-row>
 <!-- 三 -->
             <el-row>
@@ -68,29 +69,29 @@
                     <span class="title">{{labels.customerName}}</span>
                     <span class="value">{{form.name}}</span>
                 </el-col>
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.codeID}}</span>
                     <span class="value">{{form.codeId}}</span>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.discount}}</span>
                     <span class="value">{{form.discount}}</span>
-                </el-col>
+                </el-col> -->
             </el-row>
 <!-- 四 -->
             <el-row>
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.sum}}</span>
                     <span class="value">{{form.sum}}</span>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.totalBox}}</span>
                     <span class="value">{{form.totalBox}}</span>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span class="title">{{labels.totalSum}}</span>
                     <span class="value">{{form.totalSum}}</span>
-                </el-col>
+                </el-col> -->
             </el-row>
         </div>
 
@@ -104,19 +105,19 @@
                 <!-- 表格 -->
                 <div class="table-list" :class="k % 2 == 0 ? 'odd' : 'double'" v-for="(data, k) in list.data" :key="k">
                     <div class="list-item">
-                        {{data.type}}
+                        {{data.specification}}
                     </div>
                     <div class="list-item">
-                        {{data.boxes}}
+                        {{data.caseNum}}
                     </div>
                     <div class="list-item">
-                        {{data.pics}}
+                        {{data.goodsTotal}}
                     </div>
                     <div class="list-item">
-                        {{data.price}}
+                        {{data.goodsPrice}}
                     </div>
                     <div class="list-item">
-                        {{data.pics * data.price}}$
+                        {{(data.caseNum * data.goodsTotal * data.goodsPrice) || 0}}
                         <!-- <el-input v-model="list.total" @change="changeType(list.type)"></el-input> -->
                     </div>
                 </div>
@@ -128,21 +129,22 @@
                 <div class="statistics-inner">
                     <div class="item">
                         <div class="item-title">{{labels.allTotalSum}}</div>
-                        <div class="item-value">{{total.value}}$</div>
+                        <div class="item-value">{{total.value}}</div>
                     </div>
                     <div class="item">
                         <div class="item-title">{{labels.totalBoxes}}</div>
                         <div class="item-value">{{total.boxes}}</div>
                     </div>
                     <div class="item">
-                        <div class="item-title">{{labels.payWay}}</div>
-                        <div class="item-value">{{total.payWay}}</div>
+                        <div class="item-title">{{labels.payType}}</div>
+                        <div class="item-value" v-if="language == 'CN'">{{getDict(total.payType, 'payWay')}}</div>
+                        <div class="item-value" v-else>{{getDict(total.payType, 'payENWay')}}</div>
                     </div>
                 </div>
                 <div class="statistics-inner">
                     <div class="item">
-                        <div class="item-title">{{labels.tax}}</div>
-                        <div class="item-value">{{total.tax}}</div>
+                        <div class="item-title">{{labels.taxRate}}</div>
+                        <div class="item-value">{{total.taxRate}}</div>
                     </div>
                     <div class="item">
                         <div class="item-title">{{labels.discount}}</div>
@@ -174,9 +176,6 @@ export default {
             totalValue: 2800, // 同上
             payStatus: 0,
             form: {
-                name: '广州市歌莉娅制衣有限公司',
-                seller: '广州市xx有限公司',
-                date: '2020.11.29',
             },
             labels: {
                 customerName: '客户名称',
@@ -187,15 +186,15 @@ export default {
                 totalBoxes: '总销售箱数',
                 allTotalSum: '总销售金额',
                 totalBoxes: '总箱数',
-                payWay: '支付方式',
-                tax: '税收',
+                payType: '支付方式',
+                taxRate: '税收',
                 discount: '折扣',
             },
             total: {
                 value: '1',
                 boxes: '1',
-                payWay: '1',
-                tax: '1',
+                payType: '1',
+                taxRate: '1',
                 discount: '1',
             },
             tableTitles: [
@@ -254,6 +253,36 @@ export default {
                 },
             ]
         },
+        editData(res) {
+            let {customerName,status,details, createTime, price, payType,taxRate,discount} = res
+            let caseTotal = 0
+            let picsTotal = 0
+            for (let i = 0; i < details.length; i++) {
+                const ele = details[i];
+                caseTotal += Number(ele.caseNum)
+                picsTotal += (ele.goodsTotal * ele.caseNum)
+            }
+            this.form = {
+                seller: '',
+                date: moment(createTime).format('YYYY-MM-DD'),
+                orderStatus: status,
+                name: customerName,
+                pieces: picsTotal
+            }
+            this.tableList = [
+                {
+                    date: moment(createTime).format('YYYY-MM-DD'),
+                    data: details,
+                }
+            ]
+            this.total = {
+                value: price,
+                boxes: caseTotal,
+                payType: payType,
+                taxRate: taxRate,
+                discount: discount,
+            }
+        },
         // 语言
         languageChange(val) {
             this.language = val
@@ -274,8 +303,8 @@ export default {
                     totalBoxes: '总销售箱数',
                     allTotalSum: '总销售金额',
                     totalBoxes: '总箱数',
-                    payWay: '支付方式',
-                    tax: '税收',
+                    payType: '支付方式',
+                    taxRate: '税收',
                     discount: '折扣',
                 }
             }
@@ -295,7 +324,7 @@ export default {
                     totalPics: 'Total Piece',
                     totalBoxes: 'Total Box',
                     allTotalSum: 'Total Sum',
-                    taxFee: 'Tax Fee',
+                    taxFee: 'taxRate Fee',
                     pieces: 'Pieces',
                     salesInTotal: 'Sales In Total',
                     paymentMethod: 'Payment Method',
@@ -305,8 +334,8 @@ export default {
                     sum: 'Sum',
                     totalBox: 'Total Box',
                     totalSum: 'Total Sum',
-                    payWay: 'Payment Method',
-                    tax: 'Tax Revenue',
+                    payType: 'Payment Method',
+                    taxRate: 'taxRate Revenue',
                     discount: 'Discount',
                 }
             }
@@ -338,6 +367,7 @@ export default {
         display: inline-block;
         font-size: 14px;
         margin-bottom: 21px;
+        vertical-align: middle;
     }
     
     .title {

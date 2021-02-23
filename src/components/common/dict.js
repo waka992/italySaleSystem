@@ -4,6 +4,10 @@ const dict =  {
         {value: 0, label: '发票'},
         {value: 1, label: '汇款'},
     ],
+    payENWay: [
+        {value: 0, label: 'INVOICE'},
+        {value: 1, label: 'CASH'},
+    ],
     payStatus: [
         {value: 0, label: '欠款'},
         {value: 1, label: '已支付'},
@@ -12,6 +16,7 @@ const dict =  {
         {value: 0, label: 'PAID'},
         {value: 1, label: 'UNPAID'},
     ],
+    
     soldStatus: [
         {value: '', label: '预录入'},
         {value: 0, label: '即将到货'},

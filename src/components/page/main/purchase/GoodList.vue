@@ -89,65 +89,14 @@
                 background
                 :current-page="page.no"
                 :page-size="page.size"
+                :page-sizes="[5,10,20]"
                 :total="page.total"
                 layout="total, prev, pager, next, sizes, jumper"
                 @size-change="handleSizeChange"
                 @current-change="basePageChange"
             ></el-pagination>
         </div>
-        <el-dialog
-            style="zIndex: 9999;"
-            :close-on-click-modal='false'
-            :show-close="false"
-            append-to-body
-            :title="'数量设置'" :visible.sync="baseDialogVisible" width="480px">
-                <el-form class="amount-form" ref="form" label-width="90px" :inline="true" 
-                label-position="left"
-                v-for="(good, i) in selectedGoods" :key="i">
-                    <el-col>
-                        <span class="add-form-title">型号：{{good.specification}}</span>
-                    </el-col>
-                    <el-col>
-                        <el-form-item label="总数量">
-                            <el-input class="small-input" v-model="good.caseNum" placeholder="箱数">
-                                <template slot="append">箱</template>
-                            </el-input>
-                            X
-                            <el-input class="mid-input" v-model="good.goodsTotal" placeholder="每箱件数">
-                                <template slot="append">件</template>
-                            </el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col>
-                        <el-form-item v-if="good.isTail == true" label="尾箱数">
-                            <el-input class="small-input" v-model="good.tailBox" placeholder="箱数">
-                                <template slot="append">箱</template>
-                            </el-input>
-                            X
-                            <el-input class="mid-input" v-model="good.tailTotal" placeholder="每箱件数">
-                                <template slot="append">件</template>
-                            </el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col>
-                        <el-form-item label="单品类型">
-                            <el-select v-model="good.skuType" placeholder="请选择">
-                                <el-option label="入货" :value="0"></el-option>
-                                <el-option label="加单" :value="1"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col>
-                        <el-form-item label="是否有尾箱">
-                            <el-checkbox v-model="good.isTail" @change="val => {isTailChange(val,i)}"></el-checkbox>
-                        </el-form-item>
-                    </el-col>
-                </el-form>
-                <span slot="footer" class="dialog-footer">
-                    <el-button class="curr-btn" plain @click="baseDialogVisible = false">完成</el-button>
-                    <el-button class="curr-btn" plain @click="add">添加</el-button>
-                </span>
-        </el-dialog>
+        
     </div>
 </template>
 <script>
@@ -156,6 +105,7 @@ import {
     getAttrList,
     addGoodsToContainer} from '@/api/index';
 import dict from '@/components/common/dict.js'
+import {cloneDeep} from 'lodash'
 
 export default {
         name: 'GoodList',
@@ -187,7 +137,6 @@ export default {
                 sizeOptions: [],
                 labelOptions: [],
                 componentOptions: [],
-                baseDialogVisible: true
             }
         },
         mounted() {
@@ -224,12 +173,13 @@ export default {
             },
             // 
             selectionChange(item) {
-                item.forEach(element => {
+                let arr = cloneDeep(item)
+                arr.forEach(element => {
                     element.isTail = false
                     element.tailBox = 0
                     element.tailTotal = 0
                 });
-                this.selectedGoods = item
+                this.selectedGoods = arr
             },
 
             addReady() {
@@ -237,16 +187,13 @@ export default {
                     this.$message.warning('请先选择需要添加到货柜的单品')
                     return
                 }
-                this.baseDialogVisible = true
+                this.$emit('addDialogShow', this.selectedGoods)
             },
-            isTailChange(val, i) {
-                this.$set(this.selectedGoods[i], 'isTail', val)
-                this.$forceUpdate()
-            },
-            add() {
+
+            add(items) {
                 let list = []
-                for (let i = 0; i < this.selectedGoods.length; i++) {
-                    const element = this.selectedGoods[i];
+                for (let i = 0; i < items.length; i++) {
+                    const element = items[i];
                     if (element.isTail == true) {
                         // 有尾箱要多加一条
                         list.push({
@@ -254,7 +201,7 @@ export default {
                             goodsTotal: element.tailTotal,
                             skuId: element.skuId,
                             skuType: element.skuType,
-                            isTail: true,
+                            isTail: 1,
                         })
                     }
                     list.push({
@@ -262,7 +209,7 @@ export default {
                         goodsTotal: element.goodsTotal,
                         skuId: element.skuId,
                         skuType: element.skuType,
-                        isTail: false,
+                        isTail: 0,
                     })
                 }
 
@@ -327,33 +274,6 @@ export default {
 .pagination {
     margin-top: 40px;
 }
-.amount-form  {
-    ::v-deep .el-input {
-        width: 150px;
-    }
 
-    ::v-deep .el-input__inner {
-        padding: 5px;
-    }
 
-    ::v-deep .el-input-group__append{
-        padding: 5px;
-        background: #fff;
-        border-left: none;
-    }
-
-    .small-input {
-        width: 66px !important;
-    }
-    .mid-input {
-        width: 96px !important;
-    }
-}
-.add-form-title {
-    color: $theme-color;
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 800;
-    margin-bottom: 12px;
-}
 </style>

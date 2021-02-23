@@ -51,6 +51,12 @@ export default {
         },
         handleSelect(item) {
             this.$emit('selectData', item)
+        },
+        setName(name) {
+            this.form.name = name
+        },
+        reset() {
+            this.form.name = ''
         }
     }
 }

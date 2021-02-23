@@ -8,16 +8,17 @@
         </div>
         <div class="switch">
             <div class="switch-item" :class="selectedSwitch == 0 ? 'selected' : ''" @click="switchSelect(0)">全部订单</div>
-            <div class="switch-item" :class="selectedSwitch == 1 ? 'selected' : ''" @click="switchSelect(1)">今日订单（12月5号）</div>
+            <!-- <div class="switch-item" :class="selectedSwitch == 1 ? 'selected' : ''" @click="switchSelect(1)">今日订单（12月5号）</div> -->
         </div>
         <div class="box">
             <div class="handle-box">
-                <el-input class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                <el-input v-model="customerName" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名"></el-input>
 
                 <div class="time">
                     <span class="label">时间</span>
                     <div class="time-comp">
                         <el-date-picker
+                            value-format="yyyy-MM-dd"
                             v-model="time"
                             type="daterange"
                             range-separator="至"
@@ -26,6 +27,7 @@
                         </el-date-picker>
                     </div>
                 </div>
+                <el-button icon="el-icon-search" @click="getData"></el-button>
 
                 <el-button
                     class="new-btn"
@@ -40,13 +42,17 @@
                 ref="multipleTable"
                 header-cell-class-name="table-header"
             >
-                <el-table-column prop="name" label="客户" align="center"></el-table-column>
-                <el-table-column prop="time" label="日期" align="center"></el-table-column>
-                <el-table-column prop="boxes" label="箱数" align="center"></el-table-column>
-                <el-table-column prop="value" label="金额" align="center"></el-table-column>
+                <el-table-column prop="customerName" label="客户" align="center"></el-table-column>
+                <el-table-column prop="createTime" label="日期" align="center">
+                    <template  slot-scope="scope">
+                        {{timeFormat(scope.row.createTime)}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                <el-table-column prop="price" label="金额" align="center"></el-table-column>
                 <el-table-column prop="payStatus" label="支付方式" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{getDict(scope.row.payStatus, 'payStatus')}}
+                        {{getDict(scope.row.payType, 'payWay')}}
                     </template>
                 </el-table-column>
                 
@@ -57,7 +63,7 @@
                             type="text"
                         >编辑</el-button>
                         <el-button
-                            @click="checkDetail(scope.row.id)"
+                            @click="showDialog('review', scope.row.id)"
                             type="text"
                         >预览</el-button>
                     </template>
@@ -68,6 +74,7 @@
                     background
                     :current-page="page.no"
                     :page-size="page.size"
+                    :page-sizes="[5,10,20]"
                     :total="page.total"
                     layout="total, prev, pager, next, sizes, jumper"
                     @size-change="handleSizeChange"
@@ -76,7 +83,7 @@
             </div>
         </div>
 
-        <!-- 编辑弹出框 -->
+        <!-- 新建弹出框 -->
         <el-dialog
         class="custom-dialog"
         :close-on-click-modal='false'
@@ -98,18 +105,17 @@
             <dialog-review @getPDF="getReviewPDF" ref="dialogReview"></dialog-review>
             <span slot="footer" class="dialog-footer">
                 <el-button class="curr-btn" plain @click="reviewDialogVisible = false">取消</el-button>
-                <el-button class="curr-btn" type="primary" @click="askReviewPDF">生成PDF</el-button>
+                <el-button type="primary" @click="askReviewPDF">生成PDF</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import dict from '@/components/common/dict.js'
 import DialogNewOrder from '../customer/DialogNewOrder';
 import DialogReview from './DialogReview';
+import moment from 'moment';
 import { 
 approvalOrder,
 createOrUpdateOrder,
@@ -134,6 +140,7 @@ export default {
             reviewDialogVisible: false,
             status: 0,
             selectedSwitch: 0,
+            customerName: '',
             time: [],
 
             page: {
@@ -177,21 +184,59 @@ export default {
                     this.$refs.newOrderDialog.resetData()
                 })
             }
-            // 编辑
-            if (tar == 'edit') {
-                this.baseDialogVisible = true;
-                this.$nextTick(() => {
-                    // 请求id相关数据然后打开dialog
-                    let data ={form:{}, tableList:{}}
-                    this.$refs.newOrderDialog.editData(data)
+            // 编辑或者预览
+            if (tar == 'edit' || tar == 'review') {
+                orderDetail({id: id}).then(res => {
+                    let {details, 
+                    id,
+                    customerId,
+                    customerName,
+                    customerAddress,
+                    transportName,
+                    payType,
+                    monetaryUnit,
+                    discount,
+                    exchangeRate,
+                    taxRate,
+                    createTime} = res
+                    details.forEach(element => {
+                        element.isTail = (element.isTail == 1 ?  true : false)
+                    });
+                    tar == 'edit' ? this.baseDialogVisible = true : this.reviewDialogVisible = true
+                    let form = {
+                        id: id,
+                        customerId: customerId,
+                        customerName: customerName,
+                        customerAddress: customerAddress,
+                        transportName: transportName,
+                        payType: Number(payType),
+                        monetaryUnit: monetaryUnit,
+                        discount: discount,
+                        exchangeRate: exchangeRate,
+                        taxRate: taxRate,
+                    }
+                    let goodsList = details
+                    this.$nextTick(() => {
+                        // 请求id相关数据然后打开dialog
+                        let data ={form:form, goodsList:goodsList}
+                        console.log(data);
+                        if (tar == 'edit') {
+                            this.$refs.newOrderDialog.editData(data)
+                            this.$refs.newOrderDialog.setName(customerName)
+                        }
+                        else {
+                            let reviewData = res
+                            this.$refs.dialogReview.editData(reviewData)
+                        }
+                    })
                 })
             }
-            if (tar == 'review') {
-                this.reviewDialogVisible = true
-                this.$nextTick(() => {
-                    this.$refs.newOrderDialog.editData(data)
-                })
-            }
+            // if (tar == 'review') {
+            //     this.reviewDialogVisible = true
+            //     this.$nextTick(() => {
+            //         this.$refs.dialogReview.editData(data)
+            //     })
+            // }
         },
 
         // 查
@@ -199,12 +244,15 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                customerName: this.customerName,
+                startTime: this.time ? this.time[0] : '',
+                endTime: this.time ? this.time[1] : '',
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getOrderPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
   
         save() {
@@ -212,7 +260,12 @@ export default {
         },
 
         saveSubmit(data) {
-            console.log(data);
+            data.process = 0
+            createOrUpdateOrder(data).then(res => {
+                this.$message.success('操作成功')
+                this.baseDialogVisible = false
+                this.getData()
+            }) 
         },
 
         // 询问pdf
@@ -225,10 +278,6 @@ export default {
 
         },
 
-        checkDetail(id) {
-            this.$router.push({name: 'containerinfodetail', params: {id: id}})
-        },
-
         // 分页导航
         basePageChange(val) {
             this.$set(this.page, 'no', val);
@@ -236,8 +285,14 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
+
+        timeFormat(time) {
+            return moment(time).format('YYYY.MM.DD')
+        }
     }
 };
 </script>
@@ -294,6 +349,10 @@ export default {
             display: inline-block;
             width: 142px;
         }
+    }
+
+    .time {
+        width: 430px;
     }
 
     .time-comp {

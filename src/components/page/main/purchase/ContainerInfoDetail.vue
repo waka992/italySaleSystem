@@ -16,7 +16,7 @@
                     <el-button class="del-btn1" size="mini" type="text" @click="delVisible = false">取消</el-button>
                     <el-button class="del-btn2" size="mini" @click="arriveConfirm">确定</el-button>
                 </div>
-                <el-button class="del-btn2 outer" slot="reference">确定到货</el-button>
+                <el-button v-show="comInfo.contaninerType == 0" class="del-btn2 outer" slot="reference">确定到货</el-button>
             </el-popover>
         </div>
         <div class="box">
@@ -94,7 +94,7 @@
                     <el-table-column prop="label" label="特色" align="center"></el-table-column>
                     <!-- <el-table-column prop="value" label="装数" align="center"></el-table-column> -->
                     <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
-                    <el-table-column prop="stock" label="件数" align="center"></el-table-column>
+                    <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
                     <el-table-column label="金额" align="center">
                         <template slot-scope="scope">
                             {{scope.row.caseNum * scope.row.costPrice}}
@@ -106,6 +106,7 @@
                         background
                         :current-page="page.no"
                         :page-size="page.size"
+                    :page-sizes="[5,10,20]"
                         :total="page.total"
                         layout="total, prev, pager, next, sizes, jumper"
                         @size-change="handleSizeChange"
@@ -122,22 +123,73 @@
                 :close-on-click-modal='false'
                 :show-close="false"
                 :title="'单品列表'" :visible.sync="baseDialogVisible" width="980px">
-                    <good-list :id="id" @addSuccess="getData"></good-list>
+                    <good-list ref="goodList" :id="id" @addSuccess="addContainerSuccess" @addDialogShow="addDialogShow"></good-list>
                     <span slot="footer" class="dialog-footer">
                         <el-button class="curr-btn" plain @click="baseDialogVisible = false">完成</el-button>
                     </span>
             </el-dialog>
+
+            <el-dialog
+            :close-on-click-modal='false'
+            :show-close="false"
+            append-to-body
+            :title="'数量设置'" :visible.sync="addDialogVisible" width="480px">
+                <el-form class="amount-form" ref="form" label-width="90px" :inline="true" 
+                label-position="left"
+                v-for="(good, i) in selectedGoods" :key="i">
+                    <el-col>
+                        <span class="add-form-title">型号：{{good.specification}}</span>
+                    </el-col>
+                    <el-col>
+                        <el-form-item label="总数量">
+                            <el-input class="small-input" v-model="good.caseNum" placeholder="箱数">
+                                <template slot="append">箱</template>
+                            </el-input>
+                            X
+                            <el-input class="mid-input" v-model="good.goodsTotal" placeholder="每箱件数">
+                                <template slot="append">件</template>
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col>
+                        <el-form-item v-if="good.isTail == true" label="尾箱数">
+                            <el-input class="small-input" v-model="good.tailBox" placeholder="箱数">
+                                <template slot="append">箱</template>
+                            </el-input>
+                            X
+                            <el-input class="mid-input" v-model="good.tailTotal" placeholder="每箱件数">
+                                <template slot="append">件</template>
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col>
+                        <el-form-item label="单品类型">
+                            <el-select v-model="good.skuType" placeholder="请选择">
+                                <el-option label="入货" :value="0"></el-option>
+                                <el-option label="加单" :value="1"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col>
+                        <el-form-item label="是否有尾箱">
+                            <el-checkbox v-model="good.isTail" @change="val => {isTailChange(val,i)}"></el-checkbox>
+                        </el-form-item>
+                    </el-col>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button class="curr-btn" plain @click="addDialogVisible = false">完成</el-button>
+                    <el-button class="curr-btn" plain @click="addToContainer">添加</el-button>
+                </span>
+        </el-dialog>
         </div>
     </div>
 </template>
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import moment from 'moment'
 import GoodList from './GoodList'
 import { 
-    addGoodsToContainer,
     addOrUpdateContainer,
     confirmArrival,
     delContainer,
@@ -154,6 +206,8 @@ export default {
         return {
             delVisible: false,
             baseDialogVisible: false,
+            addDialogVisible: false,
+            selectedGoods: [],
             id: '',
             page: {
                 no: 1,
@@ -170,18 +224,6 @@ export default {
     created() {
         let data = this.$route.params.data
         this.id = data.id
-        this.comInfo = {
-            id: data.id,
-            container: data.container,
-            transpoterName: data.transpoterName,
-            transpoterType: data.transpoterType,
-            cost: data.cost,
-            goodsTotal: data.goodsTotal,
-            goodsCost: data.goodsCost,
-            caseNum: data.caseNum,
-            startTime: data.startTime,
-            estimate: data.estimate,
-        }
         this.getData()
     },
     methods: {
@@ -213,7 +255,8 @@ export default {
                     startTime,
                     estimate,
                     averageCost,
-                    details
+                    details,
+                    contaninerType,
                 } = res
                 this.comInfo = {
                     container: container,
@@ -226,6 +269,7 @@ export default {
                     startTime: startTime,
                     estimate: estimate,
                     averageCost: averageCost,
+                    contaninerType: contaninerType,
                 }
                 this.tableData = details
             })
@@ -251,6 +295,23 @@ export default {
         addGoods() {
             this.baseDialogVisible = true
         },
+        // 编辑具体单品数量的dialog
+        addDialogShow(data) {
+            this.addDialogVisible = true
+            this.selectedGoods = data
+        },
+        isTailChange(val, i) {
+            this.$set(this.selectedGoods[i], 'isTail', val)
+            this.$forceUpdate()
+        },
+        addToContainer() {
+            let data = cloneDeep(this.selectedGoods)
+            this.$refs.goodList.add(data)
+        },
+        addContainerSuccess() {
+            this.getData()
+            this.addDialogVisible = false
+        }
     }
 };
 </script>
@@ -427,5 +488,34 @@ export default {
         top: 16px;
         right: 23px;
     }
+}
+.amount-form  {
+    ::v-deep .el-input {
+        width: 150px;
+    }
+
+    ::v-deep .el-input__inner {
+        padding: 5px;
+    }
+
+    ::v-deep .el-input-group__append{
+        padding: 5px;
+        background: #fff;
+        border-left: none;
+    }
+
+    .small-input {
+        width: 66px !important;
+    }
+    .mid-input {
+        width: 96px !important;
+    }
+}
+.add-form-title {
+    color: $theme-color;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 12px;
 }
 </style>

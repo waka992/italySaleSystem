@@ -1,8 +1,10 @@
 <template>
     <div >
         <el-form ref="form" :model="form" :rules="rules" label-width="80px" :inline="true">
-            <el-form-item label="客户" prop="name">
+            <el-form-item>
+                <span slot="label"><span style="color:red;">* </span>客户</span>
                 <customer-name-selector
+                ref="nameSelector"
                 style="margin-right:90px;"
                 :width="'200px'"
                 @selectData="handleSelect"
@@ -14,12 +16,22 @@
                 <el-input size="mini" class="form-input" v-model="form.customerAddress" placeholder="请输入" ></el-input>
             </el-form-item>
 
-            <el-form-item label="托运部" prop="transportName" >
-                <el-input size="mini" class="form-input" v-model="form.transportName" placeholder="请输入" ></el-input>
+            <el-form-item label="托运部" prop="transportName">
+                <el-autocomplete
+                    class="form-input" 
+                    size="mini"
+                    v-model="form.transportName"
+                    :fetch-suggestions="queryTransport"
+                    placeholder="请输入"
+                ></el-autocomplete>
+                <!-- <el-input size="mini" class="form-input" v-model="form.transportName" placeholder="请输入" ></el-input> -->
             </el-form-item>
 
             <el-form-item label="支付方式" prop="payType">
-                <el-input size="mini" class="form-input" v-model="form.payType" placeholder="请输入" ></el-input>
+                <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
+                    <el-option v-for="(type,i) in dict.payWay" :value="type.value" :label="type.label" :key="i">
+                    </el-option>
+                </el-select>
             </el-form-item>
 
             <el-form-item label="货币" prop="monetaryUnit">
@@ -27,7 +39,11 @@
             </el-form-item>
 
             <el-form-item label="折扣" prop="discount">
-                <el-input size="mini" class="form-input" v-model="form.discount" placeholder="请输入" ></el-input>
+                <el-input :max="1" size="mini" class="form-input" v-model="form.discount" placeholder="请输入0-1，例如八折为0.8" ></el-input>
+            </el-form-item>
+
+            <el-form-item label="税率" prop="taxRate">
+                <el-input :max="1" size="mini" class="form-input" v-model="form.taxRate" placeholder="请输入小数，例如0.11" ></el-input>
             </el-form-item>
         </el-form>
         <div class="prod-table">
@@ -38,29 +54,31 @@
                     <div class="head-item" v-for="(title, i) in tableTitles" :key="i">{{title.label}}</div>
                 </div>
                 <!-- 表格 -->
-                <div class="table-list" v-for="(list, i) in tableList" :key="i">
+                <div class="table-list" v-for="(list, i) in goodsList" :key="i">
                     <div class="list-item">
                         <el-autocomplete
                             size="mini"
-                            v-model="list.type"
+                            v-model="list.specification"
                             :fetch-suggestions="queryProduct"
                             placeholder="请输入产品名"
-                            @select="handleProductSelect(list)"
+                            @select="val => {handleProductSelect(val, i)}"
                         ></el-autocomplete>
-                        <el-input v-model="list.type" @change="changaItem(list.type, i, 'type')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.boxes" @change="changaItem(list.boxes, i, 'boxes')"></el-input>
+                        <el-input v-model="list.caseNum" @change="changaItem(list.caseNum, i, 'caseNum')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.pics" @change="changaItem(list.pics, i, 'pics')"></el-input>
+                        <el-input v-model="list.goodsTotal" @change="changaItem(list.goodsTotal, i, 'goodsTotal')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.price" @change="changaItem(list.price, i, 'price')"></el-input>
+                        <el-input v-model="list.goodsPrice" @change="changaItem(list.goodsPrice, i, 'goodsPrice')"></el-input>
                     </div>
                     <div class="list-item">
-                        {{list.total}}$
-                        <!-- <el-input v-model="list.total" @change="changeType(list.type)"></el-input> -->
+                        <!-- 0不是 1是 -->
+                        <el-checkbox v-model="list.isTail"></el-checkbox>
+                    </div>
+                    <div class="list-item">
+                        {{list.caseNum * list.goodsTotal * list.goodsPrice || 0}}
                     </div>
                     <div class="del-btn" @click="delList(i)">
                         <el-button type="text"  icon="el-icon-close"></el-button>
@@ -76,10 +94,13 @@
 </template>
 <script>
 import {cloneDeep} from 'lodash';
+import dict from '@/components/common/dict.js'
 
 import { 
 userList,
-checkSkuOrder } from '@/api/index';
+checkSkuOrder,
+getTransporterPage,
+getTitle } from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
 
 export default {
@@ -89,17 +110,21 @@ export default {
     },
     data() {
         return {
+            dict: {},
             form: {},
+            taxRate: 0,
             tableTitles: [
                 {label: '型号', name: 'type'},
                 {label: '箱数', name: 'boxes'},
-                {label: '件数', name: 'pics'},
+                {label: '件数/箱', name: 'pics'},
                 {label: '售价', name: 'price'},
+                {label: '是否尾箱', name: 'isTail'},
                 {label: '总计', name: 'total'},
             ],
-            tableList: [],
+            goodsList: [],
             // list基本式(添加用)
-            listOrigin: {type: '', boxes: '', pics: '', price: '', total: ''},
+            listOrigin: {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
+
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 transportName: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -107,25 +132,28 @@ export default {
         }
     },
     created() {
-
+        this.dict = dict
+        this.getTaxRate()
     },
     methods: {
         changaItem(val, i, name) {
-            this.$set(this.tableList[i], name, val)
+            this.$set(this.goodsList[i], name, val)
         },
         addList() {
             let list = cloneDeep(this.listOrigin)
-            this.tableList.push(list)
+            this.goodsList.push(list)
         },
         delList(i) {
-            this.tableList.splice(i, 1)
+            this.goodsList.splice(i, 1)
         },
         // 保存提交
         saveSubmit() {
-            console.log(this.form);
-            return
+            this.form.exchangeRate = this.taxRate
             let data = cloneDeep(this.form)
-            data.product = cloneDeep(this.tableList)
+            data.goodsList = cloneDeep(this.goodsList)
+            data.goodsList.forEach(element => {
+                element.isTail ? element.isTail = 1 : element.isTail = 0
+            });
             this.$emit('saveData', data)
         },
         // 置空数据
@@ -137,19 +165,25 @@ export default {
                 transportName: '',
                 payType: '',
                 monetaryUnit: '',
-                discount: '',
+                discount: '1',
                 exchangeRate: '',
+                taxRate: '',
             }
-            this.tableList = [
-                {type: '', boxes: '', pics: '', price: '', total: ''}
+            this.goodsList = [
+                {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
             ]
             this.$nextTick(() => {
+                this.$refs.nameSelector.reset()
                 this.$refs.form.clearValidate()
             })
         },
+        // 用于编辑时候展示
+        setName(name) {
+            this.$refs.nameSelector.setName(name)
+        },
         editData(data) {
             this.form = data.form
-            this.tableList = data.tableList
+            this.goodsList = data.goodsList
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })
@@ -181,19 +215,49 @@ export default {
                 pageSize: 5,
                 specification: qs
             }).then(res => {
-                console.log(res);
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.specification
+                        arr.push(ele)
+                    }
+                cb(arr)
             })
         },
-        handleProductSelect(item) {
-            console.log(item);
+        queryTransport(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                transporterName: qs
+            }
+            getTransporterPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.transporterName
+                        arr.push(ele)
+                    }
+                cb(arr)
+            })
+        },
+        handleProductSelect(item, i) {
+            this.$set(this.goodsList[i], 'goodsId', item.goodsId)
+            this.$set(this.goodsList[i], 'goodsName', item.name)
         },
         handleSelect(item) {
-            console.log(item);
             this.form.customerName = item.memberName
-            this.form.id = item.id
+            this.form.customerId = item.id
+        },
+        getTaxRate() {
+            let obj = {
+                status: 'taxRate'
+            }
+            getTitle(obj).then(res => {
+                let data = (res instanceof Array) ? res : []
+                this.taxRate = data[0].configValue
+            })
         },
     }
-
 }
 </script>
 <style lang="scss" scoped>
