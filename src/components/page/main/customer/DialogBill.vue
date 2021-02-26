@@ -33,8 +33,8 @@
                 <el-row>
                     <el-col :span="12">
                         <span class="title">{{labels.soldDate}}</span>
-                        <span class="value" v-if="language == 'CN'">{{dateFormat(list.date)}}</span>
-                        <span class="value" v-else>{{dateFormat(list.date)}}</span>
+                        <span class="value" v-if="language == 'CN'">{{dateFormat(list.createTime)}}</span>
+                        <span class="value" v-else>{{dateFormat(list.createTime, 'EN')}}</span>
                     </el-col>
                 </el-row>
                 <!-- 表头 -->
@@ -42,34 +42,38 @@
                     <div class="head-item" v-for="(title, j) in tableTitles" :key="j">{{title.label}}</div>
                 </div>
                 <!-- 表格 -->
-                <div class="table-list" :class="k % 2 == 0 ? 'odd' : 'double'" v-for="(data, k) in list.data" :key="k">
+                <div class="table-list" :class="k % 2 == 0 ? 'odd' : 'double'" v-for="(data, k) in list.details" :key="k">
                     <div class="list-item">
-                        {{data.type}}
+                        {{data.specification}}
                     </div>
                     <div class="list-item">
-                        {{data.boxes}}
+                        {{data.caseNum}}
                     </div>
                     <div class="list-item">
-                        {{data.pics}}
+                        {{data.goodsTotal}}
                     </div>
                     <div class="list-item">
-                        {{data.price}}
+                        {{data.goodsPrice}}
                     </div>
                     <div class="list-item">
-                        {{data.pics * data.price}}$
+                        {{(data.caseNum * data.goodsTotal * data.goodsPrice) || 0}}
                         <!-- <el-input v-model="list.total" @change="changeType(list.type)"></el-input> -->
                     </div>
                 </div>
-               
+
                 <div class="statistics" :class="tableList.length > 1 ? 'multi' : ''">
                     <div class="item">
                         <div class="item-title">{{labels.totalSum}}</div>
-                        <div class="item-value">{{list.total}}</div>
+                        <div class="item-value">{{list.price}}</div>
                     </div>
                     <div class="item">
                         <div class="item-title">{{labels.payStatus}}</div>
-                        <div class="item-value" v-if="language == 'CN'">{{getDict(list.payStatus, 'payStatus')}}</div>
-                        <div class="item-value" v-else>{{getDict(list.payStatus, 'payENStatus')}}</div>
+                        <div class="item-value" v-if="language == 'CN'">{{getDict(list.status, 'payStatus')}}</div>
+                        <div class="item-value" v-else>{{getDict(list.status, 'payENStatus')}}</div>
+                    </div>
+                    <div class="item">
+                        <div class="item-title">{{labels.discount}}</div>
+                        <div class="item-value">{{list.discount}}</div>
                     </div>
                 </div>
             </div>
@@ -85,7 +89,7 @@
             </div>
             <div class="item">
                 <div class="item-title">{{labels.allTotalSum}}</div>
-                <div class="item-value">{{totalValue}}$</div>
+                <div class="item-value">{{totalValue}}</div>
             </div>
         </div>
     </div>
@@ -108,54 +112,13 @@ export default {
             totalValue: 2800, // 同上
             payStatus: 0,
             form: {
-                name: '广州市歌莉娅制衣有限公司',
-                seller: '广州市xx有限公司',
-                date: '2020.11.29',
+                name: '',
+                seller: '',
+                date: '',
             },
-            labels: {
-                customerName: '客户名称',
-                date: '账单日期',
-                soldDate: '销售日期',
-                supplier: '销售方',
-                totalSum: '总销售金额',
-                payStatus: '支付状态',
-                totalPics: '总销售件数',
-                totalBoxes: '总销售箱数',
-                allTotalSum: '总销售金额',
-            },
-            tableTitles: [
-                {label: '货品型号'},
-                {label: '箱数'},
-                {label: '件数'},
-                {label: '售价'},
-                {label: '金额'},
-            ],
-            tableList: [
-                {
-                    date: '2020.11.29',
-                    data: [
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                    ],
-                    total: 2200,
-                    payStatus: 0,
-                },
-                {
-                    date: '2020.11.30',
-                    data: [
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                    ],
-                    total: 2100,
-                    payStatus: 1,
-                },
-            ]
+            labels: {},
+            tableTitles: [],
+            tableList: []
         }
     },
     created() {
@@ -169,39 +132,27 @@ export default {
             this.$emit('getPDF', data)
         },
         // 置空数据
-        resetData() {
+        resetData(data) {
+            let res = data.res
             this.languageChange('CN') // 恢复中文
             this.form = {
-                name: '广州市歌莉娅制衣有限公司',
-                seller: '广州市xx有限公司',
-                date: '2020.11.29',
+                name: data.name,
+                seller: '',
+                date: data.date,
+            },
+
+            this.totalPics = 0
+            this.totalBoxes = 0
+            this.totalValue = 0
+
+            console.log(res);
+            this.tableList = res
+            for (let i = 0; i < res.length; i++) {
+                const ele = res[i];
+                this.totalPics += Number(ele.goodsTotal)
+                this.totalBoxes += Number(ele.caseNum)
+                this.totalValue += Number(ele.price)
             }
-            this.tableList = [
-                {
-                    date: '2020.11.29',
-                    data: [
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                    ],
-                    total: 2200,
-                    payStatus: 0,
-                },
-                {
-                    date: '2020.11.30',
-                    data: [
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                        {type: 'H001', boxes: '3', pics: '70', price: '10'},
-                    ],
-                    total: 2100,
-                    payStatus: 1,
-                },
-            ]
         },
         // 语言
         languageChange(val) {
@@ -224,6 +175,7 @@ export default {
                     totalPics: '总销售件数',
                     totalBoxes: '总销售箱数',
                     allTotalSum: '总销售金额',
+                    discount: '折扣',
                 }
             }
             if (val == 'EN') {
@@ -244,12 +196,13 @@ export default {
                     totalPics: 'Total Pieces',
                     totalBoxes: 'Total Boxes',
                     allTotalSum: 'Total Sum',
+                    discount: 'Discount',
                 }
             }
         },
-        dateFormat(date, lang) {
+        dateFormat(date, lang = 'CN') {
             if (lang == 'CN') {
-                return moment(date).format('YYYY.MM.DD')
+                return moment(date).format('YYYY-MM-DD')
             }
             if (lang == 'EN') {
                 return moment(date).format('YYYY/MM/DD')

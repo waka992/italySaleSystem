@@ -117,7 +117,7 @@ import DialogNewOrder from '../customer/DialogNewOrder';
 import DialogReview from './DialogReview';
 import moment from 'moment';
 import { 
-approvalOrder,
+
 createOrUpdateOrder,
 delOrder,
 orderDetail,
@@ -184,59 +184,21 @@ export default {
                     this.$refs.newOrderDialog.resetData()
                 })
             }
+            if (tar == 'edit') {
+                this.$router.push({name: 'orderinfoedit', params: {id: id}})
+                // this.$refs.newOrderDialog.editData(data)
+                // this.$refs.newOrderDialog.setName(customerName)
+            }
             // 编辑或者预览
-            if (tar == 'edit' || tar == 'review') {
+            if (tar == 'review') {
                 orderDetail({id: id}).then(res => {
-                    let {details, 
-                    id,
-                    customerId,
-                    customerName,
-                    customerAddress,
-                    transportName,
-                    payType,
-                    monetaryUnit,
-                    discount,
-                    exchangeRate,
-                    taxRate,
-                    createTime} = res
-                    details.forEach(element => {
-                        element.isTail = (element.isTail == 1 ?  true : false)
-                    });
-                    tar == 'edit' ? this.baseDialogVisible = true : this.reviewDialogVisible = true
-                    let form = {
-                        id: id,
-                        customerId: customerId,
-                        customerName: customerName,
-                        customerAddress: customerAddress,
-                        transportName: transportName,
-                        payType: Number(payType),
-                        monetaryUnit: monetaryUnit,
-                        discount: discount,
-                        exchangeRate: exchangeRate,
-                        taxRate: taxRate,
-                    }
-                    let goodsList = details
+                    this.reviewDialogVisible = true
                     this.$nextTick(() => {
-                        // 请求id相关数据然后打开dialog
-                        let data ={form:form, goodsList:goodsList}
-                        console.log(data);
-                        if (tar == 'edit') {
-                            this.$refs.newOrderDialog.editData(data)
-                            this.$refs.newOrderDialog.setName(customerName)
-                        }
-                        else {
-                            let reviewData = res
-                            this.$refs.dialogReview.editData(reviewData)
-                        }
+                        let reviewData = res
+                        this.$refs.dialogReview.editData(reviewData)
                     })
                 })
             }
-            // if (tar == 'review') {
-            //     this.reviewDialogVisible = true
-            //     this.$nextTick(() => {
-            //         this.$refs.dialogReview.editData(data)
-            //     })
-            // }
         },
 
         // 查

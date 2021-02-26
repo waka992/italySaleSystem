@@ -125,7 +125,7 @@ export default {
                             title: '销售订单'
                         },
                         {
-                            index: 'sellstatistic',
+                            index: 'sellstatistics',
                             title: '销售统计'
                         },
                     ]

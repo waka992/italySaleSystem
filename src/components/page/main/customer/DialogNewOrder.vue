@@ -7,6 +7,7 @@
                 ref="nameSelector"
                 style="margin-right:90px;"
                 :width="'200px'"
+                :disabled="lockCustomer"
                 @selectData="handleSelect"
                 >
                 </customer-name-selector>
@@ -121,6 +122,7 @@ export default {
                 {label: '是否尾箱', name: 'isTail'},
                 {label: '总计', name: 'total'},
             ],
+            lockCustomer: false, // 是否从用户界面添加订单
             goodsList: [],
             // list基本式(添加用)
             listOrigin: {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
@@ -157,10 +159,16 @@ export default {
             this.$emit('saveData', data)
         },
         // 置空数据
-        resetData(data) {
+        resetData(data, resetName = true) {
+            if (data.customerId) {
+                this.lockCustomer = true
+            }
+            else {
+                this.lockCustomer = false
+            }
             this.form = {
-                customerId: '',
-                customerName: '',
+                customerId: data.customerId || '',
+                customerName: data.customerName ||  '',
                 customerAddress: '',
                 transportName: '',
                 payType: '',
@@ -173,7 +181,9 @@ export default {
                 {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
             ]
             this.$nextTick(() => {
-                this.$refs.nameSelector.reset()
+                if (resetName) {
+                    this.$refs.nameSelector.reset()
+                }
                 this.$refs.form.clearValidate()
             })
         },

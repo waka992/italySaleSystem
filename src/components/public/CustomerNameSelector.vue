@@ -1,6 +1,7 @@
 <template>
     <div class="autocomplete-area">
         <el-autocomplete
+            :disabled="disabled"
             :style="'width: '+width"
             size="mini"
             class="form-input"
@@ -18,7 +19,8 @@ import {userList} from '@/api/index';
 export default {
     name: 'CustomerNameSelector',
     props: {
-        width: ''
+        width: '',
+        disabled: false
     },
     data() {
         return {
@@ -40,11 +42,8 @@ export default {
                     let arr = []
                     for (let i = 0; i < res.records.length; i++) {
                         const ele = res.records[i];
-                        arr.push({
-                            value: ele.memberName,
-                            id: ele.id,
-                            memberName: ele.memberName
-                        })
+                        ele.value = ele.memberName
+                        arr.push(ele)
                     }
                 cb(arr)
             })
@@ -53,7 +52,7 @@ export default {
             this.$emit('selectData', item)
         },
         setName(name) {
-            this.form.name = name
+            this.$set(this.form, 'name', name)
         },
         reset() {
             this.form.name = ''

@@ -59,6 +59,7 @@ export default {
     },
     data() {
         return {
+            id: '',
             selectedSwitch: 0,
             switchs: [{label: '特色统计'}, {label: '销售统计'}],
             selectedDateSwitch: 0,
@@ -78,6 +79,14 @@ export default {
         this.setChartData();
     },
     methods: {
+        setId(id) {
+            this.id = id
+        },
+        getData() {
+            customerStatistics({id: this.id, saleType: 7}).then(res => {
+                console.log(res);
+            })
+        },
         selectSwitch(i) {
             this.selectedSwitch = i
             this.selectedDateSwitch = 0 // 重置二级switch

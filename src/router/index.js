@@ -117,9 +117,15 @@ export default new Router({
                     meta: { title: '销售 - 销售订单' }
                 },
                 {
-                    path: '/sellstatistic',
-                    name: 'sellstatistic',
-                    component: () => import(/* webpackChunkName: "sellstatistic" */ '../components/page/main/sell/SellStatistic.vue'),
+                    path: '/orderinfoedit',
+                    name: 'orderinfoedit',
+                    component: () => import(/* webpackChunkName: "order" */ '../components/page/main/sell/OrderInfoEdit.vue'),
+                    meta: { title: '销售 - 销售订单详情' }
+                },
+                {
+                    path: '/sellstatistics',
+                    name: 'sellstatistics',
+                    component: () => import(/* webpackChunkName: "sellstatistics" */ '../components/page/main/sell/SellStatistics.vue'),
                     meta: { title: '销售 - 销售统计' }
                 },
                 {

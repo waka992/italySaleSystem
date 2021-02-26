@@ -41,10 +41,10 @@
                             type="text"
                             @click="checkDetail(scope.row)"
                         >详情</el-button>
-                        <el-button
+                        <!-- <el-button
                             type="text"
                             @click="checkDetail(scope.row)"
-                        >统计</el-button>
+                        >统计</el-button> -->
                         <el-button
                             class="del-btn"
                             type="text"
@@ -77,10 +77,14 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
-                        <el-table-column prop="time" label="日期" align="center"></el-table-column>
-                        <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
-                        <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
+                        <el-table-column prop="customerName" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="createTime" label="日期" align="center">
+                            <template slot-scope="scope">
+                                {{dateFormat(scope.row.createTime)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="caseNum" label="箱件数" align="center" width="80"></el-table-column>
+                        <el-table-column prop="price" label="总金额" align="center" width="80"></el-table-column>
                     </el-table>
                 </div>
                 <div class="right-box">
@@ -92,10 +96,14 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
-                        <el-table-column prop="time" label="日期" align="center"></el-table-column>
-                        <el-table-column prop="pics" label="箱件数" align="center" width="80"></el-table-column>
-                        <el-table-column prop="total" label="总金额" align="center" width="80"></el-table-column>
+                        <el-table-column prop="customerName" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="createTime" label="日期" align="center">
+                            <template slot-scope="scope">
+                                {{dateFormat(scope.row.createTime)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="caseNum" label="箱件数" align="center" width="80"></el-table-column>
+                        <el-table-column prop="price" label="总金额" align="center" width="80"></el-table-column>
                     </el-table>
                 </div>
             </div>
@@ -212,10 +220,11 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
+import moment from 'moment'
 import { 
     customerList,
-    registerCustomer,} from '@/api/index';
+    registerCustomer,
+    getBestCustomer} from '@/api/index';
 
 export default {
     name: 'ContainerInfo',
@@ -231,12 +240,8 @@ export default {
                 size: 5
             },
             tableData: [],
-            bestTableData: [
-                {memberName: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1', id: 1},
-            ],
-            commonTableData: [
-                {memberName: '广东沈外贸科技有限公司', pics: '6', time: '2020-11-15 14:53',  total: '1000000', id: 1},
-            ],
+            bestTableData: [],
+            commonTableData: [],
             form: {},
             rules: {
                 memberName: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -249,6 +254,7 @@ export default {
     },
     created() {
         this.getData();
+        this.getBest()
     },
     methods: {
         // 置空数据
@@ -286,6 +292,13 @@ export default {
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
+            })
+        },
+        getBest() {
+            getBestCustomer({}).then(res => {
+                console.log(res);
+                this.bestTableData = res.star
+                this.commonTableData = res.commonly
             })
         },
 
@@ -329,6 +342,14 @@ export default {
             this.$set(this.page, 'size', val);
             this.$set(this.page, 'no', 1);
             this.getData();
+        },
+        dateFormat(date, lang = 'CN') {
+            if (lang == 'CN') {
+                return moment(date).format('YYYY.MM.DD')
+            }
+            if (lang == 'EN') {
+                return moment(date).format('YYYY/MM/DD')
+            }
         },
     }
 };

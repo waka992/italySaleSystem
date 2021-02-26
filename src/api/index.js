@@ -143,6 +143,9 @@ export const customerList = query => {
 export const registerCustomer = query => {
     return post('user/ht/register', query)
 }
+export const getBestCustomer = query => {
+    return get('me/star', query)
+} 
 /** 
  * 单品
  */
@@ -218,4 +221,9 @@ export const getTitle  = query => {
 }
 export const delTitle  = query => {
     return get('ht/delTitle', query)
+}
+
+// 统计
+export const customerStatistics  = query => {
+    return get('sa/customerStatistics', query)
 }

@@ -9,8 +9,10 @@ const dict =  {
         {value: 1, label: 'CASH'},
     ],
     payStatus: [
-        {value: 0, label: '欠款'},
+        {value: 0, label: '未支付'},
         {value: 1, label: '已支付'},
+        {value: 2, label: '欠款'},
+        {value: 3, label: '已结欠'},
     ],
     payENStatus: [
         {value: 0, label: 'PAID'},

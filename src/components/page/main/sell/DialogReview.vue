@@ -224,6 +224,7 @@ export default {
         this.getDict = dict.getDict
     },
     methods: {
+       
         // 保存提交
         getPDF() {
             let data = cloneDeep(this.form)
@@ -353,6 +354,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+
 .dialog-bill {
     position: relative;
 
