@@ -414,6 +414,10 @@ export default {
                     }
                     // 编辑
                     else if (this.todo == 'edit') {
+                        createGoods(params).then(res => {
+                            this.$message.success('修改成功')
+                            this.todo = 'check'
+                        })
                         return
                     }
                 }

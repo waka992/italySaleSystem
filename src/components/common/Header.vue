@@ -6,7 +6,7 @@
                 <i v-if="!collapse">+</i>
             </div>
             <div class="drop-list" v-show="dropCollapse">
-                <span class="drop-list-item" v-for="list in headerList" :key="list.name">{{list.name}}</span>
+                <span class="drop-list-item" v-for="list in headerList" :key="list.id" @click="quickOperate(list.id)">{{list.name}}</span>
             </div>
         </div>
         <div class="header-right">
@@ -76,6 +76,21 @@ export default {
         }
     },
     methods: {
+        quickOperate(num) {
+            let routerName = this.$route.name
+            if (num == 0 && routerName != 'order') {
+                this.$router.push({name: 'order'})
+            }
+            if (num == 1 && routerName != 'dailyjournal') {
+                this.$router.push({name: 'dailyjournal'})
+            }
+            if (num == 2 && routerName != 'iteminfonew') {
+                this.$router.push({name: 'iteminfonew', params: {todo: 'new'}})
+            }
+            if (num == 3 && routerName != 'customerinfo') {
+                this.$router.push({name: 'customerinfo'})
+            }
+        },
         // 用户名下拉菜单选择事件
         handleCommand(command) {
             if (command == 'loginout') {
@@ -122,7 +137,8 @@ export default {
     mounted() {
         document.addEventListener('click', (e) => { 
             let that = this
-            if (!this.$refs.logo.contains(e.target)) this.dropCollapse = false 
+            let logo = this.$refs.logo
+            if (!logo || !logo.contains(e.target)) this.dropCollapse = false 
         })
     }
 };

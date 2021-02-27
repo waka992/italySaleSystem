@@ -7,7 +7,10 @@
             </el-breadcrumb>
         </div>
         <div class="top-box">
-            <div class="title">销售（{{year}}）</div>
+            <div class="title">销售统计</div>
+            <div class="date-select">
+                <date-selector @change="getSellDate"></date-selector>
+            </div>
             <div>
                 <div class="top-switch">
                     <div class="tab" :class="topSelected == i ? 'active' : ''" v-for="(tab, i) in topTab" :key="tab.name" @click="topTapClick(i)">{{tab.name}}</div>
@@ -22,8 +25,11 @@
         </div>
         <div class="top-box">
             <div class="title">销售利润</div>
-            <div class="date-select">
+            <!-- <div class="date-select">
                 <date-selector @change="getSellDate"></date-selector>
+            </div> -->
+            <div class="horizon-charts">
+                <horizon-line ref="horizonLine" :height="'180px'" :width="'300px'"></horizon-line>
             </div>
         </div>
     </div>
@@ -31,9 +37,11 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
+import moment from 'moment'
 import LineChart from '@/components/charts/LineChart'
+import HorizonLine from '@/components/charts/HorizonLine'
 import DateSelector from '@/components/public/DateSelector'
+
 import { 
 profitSum, } from '@/api/index';
 
@@ -41,7 +49,8 @@ export default {
     name: 'ProfitStatistics',
     components: {
         LineChart,
-        DateSelector
+        DateSelector,
+        HorizonLine
     },
     data() {
         return {
@@ -49,30 +58,51 @@ export default {
             year: 2020,
             topSelected: 0, 
             dateSelected: 0,
+            saleDate: '',
             topTab: [{name: '销售'}, {name: '收入'}, {name: '支出'}, {name: '利润'}],
             dateTab: [{name: '今日'}, {name: '7日'}, {name: '14日'}],
-            chartData: [
-                {x: 'H101', y: 5},
-                {x: 'H102', y: 20},
-                {x: 'H103', y: 36},
-                {x: 'H104', y: 10},
-                {x: 'H105', y: 10},
-                {x: 'H106', y: 20},
-            ]
+       
         };
     },
-    created() {
+    mounted() {
         this.getData();
     },
     methods: {
         // 查
         getData() {
-            profitSum({}).then(res => {
-                console.log(res);
+            let params = {
+                saleDate: this.saleDate || moment().format('YYYY-MM-DD'),
+                saleType: (this.dateSelected * 7 - 1) > 0 ? (this.dateSelected * 7 - 1) : 0
+            }
+            profitSum(params).then(res => {
+                let data = []
+                switch(this.topSelected) {
+                    case 0:
+                        data = res.sale
+                        break
+                    case 1:
+                        data = res.income
+                        break
+                    case 2:
+                        data = res.pay
+                        break
+                    case 3:
+                        data = res.profit
+                        break
+                }
+                for (let i = 0; i < data.length; i++) {
+                    const ele = data[i];
+                    data[i].x = ele.days.slice(5)
+                    data[i].y = ele.price
+                    data[i].caseNum = ele.caseNum
+                }
+                this.setData(data)
+                this.$refs.horizonLine.setData(res.saleToday)
             })
         },
         getSellDate(date) {
-            console.log(date);
+            this.saleDate = date
+            this.getData()
         },
         topTapClick(i) {
             this.topSelected = i
@@ -80,19 +110,20 @@ export default {
             if (i == 1) {this.topTar = 'income'}
             if (i == 2) {this.topTar = 'pay'}
             if (i == 3) {this.topTar = 'profit'}
-            this.setData()
+            this.getData()
         },
         dateTapClick(i) {
             this.dateSelected = i
-            this.setData()
+            this.getData()
         },
-        setData() { // tar 销售sold 收入income 支出pay 利润profit
+        setData(data) { // tar 销售sold 收入income 支出pay 利润profit
             let xData = []
             let yData = []
-            for (let i = 0; i < this.chartData.length; i++) {
-                const element = this.chartData[i];
-                xData.push(element.x)
-                yData.push({value: Math.random()*20, amount: 18}) // amount箱数
+            for (let i = 0; i < data.length; i++) {
+                const ele = data[i];
+                xData.push(ele.x)
+                // yData.push({value: Math.random()*20, amount: 18}) // amount箱数
+                yData.push({value: ele.y, amount: ele.caseNum}) // amount箱数
             }
             
             let options = {
@@ -107,28 +138,28 @@ export default {
             if (this.topTar == 'sold') {
                 options.series[0].tooltip = {
                     formatter: (params) => {
-                        return '金额¥' + params.data.value + '&nbsp箱数' + params.data.amount
+                        return '金额:' + params.data.value + '&nbsp箱数' + params.data.amount
                     }
                 }
             }
             if (this.topTar == 'income') {
                 options.series[0].tooltip = {
                     formatter: (params) => {
-                        return '收入金额¥' + params.data.value
+                        return '收入金额:' + params.data.value
                     }
                 }
             }
             if (this.topTar == 'pay') {
                 options.series[0].tooltip = {
                     formatter: (params) => {
-                        return '支出金额¥' + params.data.value
+                        return '支出金额:' + params.data.value
                     }
                 }
             }
             if (this.topTar == 'profit') {
                 options.series[0].tooltip = {
                     formatter: (params) => {
-                        return '利润¥' + params.data.value
+                        return '利润:' + params.data.value
                     }
                 }
             }
@@ -157,6 +188,14 @@ export default {
     .charts {
         position: absolute;
         width: 300px;
+        top: 125px;
+
+        @include xcenter;
+    }
+
+    .horizon-charts {
+        position: absolute;
+        width: 600px;
         top: 125px;
 
         @include xcenter;
