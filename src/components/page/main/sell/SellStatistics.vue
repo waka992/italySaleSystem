@@ -6,219 +6,395 @@
                 <el-breadcrumb-item>销售统计</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
-        <div class="box">
+        <div class="top-box">
+            <div class="date-select">
+                <date-selector @change="getSellDate"></date-selector>
+            </div>
+            <div>
+                <div class="top-switch">
+                    <div class="tab" :class="topSelected == i ? 'active' : ''" v-for="(tab, i) in topTab" :key="tab.name" @click="topTapClick(i)">{{tab.name}}</div>
+                </div>
+                <div class="date-switch">
+                    <div class="tab" :class="dateSelected == i ? 'active' : ''" v-for="(tab, i) in dateTab" :key="tab.name" @click="dateTapClick(i)">{{tab.name}}</div>
+                </div>
+                <div class="attribute-select-area" v-show="topTar == 'attribute'">
+                    <span>特色/Special</span>
+                    <span>
+                        <el-select v-model="attrForm.special" class="attr-select" placeholder="请选择" @change="getAttributeData" clearable>
+                            <el-option v-for="(opt,i) in itemOptions.special" :key="i" :label="opt.label" :value="opt.value"></el-option>
+                        </el-select>
+                    </span>
+                    <span>颜色/Color</span>
+                    <span>
+                        <el-select v-model="attrForm.color" class="attr-select" placeholder="请选择" @change="getAttributeData" clearable>
+                            <el-option v-for="(opt,i) in itemOptions.color" :key="i" :label="opt.label" :value="opt.value"></el-option>
+                        </el-select>
+                    </span>
+                    <span>尺码/Size</span>
+                    <span>
+                        <el-select v-model="attrForm.size" class="attr-select" placeholder="请选择" @change="getAttributeData" clearable>
+                            <el-option v-for="(opt,i) in itemOptions.size" :key="i" :label="opt.label" :value="opt.value"></el-option>
+                        </el-select>
+                    </span>
+                    <span>面料/Material</span>
+                    <span>
+                        <el-select v-model="attrForm.material" class="attr-select" placeholder="请选择" @change="getAttributeData" clearable>
+                            <el-option v-for="(opt,i) in itemOptions.material" :key="i" :label="opt.label" :value="opt.value"></el-option>
+                        </el-select>
+                    </span>
+                </div>
+                <div class="charts">
+                    <line-chart ref="lineChart" :height="'400px'" :width="'100%'"></line-chart>
+                </div>
+                <div class="data-list">
+                    <span v-for="(list, i) in listData" :key="i" style="margin-right:36px;">
+                        {{
+                            topTar == 'single' ? list.specification :
+                            topTar == 'customer' ? list.customer_name :
+                            topTar == 'attribute' ? list.goodsName : ''
+                        }}-{{list.CASENUM}}箱-金额：{{list.PRICE}}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import {cloneDeep} from 'lodash';
+import moment from 'moment'
+import DateSelector from '@/components/public/DateSelector'
+import LineChart from '@/components/charts/LineChart'
+import { 
+arrtibuteSum,
+customerSum,
+goodsSum,
+getAttrList} from '@/api/index';
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'SellStatistics',
+    components: {
+        DateSelector,
+        LineChart
+    },
     data() {
         return {
+            listData: [],
+            date: '',
+            topTar: 'single',
             baseDialogVisible: false,
             status: 0,
-            statusOptions: [
-                {label: '全部', value: 0},
-                {label: '已到货', value: 1},
-                {label: '即将到货', value: 2},
-            ],
-            seasonOptions: [
-                {label: '2021春', value: 0},
-                {label: '2021秋', value: 1},
-            ],
-            transporterOptions: [
-                {label: '德邦物流', value: 0},
-                {label: '顺丰物流', value: 1},
-                {label: 'UPS', value: 2},
-            ],
-            containerTypeOptions: [
-                {label: '海运', value: 0},
-                {label: '陆运', value: 1},
-                {label: '空运', value: 2},
-            ],
-            page: {
-                no: 1,
-                total: 0,
-                size: 20
+            topSelected: 0, 
+            dateSelected: 0,
+            topTab: [{name: '单品'}, {name: '客户'}, {name: '属性'}],
+            dateTab: [{name: '周'}, {name: '月'}, {name: '季'}, {name: '年'}],
+            attrForm: {
+                special: '',
+                color: '',
+                size: '',
+                material: '',
             },
-            tableData: [
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流2', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-                {name: '广东沈外贸科技有限公司', time: '2020-11-16 14:45', transporter: '德邦物流', pics: 5, status: '1', id: 1},
-            ],
-            form: {
-                name: '',
-                season: '',
-                transporter: '',
-                containerType: '',
-                fund: '',
-                arriveTime: '',
-                sellTime: '',
-            },
-            rules: {
-                name: [{ required: true, message: '请输入', trigger: 'change' }],
-                season: [{ required: true, message: '请选择', trigger: 'change' }],
-                transporter: [{ required: true, message: '请选择', trigger: 'change' }],
+            itemOptions: {
+                special: [],
+                color: [],
+                size: [],
+                material: [],
             }
         };
     },
     created() {
-        this.getData();
+        this.getSingleData();
+        this.getAttributeOption()
     },
     methods: {
+        getSellDate(date) {
+            this.date = date
+            this.topTapClick(this.topSelected)
+        },
         // 置空数据
-        resetData() {
-            this.form = {
-                name: '',
-                season: '',
-                transporter: '',
-                containerType: '',
-                fund: '',
-                arriveTime: '',
-                sellTime: '',
-            }
+        resetChart() {
+            this.listData = []
+            this.setData([])
         },
 
-        // 增准备
-        addReady() {
-            this.resetData()
-            this.baseDialogVisible = true;
-        },
 
         // 查
-        getData() {
+        getSingleData() {
             let obj = {
-                pageSize:  this.page.size,
-                page:  this.page.no,
+                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                type: this.dateSelected,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
-        },
-
-  
-        // 保存编辑
-        save() {
-            let params = cloneDeep(this.form)
-            this.$refs.form.validate(valid => {
-                console.log(valid);
-                if (valid) {
-                    // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+            goodsSum(obj).then(res => {
+                let data = res
+                for (let i = 0; i < data.length; i++) {
+                    const ele = data[i];
+                    data[i].x = ele.specification
+                    data[i].y = ele.PRICE
+                    data[i].caseNum = ele.CASENUM
                 }
+                this.listData = data
+                this.setData(data)
             })
         },
 
-        checkDetail(id) {
-            this.$router.push({name: 'containerinfodetail', params: {id: id}})
+        getCustomerData() {
+            let obj = {
+                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                type: this.dateSelected,
+            }
+            customerSum(obj).then(res => {
+                let data = res
+                for (let i = 0; i < data.length; i++) {
+                    const ele = data[i];
+                    data[i].x = ele.customer_name
+                    data[i].y = ele.PRICE
+                    data[i].caseNum = ele.CASENUM
+                }
+                this.listData = data
+                this.setData(data)
+            })
         },
 
-        // 分页导航
-        basePageChange(val) {
-            this.$set(this.page, 'no', val);
-            this.getData();
+        getAttributeData() {
+            if (!this.attrForm.special && !this.attrForm.color && !this.attrForm.material && !this.attrForm.size) {
+                return
+            }
+            let obj = {
+                stime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                type: this.dateSelected,
+                characteristic: this.attrForm.special ? [this.attrForm.special] : [], // 后端好像可以多选
+                color: this.attrForm.color ? [this.attrForm.color] : [],
+                component: this.attrForm.material ? [this.attrForm.material] : [],
+                sizes: this.attrForm.size ? [this.attrForm.size] : []
+            }
+            arrtibuteSum(obj).then(res => {
+                let data = res
+                for (let i = 0; i < data.length; i++) {
+                    const ele = data[i];
+                    data[i].x = ele.goodsName
+                    data[i].y = ele.PRICE
+                    data[i].caseNum = ele.CASENUM
+                }
+                this.listData = data
+                this.setData(data)
+            })
         },
-        // 每页数量改变
-        handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+
+        setData(data) { // tar 销售sold 收入income 支出pay 利润profit
+                let xData = []
+                let yData = []
+                for (let i = 0; i < data.length; i++) {
+                    const ele = data[i];
+                    xData.push(ele.x)
+                    // yData.push({value: Math.random()*20, amount: 18}) // amount箱数
+                    yData.push({value: ele.y, amount: ele.caseNum}) // amount箱数
+                }
+                
+                let options = {
+                    xAxis: {
+                        data: xData,
+                        axisLabel: {
+                            fontSize: 14
+                        }
+                    },
+                    yAxis: {
+                        axisLabel: {
+                            fontSize: 14
+                        }
+                    },
+                    series: [{
+                        data: yData,
+                       
+                    }],
+                }
+                if (this.topTar == 'single') {
+                    options.series[0].tooltip = {
+                        formatter: (params) => {
+                            return '金额:' + params.data.value + '&nbsp箱数' + params.data.amount
+                        }
+                    }
+                }
+                // if (this.topTar == 'income') {
+                //     options.series[0].tooltip = {
+                //         formatter: (params) => {
+                //             return '收入金额:' + params.data.value
+                //         }
+                //     }
+                // }
+                // if (this.topTar == 'pay') {
+                //     options.series[0].tooltip = {
+                //         formatter: (params) => {
+                //             return '支出金额:' + params.data.value
+                //         }
+                //     }
+                // }
+                // if (this.topTar == 'profit') {
+                //     options.series[0].tooltip = {
+                //         formatter: (params) => {
+                //             return '利润:' + params.data.value
+                //         }
+                //     }
+                // }
+            this.$refs.lineChart.setData(options)
+        },
+
+        topTapClick(i) {
+            this.topSelected = i
+            if (i == 0) {
+                this.topTar = 'single'
+                this.getSingleData()
+            }
+            if (i == 1) {
+                this.topTar = 'customer'
+                this.getCustomerData()
+            }
+            if (i == 2) {
+                this.topTar = 'attribute'
+                this.resetChart()
+                this.getAttributeData()
+            }
+        },
+        getAttributeOption() {
+            this.itemOptions = {
+                special: [],
+                color: [],
+                size: [],
+                material: [],
+            }
+            getAttrList().then(res => {
+            for (const key in res) {
+                if (Object.hasOwnProperty.call(res, key)) {
+                    const ele = res[key];
+                    for (let j = 0; j < ele.length; j++) {
+                        const ele2 = ele[j];
+                        let target = ''
+                        switch(key) {
+                            case '0':
+                                target = 'color'
+                                break
+                            case '1':
+                                target = 'size'
+                                break
+                            case '2':
+                                target = 'material'
+                                break
+                            case '5':
+                                target = 'special'
+                                break
+                        }
+                        if (!target) {break}
+                        this.itemOptions[target].push({
+                            label: ele2.arrtibute,
+                            value: ele2.arrtibute
+                        })
+                    }
+                }
+                }
+            })
+        },
+        dateTapClick(i) {
+            this.dateSelected = i
+            this.topTapClick(this.topSelected)
         },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-
-.box {
+.attribute-select-area {
+    margin-top: 20px;
+    text-align: center;
+}
+.attr-select {
+    width: 120px;
+    margin-right: 30px;
+    margin-left: 10px;
+}
+.top-box {
     position: relative;
-    padding: 12px;
+    padding: 23px 28px;
     margin: 0 23px;
     background-color: #fff;
+    min-height: 80vh;
+    margin-bottom: 18px;
+}
+.date-select {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+}
+.charts {
+    width: 70%;
+    margin: 0 auto;
+    margin-top: 20px;
 }
 
-.handle-box {
-    width: 100%;
-    margin-bottom: 20px;
-
-    .label {
-        width: 50px;
-        font-size: 12px;
-        color: #1F1F21;
-        margin-right: 18px;
+    .top-switch, .date-switch {
+        // @include xcenter
+        text-align: center;
     }
-    
-    .name-search {
-        display: inline-block;
-        width: 178px;
-        margin-right: 36px;
-    }
-
-    .status,.time {
-        display: inline-block;
-        width: 230px;
-
-        .el-select {
+    .top-switch {
+        top: 20px;
+        
+        .tab {
             display: inline-block;
-            width: 142px;
+            width: 90px;
+            height: 27px;
+            line-height: 27px;
+            background-color: #fff;
+            color: #999;
+            border: 1px solid #999;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+
+            &:last-child {
+                margin-left: -1px;
+            }
+
+            &.active {
+                border: 1px solid $theme-color;
+                background-color: #E2F0FF;
+                color: $theme-color;
+            }
         }
     }
+    .date-switch {
+        margin-top: 10px;
+        width: 100%;
+        
+        .tab {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 27px;
+            line-height: 27px;
+            background-color: #fff;
+            color: #1F1F21;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
 
-    .new-btn {
-        float: right;
+            &.active {
+                color: $theme-color;
+            }
+
+            &.active::after {
+                content: '';
+                position: absolute;
+                width: 15px;
+                height: 3px;
+                background-color: $theme-color;
+                bottom: 0;
+                @include xcenter
+            }
+        }
     }
-    
-}
-
-.title {
-    position: absolute;
-    top: 22px;
-    left: 28px;
-    font-size: 16px;
-    color: #303133;
-    font-weight: 500;
-}
-
-.pagination {
-    margin-top: 40px;
-}
-
-.table {
-    width: 100%;
-    font-size: 11px;
-}
-
-.mr10 {
-    margin-right: 10px;
-}
-.el-dialog__header {
-    padding: 30px 48px !important;
-}
-.dialog-footer {
-    display: inline-block;
-    text-align: center;
-    width: 100%;
-}
-.curr-btn {
-    width: 75px;
-}
-
-.form-input {
-    width: 284px;
-}
+    .data-list {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #1F1F21;
+    }
 </style>

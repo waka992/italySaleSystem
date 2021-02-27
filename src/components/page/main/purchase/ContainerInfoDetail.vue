@@ -38,7 +38,7 @@
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">货柜类型：</span>
-                        <span class="detail-content">{{comInfo.transpoterType}}</span>
+                        <span class="detail-content">{{getDict(comInfo.transpoterType, 'transportType')}}</span>
                     </el-col>
                     <el-col :span="5">
                         <span class="detail-label">货柜费用：</span>
@@ -196,6 +196,7 @@ import {
     getContainerPage,
     containerDetail,
     } from '@/api/index';
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'ContainerInfoDetail',
@@ -222,6 +223,7 @@ export default {
         };
     },
     created() {
+        this.getDict = dict.getDict
         let data = this.$route.params.data
         this.id = data.id
         this.getData()

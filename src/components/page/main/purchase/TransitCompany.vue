@@ -100,7 +100,7 @@ import {
 } from '@/api/index';
 
 export default {
-    name: 'Supplier',
+    name: 'TransitCompany',
     data() {
         return {
             baseDialogVisible: false,

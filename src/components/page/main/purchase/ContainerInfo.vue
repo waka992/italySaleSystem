@@ -55,8 +55,8 @@
                 <el-table-column prop="transpoterName" label="运输商" align="center"></el-table-column>
                 <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
                 <el-table-column prop="contaninerType" label="状态" align="center" width="120">
-                    <template  slot-scope="scope">
-                        {{scope.row.contaninerType}}
+                   <template slot-scope="scope">
+                        {{getDict(scope.row.contaninerType, 'containerStatus')}}
                     </template>
                 </el-table-column>
                 
@@ -123,7 +123,7 @@
                         
                     <el-select class="form-input" size="mini" v-model="form.transpoterType" placeholder="请选择">
                         <el-option
-                        v-for="item in containerTypeOptions"
+                        v-for="item in dict.transportType"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -173,6 +173,7 @@ import {
     getContainerPage,
     getAllTransporter,
      } from '@/api/index';
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'ContainerInfo',
@@ -190,10 +191,7 @@ export default {
                 {label: '2021秋', value: 1},
             ],
             transporterOptions: [],
-            containerTypeOptions: [
-                {label: '海运', value: 0},
-                {label: '陆运', value: 1},
-                {label: '空运', value: 2},
+            transportType: [
             ],
             page: {
                 no: 1,
@@ -210,6 +208,8 @@ export default {
         };
     },
     created() {
+        this.getDict = dict.getDict
+        this.dict = dict
         this.getData();
         this.getTransporter()
     },

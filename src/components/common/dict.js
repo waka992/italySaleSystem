@@ -38,6 +38,18 @@ const dict =  {
         {value: 2, label: '面料/Material'},
         {value: 4, label: '配比/Ratio'},
     ],
+    containerStatus: [
+        {value: 0, label: '未运输'},
+        {value: 1, label: '已发货'},
+        {value: 2, label: '已到达待确认'},
+        {value: 3, label: '已确认货物'},
+    ],
+    transportType: [
+        {value: 0, label: '海运'},
+        {value: 1, label: '陆运'},
+        {value: 2, label: '空运'},
+        {value: 3, label: '其他'},
+    ],
 
 
     // 字典

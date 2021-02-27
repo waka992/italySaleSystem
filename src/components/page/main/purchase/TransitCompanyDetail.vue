@@ -62,16 +62,24 @@
                     ref="multipleTable"
                     header-cell-class-name="table-header"
                 >
-                    <el-table-column prop="time" label="货柜时间"  align="center"></el-table-column>
-                    <el-table-column prop="date" label="日期" align="center"></el-table-column>
-                    <el-table-column prop="pics" label="件数" align="center"></el-table-column>
-                    <el-table-column prop="status" label="状态" align="center">
+                    <el-table-column prop="estimate" label="货柜时间"  align="center">
                         <template slot-scope="scope">
-                            {{scope.row.status == 1 ? '运输完成' : '运输中'}}
+                            {{timeFormat(scope.row.estimate)}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="value" label="金额" align="center"></el-table-column>
-                    <el-table-column label="操作" width="130" align="center">
+                    <el-table-column prop="createTime" label="日期" align="center">
+                        <template slot-scope="scope">
+                            {{timeFormat(scope.row.createTime)}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
+                    <el-table-column label="状态" align="center">
+                        <template slot-scope="scope">
+                            {{getDict(scope.row.contaninerType, 'containerStatus')}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="cost" label="金额" align="center"></el-table-column>
+                    <!-- <el-table-column label="操作" width="130" align="center">
                         <template slot-scope="scope">
                             <el-button
                                 icon="el-icon-s-operation"
@@ -79,9 +87,9 @@
                                 type="primary"
                             >查看详情</el-button>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                 </el-table>
-                <!-- <div class="pagination">
+                <div class="pagination">
                     <el-pagination
                         background
                         :current-page="page.no"
@@ -92,9 +100,9 @@
                         @size-change="handleSizeChange"
                         @current-change="basePageChange"
                     ></el-pagination>
-                </div> -->
+                </div>
                 <div class="operate">
-                    <el-button plain>返回</el-button>
+                    <el-button plain @click="back">返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
                 </div>
             </div>
@@ -183,16 +191,18 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
+import moment from 'moment'
+import dict from '@/components/common/dict.js'
 import {
     addOrUpdateTransporter,
     delTransporter,
     getAllTransporter,
     getTransporterPage,
+    getContainerPage
 } from '@/api/index';
 
 export default {
-    name: 'CompanyBaseInfo',
+    name: 'TransitCompanyDetail',
     data() {
         return {
             delVisible: false,
@@ -201,22 +211,12 @@ export default {
             page: {
                 no: 1,
                 total: 0,
-                size: 10
+                size: 5
             },
             // 展示用
             comInfo: {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
             },
-            // 支出收入列表
             tableData: [
-                {time: '2020.12.22', date: '2020.12.30', pics: 120, status: 1, value: 43535, id: 1},
-                {time: '2020.12.22', date: '2020.12.30', pics: 120, status: 1, value: 43535, id: 1},
-                {time: '2020.12.22', date: '2020.12.30', pics: 120, status: 1, value: 43535, id: 1},
-                {time: '2020.12.22', date: '2020.12.30', pics: 120, status: 1, value: 43535, id: 1},
-                {time: '2020.12.22', date: '2020.12.30', pics: 120, status: 1, value: 43535, id: 1},
             ],
             // 修改用
             form: {
@@ -245,6 +245,7 @@ export default {
         };
     },
     created() {
+        this.getDict = dict.getDict
         let data = this.$route.params.data
         this.comInfo = {
             id: data.id,
@@ -253,6 +254,8 @@ export default {
             transporterMobile: data.transporterMobile,
             transporterOther: data.transporterOther,
         }
+        this.getData()
+
     },
     methods: {
         // 置空数据
@@ -282,12 +285,13 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                id: this.comInfo.id
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getContainerPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
 
   
@@ -346,8 +350,16 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
+        timeFormat(time) {
+            return moment(time).format('YYYY-MM-DD')
+        },
+        back() {
+            this.$router.push({name: 'transitcompany'})
+        }
     }
 };
 </script>

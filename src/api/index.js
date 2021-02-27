@@ -235,3 +235,15 @@ export const profitSum = query => {
 export const dailyJournal = query => {
     return get('sa/turnover', query)
 }
+
+export const arrtibuteSum = query => {
+    return post('sa/arrtibuteSum', query)
+}
+
+export const customerSum = query => {
+    return get('sa/customerSum', query)
+}
+
+export const goodsSum = query => {
+    return get('sa/goodsSum', query)
+}
