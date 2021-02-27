@@ -28,6 +28,17 @@
                 <!-- <el-input size="mini" class="form-input" v-model="form.transportName" placeholder="请输入" ></el-input> -->
             </el-form-item>
 
+            <el-form-item label="公司" prop="company">
+                <el-autocomplete
+                    class="form-input" 
+                    size="mini"
+                    v-model="form.companyName"
+                    :fetch-suggestions="queryCompany"
+                    @select="handleSelectCompany"
+                    placeholder="请输入"
+                ></el-autocomplete>
+            </el-form-item>
+
             <el-form-item label="支付方式" prop="payType">
                 <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
                     <el-option v-for="(type,i) in dict.payWay" :value="type.value" :label="type.label" :key="i">
@@ -101,7 +112,8 @@ import {
 userList,
 checkSkuOrder,
 getTransporterPage,
-getTitle } from '@/api/index';
+getTitle,
+getCompPage } from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
 
 export default {
@@ -176,6 +188,8 @@ export default {
                 discount: '1',
                 exchangeRate: '',
                 taxRate: '',
+                companyName: '',
+                companyId: '',
             }
             this.goodsList = [
                 {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
@@ -250,6 +264,22 @@ export default {
                 cb(arr)
             })
         },
+        queryCompany(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                name: qs
+            }
+            getCompPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.name
+                        arr.push(ele)
+                    }
+                cb(arr)
+            })
+        },
         handleProductSelect(item, i) {
             this.$set(this.goodsList[i], 'goodsId', item.goodsId)
             this.$set(this.goodsList[i], 'goodsName', item.name)
@@ -257,6 +287,10 @@ export default {
         handleSelect(item) {
             this.form.customerName = item.memberName
             this.form.customerId = item.id
+        },
+        handleSelectCompany(item){
+            this.form.companyName = item.name
+            this.form.companyId = item.id
         },
         getTaxRate() {
             let obj = {

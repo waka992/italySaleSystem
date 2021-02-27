@@ -31,11 +31,13 @@ export default {
     mounted() {
     },
     methods: {
+        resetDate() {
+            this.date = ''
+        },
         dateClick() {
             this.$refs.dateSelector.focus()
         },
         dateChange(date) {
-            console.log(date);
             this.date = date
             this.$emit('change', date)
         }

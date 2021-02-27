@@ -124,8 +124,7 @@ orderDetail,
 getOrderByCustomer,
 getOrderPage,
 sumOrder,
-payOrder,
-settleOrder, } from '@/api/index';
+ } from '@/api/index';
 
 export default {
     name: 'Order',

@@ -1,5 +1,8 @@
 <template>
     <div class="dialog-sold">
+         <div class="date-area">
+            <date-selector ref="dateSelector" @change="getDateRange"></date-selector>
+        </div>
         <div class="top-switch">
             <div class="item" 
                 :class="i == selectedSwitch ? 'selected' : ''" 
@@ -52,23 +55,31 @@ import {cloneDeep} from 'lodash';
 import dict from '@/components/common/dict.js'
 import StatisticsPie from '@/components/charts/StatisticsPie.vue'
 import moment from 'moment';
+import DateSelector from '@/components/public/DateSelector'
+import { 
+    customerStatistics,
+    } from '@/api/index';
 export default {
     name: 'DialogSold',
     components: {
-        StatisticsPie
+        StatisticsPie,
+        DateSelector
     },
     data() {
         return {
+            attrType: 0, // 0特色1销售
+            dateType: 0, // 0123周月季年
+            date: '', // 用于确定数据时间
             id: '',
             selectedSwitch: 0,
             switchs: [{label: '特色统计'}, {label: '销售统计'}],
             selectedDateSwitch: 0,
             dateSwitchs: [{label: '周'}, {label: '月'}, {label: '季'}, {label: '年'}],
             total: {
-                name: 16,
-                value: 16000,
-                pics: 1230,
-                boxes: 16,
+                name: '',
+                value: '',
+                pics: '',
+                boxes: '',
             }
         }
     },
@@ -81,15 +92,57 @@ export default {
     methods: {
         setId(id) {
             this.id = id
+            this.resetData()
+        },
+        setName(name) {
+            this.total.name = name
+        },
+        resetData() {
+            this.attrType = 0 // 0特色1销售
+            this.dateType = 0 // 0123周月季年
+            this.date = '' // 用于确定数据时间
+            this.selectedSwitch = 0
+            this.selectedDateSwitch = 0
+            this.total = {
+                name: '',
+                value: '',
+                pics: '',
+                boxes: '',
+            }
+            this.$nextTick(() => {
+                this.$refs.dateSelector.resetDate()
+            })
         },
         getData() {
-            customerStatistics({id: this.id, saleType: 7}).then(res => {
-                console.log(res);
+            let data = {
+                type: this.dateType,
+                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                id: this.id, // 客户id
+            }
+            customerStatistics(data).then(res => {
+                let {label, sale, sum} = res
+                for (let i = 0; i < sale.length; i++) {
+                    const element = sale[i];
+                    element.caseNum = element.CASENUM
+                    element.price = element.PRICE
+                    let unit = (this.dateType == 0 ? '周' 
+                    : this.dateType == 1 ? '月'
+                    : this.dateType == 2 ? '季' 
+                    : this.dateType == 3 ? '年' : '')
+                    element.label = element.days + unit
+                }
+                let targetArr = []
+                if (this.attrType == 0) { targetArr = label } // 特色
+                if (this.attrType == 1) { targetArr = sale } // 销售
+                this.total.value = sum.PRICE
+                this.total.pics = sum.GOODSTOTAL
+                this.total.boxes = sum.CASENUM
+                this.setChartData(targetArr)
             })
         },
         selectSwitch(i) {
             this.selectedSwitch = i
-            this.selectedDateSwitch = 0 // 重置二级switch
+            // this.selectedDateSwitch = 0 // 重置二级switch
             this.topSwitchHandle(i)
         },
         selectDateSwitch(i) {
@@ -98,46 +151,34 @@ export default {
         },
         // 上switch
         topSwitchHandle(tar) {
-            if (tar == 0) {
-
-            }
-            if (tar == 1) {}
+            this.attrType = tar
+            this.getData()
         },
         // 下switch
         timeSwitchHandle(tar) {
-            // 周
-            if (tar == 0) {}
-            // 月
-            if (tar == 1) {}
-            // 季
-            if (tar == 2) {}
-            // 年
-            if (tar == 3) {}
+            this.dateType = tar
+            this.getData()
         },
-        setChartData() {
+        getDateRange(date) {
+            if (date) {
+                this.date = moment(date).format("YYYY-MM-DD")
+                this.getData()
+            }
+        },
+        setChartData(data) {
             // 数据处理
-            let data = [
-                {name: '1号', value: 1, amount: '1'},
-                {name: '2', value: 2, amount: '1'},
-                {name: '3', value: 3, amount: '1'},
-                {name: '4', value: 4, amount: '1'},
-                {name: '5', value: 5, amount: '1'},
-                {name: '6', value: 6, amount: '1'},
-                {name: '7', value: 7, amount: '1'},
-                {name: '8', value: 8, amount: '8'},
-            ]
             let legendData = []
             let seriesData = cloneDeep(data)
             for (let i = 0; i < data.length; i++) {
                 const element = data[i];
-                legendData.push(element.name)
-                seriesData[i].name = element.name
-                seriesData[i].value = element.value
+                legendData.push(element.label)
+                seriesData[i].name = element.label
+                seriesData[i].value = element.caseNum
             }
             console.log(legendData);
             console.log(seriesData);
             let legendOption = []
-            if (legendData < 6) {
+            if (legendData.length < 6) {
                 legendOption = {
                     data: legendData,
                     orient: 'vertical',
@@ -152,7 +193,7 @@ export default {
                                 index = i;
                             }
                         });
-                        return name + " " + seriesData[index].amount + '箱  ' + seriesData[index].value + '¥';
+                        return name + " " + seriesData[index].caseNum + '箱  ' + seriesData[index].price;
                     }
                 }
             }
@@ -175,7 +216,7 @@ export default {
                                         index = i;
                                     }
                                 });
-                                return name + " " + seriesData[index].amount + '箱  ' + seriesData[index].value + '¥';
+                                return name + " " + seriesData[index].caseNum + '箱  ' + seriesData[index].price;
                             }
                         }
                     )             
@@ -208,6 +249,13 @@ export default {
     position: relative;
     height: 533px;
     overflow: hidden;
+
+    .date-area {
+        position: absolute;
+        right: 0;
+        width: 130px;
+        top: 8px;
+    }
 }
 
 .top-switch, .second-switch {
@@ -229,6 +277,7 @@ export default {
             background-color: #E2F0FF;
         }
     }
+    
 }
 
 .second-switch {

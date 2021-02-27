@@ -50,7 +50,7 @@ export default {
                     },
                     series: [
                         {
-                            name: '姓名',
+                            name: '',
                             type: 'pie',
                             radius: '106px',
                             center: ['30%', '50%'],

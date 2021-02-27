@@ -6,10 +6,17 @@
             </el-form-item>
             <el-form-item label="支付方式" prop="payType">
                 <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
-                    <el-option v-for="(type,i) in dict.payWay" :value="type.value" :label="type.label" :key="i">
+                    <el-option v-for="(type,i) in dict.accountType" :value="type.value" :label="type.label" :key="i">
                     </el-option>
                 </el-select>
             </el-form-item>
+            <!-- <el-form-item label="资金来源" prop="accountType">
+                <el-select class="form-input" size="mini" v-model="form.accountType" placeholder="请选择">
+                    <el-option v-for="(type,i) in dict.accountType" 
+                    :label="type.label" :value="type.value"
+                    :key="i"></el-option>
+                </el-select>
+            </el-form-item> -->
         </el-form>
     </div>
 </template>
@@ -29,7 +36,7 @@ export default {
             dict: {},
             form: {
                 amount: 0,
-                payType: ''
+                payType: '',
             },
             rules: {
                 amount: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -57,7 +64,8 @@ export default {
         resetData() {
             this.form = {
                 amount: 0,
-                payType: ''
+                payType: '',
+                // accountType: 0,
             }
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()

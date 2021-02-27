@@ -88,7 +88,7 @@
                         : scope.row.skuStatus === 2 ? '售罄' : '预录入'}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="boxes" label="箱数" align="center"></el-table-column>
+                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
                 <el-table-column prop="salePrice" label="售价" align="center"></el-table-column>
                 <el-table-column prop="price" label="总销售箱/件" align="center" v-if="false">
 

@@ -4,6 +4,13 @@
             <el-form-item label="结欠金额" prop="amount">
                 <el-input size="mini" class="form-input" v-model="form.amount" placeholder="请输入" ></el-input>
             </el-form-item>
+            <el-form-item label="资金来源" prop="accountType">
+                <el-select class="form-input" size="mini" v-model="form.accountType" placeholder="请选择">
+                    <el-option v-for="(type,i) in dict.accountType" 
+                    :label="type.label" :value="type.value"
+                    :key="i"></el-option>
+                </el-select>
+            </el-form-item>
         </el-form>
     </div>
 </template>
@@ -19,8 +26,10 @@ export default {
     },
     data() {
         return {
+            dict: {},
             form: {
-                amount: 0
+                amount: 0,
+                accountType: 0,
             },
             rules: {
                 amount: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -32,10 +41,11 @@ export default {
     },
     methods: {
         sendData() {
-            this.$emit('balance', this.form.amount)
+            this.$emit('balance', this.form)
         },
         resetData() {
             this.form.amount = 0
+            this.form.accountType = 0
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })

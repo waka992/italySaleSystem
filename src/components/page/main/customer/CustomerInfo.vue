@@ -77,7 +77,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="customerName" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="customer_name" label="客户名称" align="center"></el-table-column>
                         <el-table-column prop="createTime" label="日期" align="center">
                             <template slot-scope="scope">
                                 {{dateFormat(scope.row.createTime)}}
@@ -96,7 +96,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="customerName" label="客户名称" align="center"></el-table-column>
+                        <el-table-column prop="customer_name" label="客户名称" align="center"></el-table-column>
                         <el-table-column prop="createTime" label="日期" align="center">
                             <template slot-scope="scope">
                                 {{dateFormat(scope.row.createTime)}}

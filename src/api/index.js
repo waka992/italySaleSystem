@@ -71,8 +71,8 @@ export const getCompPage = query => {
 export const getCompPayLog = query => {
     return get('cm/payLog', query)
 }
-export const profitSum = query => {
-    return post('cm/profit', query)
+export const getPayBook = query => {
+    return post('cm/payBook', query)
 }
 
 
@@ -226,4 +226,12 @@ export const delTitle  = query => {
 // 统计
 export const customerStatistics  = query => {
     return get('sa/customerStatistics', query)
+}
+
+export const profitSum = query => {
+    return post('sa/profit', query)
+}
+
+export const dailyJournal = query => {
+    return get('sa/turnover', query)
 }

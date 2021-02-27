@@ -89,7 +89,11 @@
                             <span :class="scope.row.money >= 0 ? 'red' : 'green'">{{scope.row.money}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="accountType" label="资金来源" width="120" align="center"></el-table-column>
+                    <el-table-column prop="accountType" label="资金来源" width="120" align="center">
+                        <template slot-scope="scope">
+                            {{getDict(scope.row.accountType, 'accountType')}}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                     <el-table-column prop="rest" label="余额"  width="120" align="center"></el-table-column>
                 </el-table>
@@ -273,10 +277,9 @@
                 </el-form-item>
                 <el-form-item label="资金状态" prop="accountType">
                     <el-select class="form-input" size="mini" v-model="incomeform.accountType" placeholder="请选择">
-                        <el-option :label="'现金'" :value="0"></el-option>
-                        <el-option :label="'转账'" :value="1"></el-option>
-                        <el-option :label="'微信'" :value="2"></el-option>
-                        <el-option :label="'发票'" :value="3"></el-option>
+                        <el-option v-for="(type,i) in dict.accountType" 
+                        :label="type.label" :value="type.value"
+                        :key="i"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="备注" prop="remark">
@@ -293,7 +296,6 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import { 
 addCompAccount,
 addCompOrUpdate,
@@ -304,11 +306,13 @@ getCompPage,
 getCompPayLog,
 profitSum, 
 userList,} from '@/api/index';
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'CompanyBaseInfo',
     data() {
         return {
+            dict: {},
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
@@ -340,6 +344,8 @@ export default {
         };
     },
     created() {
+        this.getDict = dict.getDict // 获取字典
+        this.dict = dict
         this.id = this.$route.params.data.id
         this.getData();
         this.getPayLog()

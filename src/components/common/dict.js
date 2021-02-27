@@ -1,5 +1,11 @@
 
 const dict =  {
+    accountType: [
+        {value: 0, label: '现金'},
+        {value: 1, label: '转账'},
+        {value: 2, label: '微信'},
+        {value: 3, label: '发票'},
+    ],
     payWay: [
         {value: 0, label: '发票'},
         {value: 1, label: '汇款'},

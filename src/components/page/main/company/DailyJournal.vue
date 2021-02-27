@@ -18,26 +18,28 @@
                 <div class="box">
                     <div class="title">今日收入流水</div>
                     <div class="operate">
-                        <el-input  suffix-icon="el-icon-search" class="name-search" placeholder="输入公司名称"></el-input>
+                        <el-input v-model="income.companyName" suffix-icon="el-icon-search" class="name-search" placeholder="输入公司名称"></el-input>
                         <div class="timer">
                             <span class="label">筛选日期</span>
                             <el-date-picker
                                 v-model="income.date"
                                 type="date"
+                                value-format="yyyy-MM-dd"
                                 placeholder="选择日期">
                             </el-date-picker>
                         </div>
                         <div class="selector">
                             <span class="label">付款方式</span>
-                            <el-select v-model="income.payment" placeholder="请选择">
+                            <el-select v-model="income.payment" placeholder="请选择" clearable>
                                 <el-option
-                                v-for="item in paymentOptions"
+                                v-for="item in dict.accountType"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value">
                                 </el-option>
                             </el-select>
                         </div>
+                        <el-button style="margin-left:16px;"  icon="el-icon-search" @click="getIncomeData"></el-button>
                     </div>
                     <el-table
                         :data="income.tableData"
@@ -47,13 +49,17 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="date" label="日期" align="center"  width="130"></el-table-column>
-                        <el-table-column prop="name" label="客户" align="center"></el-table-column>
-                        <el-table-column label="支付方式" align="center"  width="70">
-                            <template slot-scope="scope">{{getPayment(scope.row.payment)}}</template>
+                        <el-table-column prop="date" label="日期" align="center"  width="100">
+                            <template slot-scope="scope">
+                                {{timeFormat(scope.row.createTime)}}
+                            </template>
                         </el-table-column>
-                        <el-table-column prop="amount" label="金额" align="center"  width="80"></el-table-column>
-                        <el-table-column prop="remark" label="备注" align="center" width="100"></el-table-column>
+                        <el-table-column prop="customerName" label="客户" align="center"></el-table-column>
+                        <el-table-column label="支付方式" align="center"  width="90">
+                            <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
+                        </el-table-column>
+                        <el-table-column prop="money" label="金额" align="center"  width="80"></el-table-column>
+                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                     </el-table>
                     <div class="pagination">
                         <el-pagination
@@ -76,20 +82,22 @@
                             <span class="label">筛选日期</span>
                             <el-date-picker
                                 v-model="pay.date"
+                                value-format="yyyy-MM-dd"
                                 type="date"
                                 placeholder="选择日期">
                             </el-date-picker>
                         </div>
                         <div class="selector">
                             <span class="label">付款方式</span>
-                            <el-select v-model="pay.payment" placeholder="请选择">
+                            <el-select v-model="pay.payment" placeholder="请选择" clearable>
                                 <el-option
-                                v-for="item in paymentOptions"
+                                v-for="item in dict.accountType"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value">
                                 </el-option>
                             </el-select>
+                            <el-button style="margin-left:16px;" icon="el-icon-search" @click="getPayData"></el-button>
                         </div>
                     </div>
                     <el-table
@@ -100,12 +108,16 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="date" label="日期" align="center"  width="130"></el-table-column>
-                        <el-table-column prop="where" label="去向" align="center"></el-table-column>
-                        <el-table-column label="支付方式" align="center">
-                            <template slot-scope="scope">{{getPayment(scope.row.payment)}}</template>
+                        <el-table-column label="日期" align="center"  width="130">
+                            <template slot-scope="scope">
+                                {{timeFormat(scope.row.createTime)}}
+                            </template>
                         </el-table-column>
-                        <el-table-column prop="amount" label="金额" align="center"  width="80"></el-table-column>
+                        <el-table-column prop="customerName" label="去向" align="center"></el-table-column>
+                        <el-table-column label="支付方式" align="center">
+                            <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
+                        </el-table-column>
+                        <el-table-column prop="money" label="金额" align="center"  width="80"></el-table-column>
                         <el-table-column prop="remark" label="备注" align="center" width="100"></el-table-column>
                     </el-table>
                     <div class="pagination">
@@ -128,7 +140,7 @@
                     <date-selector @change="getFlowDate"></date-selector>
                 </div>
                 <div class="top-chart">
-                    <div class="top-total">总收入：{{pay.total}}元</div>
+                    <div class="top-total">总收入：{{income.total}}元</div>
                     <pie-chart ref="pieChart1" :width="'200'" :height="'164'"></pie-chart>
                 </div>
                 <div class="bottom-chart">
@@ -139,11 +151,11 @@
                 <div class="statics">
                     <div class="left-statics">
                         <div class="title">总现金余数</div>
-                        <div class="amount">¥{{income.total}}</div>
+                        <div class="amount">{{income.total}}</div>
                     </div>
                     <div class="right-statics">
                         <div class="title">总汇款余数</div>
-                        <div class="amount">¥{{pay.total}}</div>
+                        <div class="amount">{{pay.total}}</div>
                     </div>
                 </div>
             </div>
@@ -153,94 +165,58 @@
         <el-dialog 
         :close-on-click-modal='false'
         :show-close="false"
-        :title="'添加新公司'" :visible.sync="baseDialogVisible" width="750px">
-            <el-form ref="form" 
-                :model="form" label-width="120px" :inline="true"
-                :rules="rules"
+        :title="'新增支出/收入记录'" :visible.sync="baseDialogVisible" width="551px">
+            <el-form ref="incomeform" 
+                :model="incomeform" label-width="178px"
+                :rules="incomerules"
             >
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="公司名称" prop="name">
-                            <el-input size="mini" class="form-input" v-model="form.name" placeholder="请输入公司名" maxlength="15" show-word-limit></el-input>
-                        </el-form-item>
-
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="法人代表" prop="person">
-                            <el-input size="mini" class="form-input" v-model="form.person" placeholder="请输入法人代表" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="营业执照号" prop="license">
-                            <el-input size="mini"  class="form-input" v-model="form.license" placeholder="请输入营业执照注册号" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="状态" prop="status">
-                            <el-input size="mini"  class="form-input" v-model="form.status" placeholder="请输入" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="税务代码" prop="code">
-                            <el-input size="mini"  class="form-input" v-model="form.code" placeholder="请输入税务代码" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="银行名称" prop="bank">
-                            <el-input size="mini"  class="form-input" v-model="form.bank" placeholder="请输入" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="地址" prop="address">
-                            <el-input size="mini"  class="form-input" v-model="form.address" placeholder="请输入公司地址" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="银行账号" prop="account">
-                            <el-input size="mini"  class="form-input" v-model="form.account" placeholder="请输入" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="电话" prop="mobile">
-                            <el-input size="mini"  class="form-input" v-model="form.mobile" placeholder="请输入联系电话" ></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="流水初始金额" prop="flow" placeholder="请输入" >
-                            <el-input size="mini"  class="form-input" v-model="form.flow"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="邮箱" prop="email" placeholder="请输入联系邮箱" >
-                            <el-input size="mini"  class="form-input" v-model="form.email"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="其他备注" prop="remark" placeholder="请输入备注内容" >
-                            <el-input size="mini"  class="form-input" v-model="form.remark"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                
+                <el-form-item label="公司名称" prop="companyName">
+                    <el-autocomplete
+                        size="mini"
+                        class="form-input"
+                        v-model="incomeform.companyName"
+                        :fetch-suggestions="queryCompany"
+                        @select="handleSelectCompany"
+                        placeholder="请输入"
+                    ></el-autocomplete>
+                </el-form-item>
+                <el-form-item label="客户名称" prop="customerName">
+                    <el-autocomplete
+                        size="mini"
+                        class="form-input"
+                        v-model="incomeform.customerName"
+                        :fetch-suggestions="queryName"
+                        :maxlength="15" 
+                        show-word-limit
+                        placeholder="请输入客户名"
+                        @select="handleSelect"
+                    ></el-autocomplete>
+                </el-form-item>
+                <el-form-item label="日期" prop="createTime">
+                    <el-date-picker
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        v-model="incomeform.createTime"
+                        type="datetime"
+                        placeholder="选择今日日期时间">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="收入/支出" prop="money">
+                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="例如+1000" ></el-input>
+                </el-form-item>
+                <el-form-item label="资金状态" prop="accountType">
+                    <el-select class="form-input" size="mini" v-model="incomeform.accountType" placeholder="请选择">
+                        <el-option v-for="(type,i) in dict.accountType" 
+                        :label="type.label" :value="type.value"
+                        :key="i"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="备注" prop="remark">
+                    <el-input size="mini" class="form-input" v-model="incomeform.remark" placeholder="请输入备注内容" ></el-input>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button class="curr-btn" plain @click="baseDialogVisible = false">取消</el-button>
-                <el-button class="curr-btn" type="primary" @click="save">保存</el-button>
+                <el-button class="curr-btn" type="primary" @click="saveIncome">保存</el-button>
             </span>
         </el-dialog>
     </div>
@@ -248,37 +224,33 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
-import DateSelector from '../../../public/DateSelector'
 import PieChart from '@/components/charts/PieChart.vue'
-
+import DateSelector from '@/components/public/DateSelector'
+import {
+    dailyJournal,
+    getPayBook,
+    addCompAccount,
+    userList,
+    getCompPage} from '@/api/index';
+import moment from 'moment'
+import dict from '@/components/common/dict.js'
 export default {
-    name: 'CompanyBaseInfo',
+    name: 'DailyJournal',
     components: {
         DateSelector,
         PieChart,
     },
     data() {
         return {
+            dict: {},
             baseDialogVisible: false,
-            paymentOptions: [
-                {value: 0, label: '现金'},
-                {value: 1, label: '汇款'},
-                {value: 2, label: '发票'},
-            ],
-            
+            incomeform:{},
             income: {
-                name: '',
+                companyName: '',
                 date: '',
                 payment: '',
-                total: 13000,
+                total: 0,
                 tableData: [
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司2', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司2', payment: 2, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司2', payment: 0, id: 1, amount: 100000, remark: 'test'},
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司2', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', name: '广东沈外贸科技有限公司2', payment: 1, id: 1, amount: 10000, remark: 'test'},
                 ],
                 page: {
                     no: 1,
@@ -289,38 +261,13 @@ export default {
             pay: {
                 date: '',
                 payment: '',
-                total: 12000,
-                tableData: [
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '货款', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 2, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 0, id: 1, amount: 100000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '工资', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                    {date: '2020.11.03 20:38', where: '材料', payment: 1, id: 1, amount: 10000, remark: 'test'},
-                ],
+                total: 0,
+                tableData: [],
                 page: {
                     no: 1,
                     total: 0,
                     size: 5
                 },
-            },
-            form: {
-                name: '',
-                person: '',
-                license: '',
-                status: '',
-                code: '',
-                bank: '',
-                address: '',
-                account: '',
-                mobile: '',
-                flow: '',
-                email: '',
-                remark: '',
             },
             rules: {
                 name: [{ required: true, message: '请输入公司名', trigger: 'change' }],
@@ -328,40 +275,80 @@ export default {
                 license: [{ required: true, message: '请输入营业执照注册号', trigger: 'change' }],
                 code: [{ required: true, message: '请输入税务代码', trigger: 'change' }],
                 mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
-            }
+            },
+            incomerules: {
+                companyName: [{ required: true, message: '请输入', trigger: 'change' }],
+                customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
+                createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
+                money: [{ required: true, message: '请输入', trigger: 'change' }],
+            },
         };
     },
     created() {
         this.getIncomeData();
         this.getPayData();
+        this.dict = dict
     },
     mounted() {
-        this.setChartData();
+        this.getPieData()
     },
     methods: {
-        getPayment(payment) {
-            for (let i = 0; i < this.paymentOptions.length; i++) {
-                const element = this.paymentOptions[i];
-                if (element.value == payment) {
-                    return element.label
-                }
+        getPieData(date) {
+            let formatDate = ''
+            if (date) {
+                formatDate = moment(date).format('YYYY-MM-DD')
             }
+         
+            let params = {
+                bookDate: formatDate,
+                payDate: formatDate,
+            }
+            dailyJournal(params).then(res => {
+                let {cash, remittance, incomde, pay} = res
+                let accountType = cloneDeep(this.dict.accountType)
+                let data1 = []
+                let data2 = []
+                // 初始化data1 data2
+                for (let i = 0; i < accountType.length; i++) {
+                    const ele = accountType[i];
+                    data1.push({
+                        name: ele.label,
+                        value: 0
+                    })
+                    data2.push({
+                        name: ele.label,
+                        value: 0
+                    })
+                }
+               
+                for (let i = 0; i < incomde.length; i++) {
+                    const ele = incomde[i];
+                    console.log(ele.book_type);
+                    console.log(data1);
+                    data1[ele.book_type].value = ele.cash
+                }
+
+                for (let i = 0; i < pay.length; i++) {
+                    const ele = pay[i];
+                    data2[ele.book_type].value = ele.cash
+                }
+
+                this.income.total = cash || 0
+                this.pay.total = remittance || 0
+                this.setChartData(data1, data2)
+            })
         },
+
         // 置空数据
         resetData() {
-            this.form = {
-                name: '',
-                person: '',
-                license: '',
-                status: '',
-                code: '',
-                bank: '',
-                address: '',
-                account: '',
-                mobile: '',
-                flow: '',
-                email: '',
+            this.incomeform = {
+                companyId: '',
+                customerName: '',
+                customerId: '',
+                createTime: '',
+                money: '',
                 remark: '',
+                accountType: '', //0现金1转账2现金3微信
             }
         },
 
@@ -369,6 +356,9 @@ export default {
         addReady() {
             this.resetData()
             this.baseDialogVisible = true;
+            this.$nextTick(() => {
+                this.$refs.incomeform.clearValidate()
+            })
         },
 
         // 查
@@ -376,23 +366,31 @@ export default {
             let obj = {
                 pageSize:  this.income.page.size,
                 page:  this.income.page.no,
+                bookType: 1,
+                companyName: this.income.companyName,
+                incomeDate: this.income.date,
+                payType: this.income.payment,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getPayBook(obj).then(res => {
+                this.income.tableData = res.records
+                this.income.page.total = res.total
+                this.income.page.no = res.current
+            })
         },
         getPayData() {
             let obj = {
                 pageSize:  this.pay.page.size,
                 page:  this.pay.page.no,
+                bookType: 0,
+                companyName: '',
+                incomeDate: this.pay.date,
+                payType: this.pay.payment,
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+             getPayBook(obj).then(res => {
+                this.pay.tableData = res.records
+                this.pay.page.total = res.total
+                this.pay.page.no = res.current
+            })
         },
 
   
@@ -417,22 +415,14 @@ export default {
             this.$router.push({name: 'compbaseinfodetail', params: {id: id}})
         },
 
-        setChartData() {
+        setChartData(data1, data2) {
             // 测试数据
-            let data1 = [
-                {name: '现金', value: 10000},
-                {name: '汇款', value: 3000},
-                {name: '发票', value: 0},
-            ]
-            let data2 = [
-                {name: '汇款', value: 8000},
-                {name: '其他', value: 4000},
-            ]
+             console.log(data1, data2);
             // 初始化option
             let option1 = {
                 color: ['#3BA0F6', '#5BE7C7', '#F6913B'],
                 legend: {
-                    top: 60,
+                    top: 40,
                     data: []
                 },
                 series: [{data: []}]
@@ -440,7 +430,7 @@ export default {
             let option2 = {
                 color: ['#EA7DE8', '#E7CF5B'],
                 legend: {
-                    top: 60,
+                    top: 40,
                     data: []
                 },
                 series: [{data: []}]
@@ -465,10 +455,78 @@ export default {
             this.$refs.pieChart1.setData(option1)
             this.$refs.pieChart2.setData(option2)
         },
-
+        saveIncome() {
+            let params = cloneDeep(this.incomeform)
+            if (params.money < 0) {
+                params.bookType = 0 // 支出
+            }
+            else {
+                params.bookType = 1 // 收入
+            }
+            params.money = Math.abs(params.money)
+            console.log(this.incomeform);
+            this.$refs.incomeform.validate(valid => {
+                if (valid) {
+                    // 校验通过
+                    addCompAccount(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '新增成功',});
+                            this.baseDialogVisible = false
+                            this.getIncomeData()
+                            this.getPayData()
+                        }
+                    })
+                }
+            })
+        },
+        queryName(queryString, cb) {
+            userList({
+                level: '',
+                status: '',
+                page: 1,
+                pageSize: 5,
+                userName: queryString
+                }).then(res => {
+                    let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        arr.push({
+                            value: ele.memberName,
+                            id: ele.id,
+                            memberName: ele.memberName
+                        })
+                    }
+                cb(arr)
+            })
+        },
+        handleSelect(item) {
+            this.incomeform.customerId = item.id
+        },
+        queryCompany(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                name: qs
+            }
+            getCompPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.name
+                        arr.push(ele)
+                    }
+                cb(arr)
+            })
+        },
+        handleSelectCompany(item){
+            console.log(item);
+            this.incomeform.companyName = item.name
+            this.incomeform.companyId = item.id
+        },
         // 选择日期
         getFlowDate(date) {
             console.log(date);
+            this.getPieData(date)
         },
 
         // 分页导航
@@ -488,6 +546,9 @@ export default {
         // 每页数量改变
         handlePaySizeChange(val) {
             console.log(`每页 ${val} 条`);
+        },
+        timeFormat(time) {
+            return moment(time).format('YYYY-MM-DD')
         },
     }
 };
@@ -614,7 +675,7 @@ export default {
         }
 
         .top-total, .bottom-total {
-            top: 42px;
+            top: 22px;
             right: 3px;
         }
     }

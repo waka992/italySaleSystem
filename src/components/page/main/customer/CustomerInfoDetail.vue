@@ -246,8 +246,8 @@ import {
     orderDetail,
     settleOrder,
     sumOrder,
-    customerStatistics} from '@/api/index';
-import { payOrder } from '../../../../api';
+    payOrder
+    } from '@/api/index';
 export default {
     name: 'CustomerInfoDetail',
     components: {
@@ -374,7 +374,8 @@ export default {
             let params = {
                 customerId: this.id,
                 ids: ids,
-                price: data
+                price: data.amount,
+                accountType: data.accountType
             }
             settleOrder(params).then(res => {
                 this.balanceDialog = false
@@ -389,7 +390,6 @@ export default {
         },
         askPay(data) {
             payOrder(data).then(res => {
-                console.log(res);
                 this.payDialog = false
                 this.$message.success('支付成功')
                 this.getData()
@@ -462,6 +462,8 @@ export default {
                 this.soldDialog = true
                 this.$nextTick(() => {
                     this.$refs.soldDialog.setId(this.id)
+                    this.$refs.soldDialog.setName(this.comInfo.memberName)
+                    this.$refs.soldDialog.getData()
                 })
             }
             // 新建销售记录

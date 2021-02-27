@@ -196,8 +196,7 @@ export default {
                 total: 0,
                 size: 20
             },
-            tableData: [
-            ],
+            tableData: [],
             form: {
                 name: '',
                 corporation: '',

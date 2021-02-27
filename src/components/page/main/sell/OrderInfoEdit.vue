@@ -44,6 +44,22 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
+                        <el-form-item label="公司" prop="company">
+                            <el-autocomplete
+                                class="form-input" 
+                                size="mini"
+                                :disabled="todo === 'check'" 
+                                v-model="form.companyName"
+                                :fetch-suggestions="queryCompany"
+                                @selectData="handleSelectCompany"
+                                placeholder="请输入"
+                            ></el-autocomplete>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+<!-- 二 -->
+                <el-row>
+                      <el-col :span="8">
                         <el-form-item label="托运部" prop="transportName">
                             <el-autocomplete
                                 :disabled="todo === 'check'"
@@ -54,9 +70,6 @@
                             ></el-autocomplete>
                         </el-form-item>
                     </el-col>
-                </el-row>
-<!-- 二 -->
-                <el-row>
                     <el-col :span="8">
                       <el-form-item label="支付方式" prop="payType">
                             <el-select :disabled="todo === 'check'" v-model="form.payType" size="mini" placeholder="请选择" >
@@ -71,14 +84,15 @@
                             <el-input :disabled="todo === 'check'" size="mini" v-model="form.monetaryUnit" placeholder="请输入" ></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                  
+                </el-row>
+<!-- 三 -->
+                <el-row>
+                      <el-col :span="8">
                         <el-form-item label="折扣" prop="discount">
                             <el-input :disabled="todo === 'check'" :max="1" size="mini" v-model="form.discount" placeholder="请输入0-1，例如八折为0.8" ></el-input>
                         </el-form-item>
                     </el-col>
-                </el-row>
-<!-- 三 -->
-                <el-row>
                     <el-col :span="8">
                         <el-form-item label="税率" prop="taxRate">
                             <el-input :disabled="todo === 'check'" :max="1" size="mini" v-model="form.taxRate" placeholder="请输入小数，例如0.11" ></el-input>
@@ -174,7 +188,8 @@ getTransporterPage,
 getTitle,
 orderDetail,
 approvalOrder, 
-createOrUpdateOrder} from '@/api/index';
+createOrUpdateOrder,
+getCompPage} from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
 
 export default {
@@ -250,7 +265,9 @@ export default {
                     exchangeRate,
                     taxRate,
                     createTime,
-                    process} = res
+                    process,
+                    companyName,
+                    companyId} = res
                     details.forEach(element => {
                         element.isTail = (element.isTail == 1 ?  true : false)
                     });
@@ -265,6 +282,8 @@ export default {
                         discount: discount,
                         exchangeRate: exchangeRate,
                         taxRate: taxRate,
+                        companyName: companyName,
+                        companyId: companyId,
                     }
                     let goodsList = details
                     let data ={form:form, goodsList:goodsList, customerName: customerName}
@@ -393,15 +412,34 @@ export default {
                 cb(arr)
             })
         },
+        queryCompany(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                name: qs
+            }
+            getCompPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.name
+                        arr.push(ele)
+                    }
+                cb(arr)
+            })
+        },
         handleProductSelect(item, i) {
             this.$set(this.goodsList[i], 'goodsId', item.goodsId)
             this.$set(this.goodsList[i], 'goodsName', item.name)
         },
         handleSelect(item) {
-            console.log(item);
             this.form.customerName = item.memberName
             this.form.customerId = item.id
             this.form.customerAddress = item.address
+        },
+        handleSelectCompany(item){
+            this.form.companyName = item.name
+            this.form.companyId = item.id
         },
         getTaxRate() {
             let obj = {
