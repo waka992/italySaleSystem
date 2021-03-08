@@ -1,7 +1,20 @@
 import service from '../utils/request';
-let post = service.post
+let axiosPost = service.post
 let axiosGet = service.get
 import qs from 'qs'
+
+sessionStorage.clear() // 先清理锁
+
+function post(name, query) {
+    if (sessionStorage.getItem(name) === 'true') {
+        let donothingPromise = new Promise((res, rej) => {
+            rej()
+        })
+        return donothingPromise
+    }
+    sessionStorage.setItem(name, true)
+    return axiosPost(name, query)
+}
 
 // request中配置了全是post请求
 export const fetchData = query => {
@@ -13,6 +26,10 @@ export const fetchData = query => {
 };
 
 function get(path, query) {
+    // get一般不用上锁
+    // if (sessionStorage.getItem(path) === 'true') {
+    //     // return new Promise
+    // }
     let param = ''
     try {
         param = qs.stringify(query)
@@ -21,6 +38,7 @@ function get(path, query) {
         param = ''
     }
     finally {
+        // sessionStorage.setItem(path, true)
         return axiosGet(path +'?'+ param)
     }
 }
@@ -90,6 +108,15 @@ export const getSupplier = query => {
 }
 export const getSupplierPage = query => {
     return get('su/getSupplierPage', query)
+}
+export const getSupplierPayPage = query => {
+    return get('su/getSupplierPayPage', query)
+}
+export const addSupplierPay = query => {
+    return post('su/payAdd', query)
+}
+export const delSupplierPay = query => {
+    return get('su/payDel', query)
 }
 
 /**

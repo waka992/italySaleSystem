@@ -22,6 +22,7 @@
                         <div class="timer">
                             <span class="label">筛选日期</span>
                             <el-date-picker
+                                :picker-options='pickerOptions'
                                 v-model="income.date"
                                 type="date"
                                 value-format="yyyy-MM-dd"
@@ -54,7 +55,7 @@
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="customerName" label="客户" align="center"></el-table-column>
+                        <el-table-column prop="customerName" label="收款方" align="center"></el-table-column>
                         <el-table-column label="支付方式" align="center"  width="90">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
@@ -81,6 +82,7 @@
                         <div class="timer">
                             <span class="label">筛选日期</span>
                             <el-date-picker
+                                :picker-options='pickerOptions'
                                 v-model="pay.date"
                                 value-format="yyyy-MM-dd"
                                 type="date"
@@ -88,7 +90,7 @@
                             </el-date-picker>
                         </div>
                         <div class="selector">
-                            <span class="label">付款方式</span>
+                            <span class="label">支出方式</span>
                             <el-select v-model="pay.payment" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="item in dict.accountType"
@@ -113,11 +115,15 @@
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="customerName" label="去向" align="center"></el-table-column>
+                        <el-table-column prop="customerName" label="支付方" align="center"></el-table-column>
                         <el-table-column label="支付方式" align="center">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
-                        <el-table-column prop="money" label="金额" align="center"  width="80"></el-table-column>
+                        <el-table-column prop="money" label="金额" align="center"  width="80">
+                            <template slot-scope="scope">
+                                <span :class="scope.row.bookType == 1 ? 'red' : 'green'">{{scope.row.bookType == 1 ? '+' : '-'}}{{scope.row.money}}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="remark" label="备注" align="center" width="100"></el-table-column>
                     </el-table>
                     <div class="pagination">
@@ -148,7 +154,7 @@
                     <pie-chart ref="pieChart2" :width="'200'" :height="'164'"></pie-chart>
                 </div>
                 <!-- 统计 -->
-                <div class="statics">
+                <!-- <div class="statics">
                     <div class="left-statics">
                         <div class="title">总现金余数</div>
                         <div class="amount">{{income.total}}</div>
@@ -157,7 +163,7 @@
                         <div class="title">总汇款余数</div>
                         <div class="amount">{{pay.total}}</div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -180,7 +186,7 @@
                         placeholder="请输入"
                     ></el-autocomplete>
                 </el-form-item>
-                <el-form-item label="客户名称" prop="customerName">
+                <el-form-item label="收付款名称" prop="customerName">
                     <el-autocomplete
                         size="mini"
                         class="form-input"
@@ -197,7 +203,7 @@
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="incomeform.createTime"
                         type="datetime"
-                        placeholder="选择今日日期时间">
+                        placeholder="选择日期时间">
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="收入/支出" prop="money">
@@ -243,11 +249,12 @@ export default {
     data() {
         return {
             dict: {},
+            searchAdvice: [],
             baseDialogVisible: false,
             incomeform:{},
             income: {
                 companyName: '',
-                date: '',
+                date: moment().format('YYYY-MM-DD'),
                 payment: '',
                 total: 0,
                 tableData: [
@@ -259,7 +266,7 @@ export default {
                 },
             },
             pay: {
-                date: '',
+                date: moment().format('YYYY-MM-DD'),
                 payment: '',
                 total: 0,
                 tableData: [],
@@ -282,6 +289,11 @@ export default {
                 createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
                 money: [{ required: true, message: '请输入', trigger: 'change' }],
             },
+            pickerOptions: {
+                disabledDate(time){
+                    return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7
+                }
+            }
         };
     },
     created() {
@@ -464,7 +476,12 @@ export default {
                 params.bookType = 1 // 收入
             }
             params.money = Math.abs(params.money)
-            console.log(this.incomeform);
+            for (let i = 0; i < this.searchAdvice.length; i++) {
+                const ele = this.searchAdvice[i];
+                if (params.customerName == ele.memberName) {
+                    params.customerId = ele.id
+                }
+            }
             this.$refs.incomeform.validate(valid => {
                 if (valid) {
                     // 校验通过
@@ -496,6 +513,7 @@ export default {
                             memberName: ele.memberName
                         })
                     }
+                this.searchAdvice = arr
                 cb(arr)
             })
         },
@@ -548,7 +566,7 @@ export default {
             console.log(`每页 ${val} 条`);
         },
         timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            return moment(time).add(8, 'h').format('YYYY-MM-DD')
         },
     }
 };

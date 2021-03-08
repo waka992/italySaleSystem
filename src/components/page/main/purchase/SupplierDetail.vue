@@ -42,10 +42,10 @@
                         <span class="detail-label">备忘：</span>
                         <span class="detail-content">{{comInfo.memorandum}}</span>
                     </el-col>
-                    <el-col :span="6">
+                    <!-- <el-col :span="6">
                         <span class="detail-label">支付款详情：</span>
                         <span class="detail-content">{{comInfo.payDetail}}</span>
-                    </el-col>
+                    </el-col> -->
                     <el-col :span="6">
                         <span class="detail-label">作用：</span>
                         <span class="detail-content">{{comInfo.effect}}</span>
@@ -57,18 +57,24 @@
                 <div class="top">
                     <div class="title">查询</div>
                     <div class="search">
-                        <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                        <el-date-picker
+                            :picker-options='pickerOptions'
+                            v-model="date"
+                            type="date"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                        </el-date-picker>
                     </div>
                     <div class="handle-box">
-                        <!-- <el-button
+                        <el-button
                             size="mini"
                             icon="el-icon-edit"
                             type="primary"
                             @click="addIncomeReady"
-                            >+新增记录</el-button> -->
+                            >+新增记录</el-button>
                     </div>
                 </div>
-                <div class="topic">供应商合作记录</div>
+                <div class="topic">付款记录</div>
                 <el-table
                     :data="tableData"
                     stripe
@@ -76,13 +82,23 @@
                     ref="multipleTable"
                     header-cell-class-name="table-header"
                 >
-                    <el-table-column prop="season" label="季度"  align="center"></el-table-column>
-                    <el-table-column prop="boxs" label="总箱数" align="center"></el-table-column>
-                    <el-table-column prop="pics" label="总件数" align="center"></el-table-column>
-                    <el-table-column prop="value" label="合作金额" align="center"></el-table-column>
-                    <el-table-column prop="stock" label="库存余数" align="center"></el-table-column>
+                    <el-table-column prop="supplierName" label="供应商名称"  align="center"></el-table-column>
+                    <el-table-column prop="createTime" label="日期" align="center">
+                        <template slot-scope="scope">
+                            {{timeFormat(scope.row.createTime)}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="money" label="支付金额" align="center"></el-table-column>
+                    <el-table-column prop="companyName" label="支付名" align="center"></el-table-column>
+                    <!-- <el-table-column prop="payType" label="支付方式" align="center"></el-table-column> -->
+                    <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <span style="color:red;cursor:pointer;" @click="delPay(scope.row.id)">删除</span>
+                        </template>
+                    </el-table-column>
                 </el-table>
-                <!-- <div class="pagination">
+                <div class="pagination">
                     <el-pagination
                         background
                         :current-page="page.no"
@@ -93,7 +109,7 @@
                         @size-change="handleSizeChange"
                         @current-change="basePageChange"
                     ></el-pagination>
-                </div> -->
+                </div>
                 <div class="operate">
                     <el-button plain @click="back">返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
@@ -141,10 +157,10 @@
                 <el-form-item label="备忘录" prop="memorandum">
                     <el-input size="mini" class="form-input" v-model="form.memorandum" placeholder="请输入" ></el-input>
                 </el-form-item>
-
+<!-- 
                 <el-form-item label="支付款详情" prop="payDetail">
                     <el-input size="mini" class="form-input" v-model="form.payDetail" placeholder="例如-1000" ></el-input>
-                </el-form-item>
+                </el-form-item> -->
 
                 <el-form-item label="作用" prop="effect">
                     <el-input size="mini" class="form-input" v-model="form.effect" placeholder="请输入" ></el-input>
@@ -161,26 +177,29 @@
         <el-dialog 
         :close-on-click-modal='false'
         :show-close="false"
-        :title="'新增支出/收入记录'" :visible.sync="incomeDialogVisible" width="551px">
+        :title="'新增记录'" :visible.sync="incomeDialogVisible" width="551px">
             <el-form ref="incomeform" 
                 :model="incomeform" label-width="178px"
                 :rules="incomerules"
             >
-                <el-form-item label="客户名称" prop="name">
-                    <el-input size="mini" class="form-input" v-model="incomeform.name" placeholder="请输入客户名" maxlength="15" show-word-limit></el-input>
-                </el-form-item>
-                <el-form-item label="日期" prop="date">
+                <el-form-item label="日期" prop="createTime">
                     <el-date-picker
-                        v-model="incomeform.date"
-                        type="datetime"
+                        v-model="incomeform.createTime"
+                        type="date"
                         placeholder="选择今日日期时间">
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="收入/支出" prop="income">
-                    <el-input size="mini" class="form-input" v-model="incomeform.income" placeholder="例如+1000" ></el-input>
+                <el-form-item label="支付金额" prop="money">
+                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="请输入" ></el-input>
                 </el-form-item>
-                <el-form-item label="资金状态" prop="status">
-                    <el-input size="mini" class="form-input" v-model="incomeform.status" placeholder="请输入客户资金状态" ></el-input>
+                <el-form-item label="支付名" prop="status">
+                    <el-input size="mini" class="form-input" v-model="incomeform.companyName" placeholder="请输入" ></el-input>
+                </el-form-item>
+                <el-form-item label="支付方式" prop="payType">
+                    <el-select v-model="incomeform.payType" size="mini" class="form-input" placeholder="请选择" >
+                        <el-option v-for="(type,i) in dict.accountType" :value="type.value" :label="type.label" :key="i">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="备注" prop="remark">
                     <el-input size="mini" class="form-input" v-model="incomeform.remark" placeholder="请输入备注内容" ></el-input>
@@ -196,15 +215,21 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
+import dict from '@/components/common/dict.js';
+import moment from 'moment';
 import { 
     addSupplier,
-    delSupplier, } from '@/api/index';
+    delSupplier,
+    getSupplierPayPage,
+    addSupplierPay,
+    delSupplierPay, } from '@/api/index';
 
 export default {
     name: 'SupplierDetail',
     data() {
         return {
+            date: '',
+            dict: {},
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
@@ -225,9 +250,7 @@ export default {
                 effect: '',
             },
             // 支出收入列表
-            tableData: [
-                {season: '2020春-2020秋', boxs: 3, pics: 120, value: 34982, stock: 43535},
-            ],
+            tableData: [],
             // 修改用
             form: {
                 name: '',
@@ -238,13 +261,7 @@ export default {
                 payStatus: '',
                 use: '',
             },
-            incomeform: {
-                name: '',
-                date: '',
-                income: '',
-                status: '',
-                remark: '',
-            },
+            incomeform: {},
             rules: {
                 supplierName: [{ required: true, message: '请输入供应商名', trigger: 'change' }],
                 supplierAddress: [{ required: true, message: '请输入供应商地址', trigger: 'change' }],
@@ -252,9 +269,14 @@ export default {
             },
             incomerules: {
                 name: [{ required: true, message: '请输入客户名', trigger: 'change' }],
-                date: [{ required: true, message: '请输入日期', trigger: 'change' }],
-                income: [{ required: true, message: '请输入', trigger: 'change' }],
+                createTime: [{ required: true, message: '请选择日期', trigger: 'change' }],
+                money: [{ required: true, message: '请输入', trigger: 'change' }],
             },
+            pickerOptions: {
+                disabledDate(time){
+                    return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7
+                }
+            }
         };
     },
     created() {
@@ -269,6 +291,10 @@ export default {
             payDetail: data.payDetail,
             effect: data.effect,
         }
+    },
+    mounted() {
+        this.dict = dict
+        this.getData()
     },
     methods: {
         editReady() {
@@ -296,12 +322,14 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                supplierId: this.comInfo.id,
+                date: this.date
             }
-            // shopContractList(obj).then(res => {
-            //     this.tableData = res.records
-            //     this.page.total = res.total
-            //     this.page.no = res.current
-            // })
+            getSupplierPayPage(obj).then(res => {
+                this.tableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            })
         },
 
   
@@ -324,10 +352,10 @@ export default {
 
         addIncomeReady() {
             this.incomeform = {
-                name: '',
-                date: '',
-                income: '',
-                status: '',
+                createTime: '',
+                money: '',
+                companyName: '',
+                payType: '',
                 remark: '',
             },
             this.incomeDialogVisible = true;
@@ -338,19 +366,38 @@ export default {
 
         saveIncome() {
             let params = cloneDeep(this.incomeform)
+            params.supplierId = this.comInfo.id
+            params.supplierName = this.comInfo.supplierName
+
             this.$refs.incomeform.validate(valid => {
-                console.log(valid);
                 if (valid) {
                     // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
+                    addSupplierPay(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '添加成功',});
+                            this.incomeDialogVisible = false
+                            this.getData()
+                        }
+                    })
                 }
             })
+        },
+
+        delPay(id) {
+            this.$confirm('确定要删除吗？', '提示', {
+                type: 'warning'
+            })
+            .then(() => {
+                delSupplierPay({id: id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(() => {});
+        },
+
+        timeFormat(time) {
+            return moment(time).add(8, 'h').format('YYYY-MM-DD')
         },
         // 返回
         back() {

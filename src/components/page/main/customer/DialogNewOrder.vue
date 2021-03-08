@@ -41,7 +41,7 @@
 
             <el-form-item label="支付方式" prop="payType">
                 <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
-                    <el-option v-for="(type,i) in dict.payWay" :value="type.value" :label="type.label" :key="i">
+                    <el-option v-for="(type,i) in dict.accountType" :value="type.value" :label="type.label" :key="i">
                     </el-option>
                 </el-select>
             </el-form-item>

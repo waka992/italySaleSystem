@@ -84,9 +84,9 @@
                     <el-input size="mini" class="form-input" v-model="form.memorandum" placeholder="请输入" ></el-input>
                 </el-form-item>
 
-                <el-form-item label="支付款详情" prop="payDetail">
+                <!-- <el-form-item label="支付款详情" prop="payDetail">
                     <el-input size="mini" class="form-input" v-model="form.payDetail" placeholder="请输入" ></el-input>
-                </el-form-item>
+                </el-form-item> -->
 
                 <el-form-item label="作用" prop="effect">
                     <el-input size="mini" class="form-input" v-model="form.effect" placeholder="请输入" ></el-input>
@@ -114,7 +114,7 @@ export default {
     data() {
         return {
             baseDialogVisible: false,
-            flag: false,
+            flag: true,
             page: {
                 no: 1,
                 total: 0,

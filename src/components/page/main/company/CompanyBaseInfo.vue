@@ -26,8 +26,7 @@
                     <template slot-scope="scope">{{scope.row.status == 0 ? '注销' : '正常'}}</template>
                 </el-table-column>
                 <el-table-column prop="address" label="地址" align="center"></el-table-column>
-                <el-table-column prop="phone" label="电话" align="center" width="120"></el-table-column>
-                <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+                <el-table-column prop="balance" label="余额" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
@@ -216,10 +215,6 @@ export default {
             },
             rules: {
                 name: [{ required: true, message: '请输入公司名', trigger: 'change' }],
-                corporation: [{ required: true, message: '请输入法人代表', trigger: 'change' }],
-                license: [{ required: true, message: '请输入营业执照注册号', trigger: 'change' }],
-                taxation: [{ required: true, message: '请输入税务代码', trigger: 'change' }],
-                phone: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             }
         };
     },

@@ -8,12 +8,12 @@
         </div>
         <div class="box">
             <div class="handle-box">
-                <el-input class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入运输商名称等"></el-input>
+                <el-input v-model="name" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入货柜名称"></el-input>
                 <div class="status">
                     <span class="label">货柜状态</span>
-                    <el-select size="mini" v-model="status" placeholder="请选择">
+                    <el-select size="mini" v-model="type" placeholder="请选择">
                         <el-option
-                        v-for="item in statusOptions"
+                        v-for="item in dict.containerStatus"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -21,9 +21,9 @@
                     </el-select>
                 </div>
 
-                <div class="time">
+                <!-- <div class="time">
                     <span class="label">时间</span>
-                    <el-select size="mini" v-model="status" placeholder="请选择">
+                    <el-select size="mini" v-model="date" placeholder="请选择">
                         <el-option
                             v-for="item in statusOptions"
                             :key="item.value"
@@ -31,7 +31,9 @@
                             :value="item.value">
                         </el-option>
                     </el-select>
-                </div>
+                </div> -->
+            <el-button icon="el-icon-search" @click="getData"></el-button>
+
 
                 <el-button
                     class="new-btn"
@@ -52,13 +54,13 @@
                         {{timeFormat(scope.row.startTime)}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="transpoterName" label="运输商" align="center"></el-table-column>
-                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
-                <el-table-column prop="contaninerType" label="状态" align="center" width="120">
+                <el-table-column prop="contaninerType" label="状态" align="center">
                    <template slot-scope="scope">
                         {{getDict(scope.row.contaninerType, 'containerStatus')}}
                     </template>
                 </el-table-column>
+                <el-table-column prop="transpoterName" label="运输方" align="center"></el-table-column>
+                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
@@ -120,7 +122,6 @@
                 </el-form-item>
 
                 <el-form-item label="货柜类型" prop="transpoterType">
-                        
                     <el-select class="form-input" size="mini" v-model="form.transpoterType" placeholder="请选择">
                         <el-option
                         v-for="item in dict.transportType"
@@ -135,6 +136,15 @@
                     <el-input size="mini" class="form-input" v-model="form.cost" placeholder="请输入" ></el-input>
                 </el-form-item>
 
+                <el-form-item label="出货日期" prop="startTime">
+                    <el-date-picker
+                        class="form-input"
+                        v-model="form.startTime"
+                        type="date"
+                        placeholder="请选择日期">
+                    </el-date-picker>
+                </el-form-item>
+                
                 <el-form-item label="预计到货日期" prop="estimate">
                     <el-date-picker
                         class="form-input"
@@ -144,14 +154,6 @@
                     </el-date-picker>
                 </el-form-item>
 
-                <el-form-item label="出货日期" prop="startTime">
-                    <el-date-picker
-                        class="form-input"
-                        v-model="form.startTime"
-                        type="date"
-                        placeholder="请选择日期">
-                    </el-date-picker>
-                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button class="curr-btn" plain @click="baseDialogVisible = false">取消</el-button>
@@ -180,7 +182,9 @@ export default {
     data() {
         return {
             baseDialogVisible: false,
-            status: 0,
+            type: 0,
+            date: '',
+            name: '',
             statusOptions: [
                 {label: '全部', value: 0},
                 {label: '已到货', value: 1},
@@ -239,6 +243,7 @@ export default {
         // 查
         getData() {
             let obj = {
+                transpoterName: this.name,
                 pageSize:  this.page.size,
                 page:  this.page.no,
             }

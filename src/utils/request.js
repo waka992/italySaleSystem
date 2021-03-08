@@ -6,8 +6,8 @@ axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 const service = axios.create({
     // process.env.NODE_ENV === 'development' 来判断是否开发环境
     // easy-mock服务挂了，暂时不使用了
-    // baseURL: 'http://2o6465101l.wicp.vip/',
-    baseURL: 'http://www.bruceyao.cn:8085/',
+    baseURL: 'http://2o6465101l.wicp.vip/',
+    // baseURL: 'http://www.bruceyao.cn:8085/',
 
     timeout: 10000,
 });
@@ -30,6 +30,11 @@ service.interceptors.response.use(
     response => {
         if (response.status === 200) {
             if (response.data.code == 1) {
+                let url = new URL(response.config.url)
+                let pathName = url.pathname.slice(1)
+                setTimeout(() => {
+                    sessionStorage.setItem(pathName, false)
+                }, 500) // 延迟一下等js处理，关窗口之类的
                 // token
                 if (response.headers['xc-token']) {
                     localStorage.setItem('xc-token', response.headers['xc-token']) // 获取header的token

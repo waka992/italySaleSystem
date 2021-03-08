@@ -9,11 +9,12 @@
         <div class="box">
             <div class="handle-box">
                 <el-input class="name-search" v-model="search.name" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+
                 <div class="status">
-                    <span class="label">尺码</span>
-                    <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
+                    <span class="label">特色</span>
+                    <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
                         <el-option
-                        v-for="(item,i) in sizeOptions"
+                        v-for="(item,i) in labelOptions"
                         :key="i"
                         :label="item.arrtibute"
                         :value="item.arrtibute">
@@ -21,10 +22,10 @@
                     </el-select>
                 </div>
                 <div class="status">
-                    <span class="label">特色</span>
-                    <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
+                    <span class="label">尺码</span>
+                    <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
                         <el-option
-                        v-for="(item,i) in labelOptions"
+                        v-for="(item,i) in sizeOptions"
                         :key="i"
                         :label="item.arrtibute"
                         :value="item.arrtibute">
@@ -82,13 +83,10 @@
                 <el-table-column prop="color" label="颜色" align="center"></el-table-column>
                 <el-table-column prop="skuStatus" label="状态" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{
-                        scope.row.skuStatus === 0 ? '即将到货' 
-                        : scope.row.skuStatus === 1 ? '现货'
-                        : scope.row.skuStatus === 2 ? '售罄' : '预录入'}}
+                        {{getDict(scope.row.skuStatus, 'soldStatus')}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                <el-table-column prop="caseNum" label="库存箱数" align="center"></el-table-column>
                 <el-table-column prop="salePrice" label="售价" align="center"></el-table-column>
                 <el-table-column prop="price" label="总销售箱/件" align="center" v-if="false">
 

@@ -64,7 +64,7 @@
                 <div class="top">
                     <div class="title">支出收入记录({{tableData.length}})</div>
                     <div class="search">
-                        <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                        <!-- <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input> -->
                     </div>
                     <div class="handle-box">
                         <el-button
@@ -82,11 +82,11 @@
                     ref="multipleTable"
                     header-cell-class-name="table-header"
                 >
-                    <el-table-column prop="customerName" label="公司名称"  align="center"></el-table-column>
+                    <el-table-column prop="customerName" label="收付款方"  align="center"></el-table-column>
                     <el-table-column prop="createTime" label="日期" align="center"></el-table-column>
                     <el-table-column prop="money" label="收入/支出" width="120" align="center">
                         <template slot-scope="scope">
-                            <span :class="scope.row.money >= 0 ? 'red' : 'green'">{{scope.row.money}}</span>
+                            <span :class="scope.row.bookType == 1 ? 'red' : 'green'">{{scope.row.bookType == 1 ? '+' : '-'}}{{scope.row.money}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="accountType" label="资金来源" width="120" align="center">
@@ -96,6 +96,21 @@
                     </el-table-column>
                     <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                     <el-table-column prop="rest" label="余额"  width="120" align="center"></el-table-column>
+                    <el-table-column prop="rest" label="操作"  width="120" align="center">
+                        <template slot-scope="scope">
+                            <el-popover
+                                width="120"
+                                placement="bottom"
+                                v-model="delRecordVisible">
+                                <p>确定删除吗？</p>
+                                <div style="text-align: right; margin: 0">
+                                    <el-button size="mini" type="text" @click="delRecordVisible = false">取消</el-button>
+                                    <el-button type="primary" size="mini" @click="delRecordConfirm(scope.row.id)">确定</el-button>
+                                </div>
+                                <el-button slot="reference" type="text" @click="delRecordConfirm(scope.row.id)">删除</el-button>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <div class="pagination">
                     <el-pagination
@@ -252,7 +267,7 @@
                 :model="incomeform" label-width="178px"
                 :rules="incomerules"
             >
-                <el-form-item label="客户名称" prop="customerName">
+                <el-form-item label="收付款名称" prop="customerName">
                     <el-autocomplete
                         size="mini"
                         class="form-input"
@@ -316,6 +331,8 @@ export default {
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
+            delRecordVisible: false,
+            searchAdvice: [],
             id: '',
             page: {
                 no: 1,
@@ -460,6 +477,25 @@ export default {
             })
         },
 
+        delRecordConfirm(id) {
+            this.$confirm('确认删除当前收入记录？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                callback: action => {
+                if (action === 'confirm') {
+                    delCompAccount({id: id}).then(res=> {
+                        this.$message.success('删除成功')
+                        this.getPayLog()
+                    })
+                }
+                else {
+                    console.log('按下 取消')
+                }
+                }
+            })
+        },
+
         addIncomeReady() {
             this.incomeform = {
                 companyId: this.id,
@@ -485,7 +521,14 @@ export default {
                 params.bookType = 1 // 收入
             }
             params.money = Math.abs(params.money)
-            console.log(this.incomeform);
+            // 防止用户不点选客户
+            for (let i = 0; i < this.searchAdvice.length; i++) {
+                const ele = this.searchAdvice[i];
+                if (params.customerName == ele.memberName) {
+                    params.customerId = ele.id
+                }
+            }
+
             this.$refs.incomeform.validate(valid => {
                 if (valid) {
                     // 校验通过
@@ -517,9 +560,11 @@ export default {
                             memberName: ele.memberName
                         })
                     }
+                this.searchAdvice = arr
                 cb(arr)
             })
         },
+     
         handleSelect(item) {
             this.incomeform.customerId = item.id
         },
