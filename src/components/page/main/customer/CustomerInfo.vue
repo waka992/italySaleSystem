@@ -38,6 +38,7 @@
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
                         <el-button
+                            style="margin-right:10px;"
                             type="text"
                             @click="checkDetail(scope.row)"
                         >详情</el-button>
@@ -45,11 +46,21 @@
                             type="text"
                             @click="checkDetail(scope.row)"
                         >统计</el-button> -->
-                        <el-button
+                        <el-dropdown @command="(command) => {operateUser(command, scope.row)}">
+                            <span class="el-dropdown-link">
+                                <el-button type="text">操作</el-button>
+                                <i style="color:#409EFF;" class="el-icon-arrow-down el-icon--right"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item command="edit">修改</el-dropdown-item>
+                                <el-dropdown-item command="del">删除</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                        <!-- <el-button
                             class="del-btn"
                             type="text"
                             @click="checkDetail(scope.row.id)"
-                        >删除</el-button>
+                        >删除</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -163,7 +174,7 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="会员呢称" prop="appName">
+                        <el-form-item label="会员昵称" prop="appName">
                             <el-input class="form-input" placeholder="app登录账号" v-model="form.appName"></el-input>
                         </el-form-item>
                     </el-col>
@@ -177,7 +188,7 @@
                     <el-col :span="12">
                         <el-form-item label="会员状态" prop="status">
                             <!-- 0注销,1激活 -->
-                            <el-select class="form-input" :disabled="operate === 'create'" v-model="form.status"  placeholder="请选择会员状态"> 
+                            <el-select class="form-input"  v-model="form.status"  placeholder="请选择会员状态"> 
                                 <el-option :value="0" label="注销"></el-option>
                                 <el-option :value="1" label="激活"></el-option>
                             </el-select>
@@ -224,7 +235,9 @@ import moment from 'moment'
 import { 
     customerList,
     registerCustomer,
-    getBestCustomer} from '@/api/index';
+    getBestCustomer,
+    delUser,
+    userUpdate} from '@/api/index';
 
 export default {
     name: 'ContainerInfo',
@@ -245,10 +258,10 @@ export default {
             form: {},
             rules: {
                 memberName: [{ required: true, message: '请输入', trigger: 'change' }],
-                address: [{ required: true, message: '请选择', trigger: 'change' }],
-                mobile: [{ required: true, message: '请选择', trigger: 'change' }],
-                appName: [{ required: true, message: '请输入', trigger: 'change' }],
-                password: [{ required: true, message: '请输入', trigger: 'change' }],
+                // address: [{ required: true, message: '请选择', trigger: 'change' }],
+                // mobile: [{ required: true, message: '请选择', trigger: 'change' }],
+                // appName: [{ required: true, message: '请输入', trigger: 'change' }],
+                // password: [{ required: true, message: '请输入', trigger: 'change' }],
             }
         };
     },
@@ -278,6 +291,7 @@ export default {
         // 增准备
         addReady() {
             this.resetData()
+            this.operate = 'create'
             this.baseDialogVisible = true;
         },
 
@@ -311,20 +325,77 @@ export default {
                     if (params.password) {
                         params.password = window.btoa(params.password)
                     }
-                    // 校验通过
-                    registerCustomer(params).then(res => {
-                        if (res) {
-                            this.$message.success({message: '添加成功',});
-                            this.baseDialogVisible = false
-                            this.getData()
-                        }
-                    })
+                    if (this.operate == 'create') {
+                            // 校验通过
+                            registerCustomer(params).then(res => {
+                                if (res) {
+                                    this.$message.success({message: '添加成功',});
+                                    this.baseDialogVisible = false
+                                    this.getData()
+                                }
+                            })
+                    }
+                    if (this.operate == 'edit') {
+                        delete params.password
+                        userUpdate(params).then(res => {
+                            if (res) {
+                                this.$message.success({message: '修改成功',});
+                                this.baseDialogVisible = false
+                                this.getData()
+                            }
+                        })
+                    }
                 }
             })
         },
 
         checkDetail(data) {
             this.$router.push({name: 'customerinfodetail', params: {data: data}})
+        },
+        // 编辑/删除
+        operateUser(com, data) {
+            console.log(com, data);
+            if (com == 'edit') {
+                this.operate = 'edit'
+                let {   memberName,
+                        appName,
+                        password,
+                        status,
+                        level,
+                        address,
+                        bank,
+                        mobile,
+                        arrears,
+                        remarks,
+                        cnImgUrl,} = data
+                this.form = {
+                    memberName:memberName,
+                    appName:appName,
+                    password:password,
+                    status:Number(status),
+                    level:level,
+                    address:address,
+                    bank:bank,
+                    mobile:mobile,
+                    arrears:arrears,
+                    remarks:remarks,
+                    cnImgUrl:cnImgUrl,
+                }
+                this.baseDialogVisible = true
+            }
+            else if (com == 'del') {
+                this.$confirm
+                this.$confirm('确定要删除吗？', '提示', {
+                    type: 'warning'
+                })
+                    .then(() => {
+                        delUser({id: data.id}).then(res => {
+                            this.$message.success('删除成功');
+                            this.getData()
+                        })
+                    })
+                    .catch(() => {});
+            }
         },
 
         // 图片上传

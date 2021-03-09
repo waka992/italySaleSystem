@@ -76,7 +76,7 @@
             <div class="record-card">
                 <div class="top">
                     <div class="title">货柜单品</div>
-                    <el-button class="add-goods" slot="reference" @click="addGoods">添加单品</el-button>
+                    <!-- <el-button class="add-goods" slot="reference" @click="addGoods">添加单品</el-button> -->
                     <!-- <div class="search">
                         <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
                     </div> -->

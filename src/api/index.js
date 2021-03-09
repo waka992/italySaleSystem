@@ -62,6 +62,10 @@ export const userRegister = query => {
     return post('user/ht/register', query)
 }
 
+export const delUser = query => {
+    return get('user/ht/delete', query)
+}
+
 export const test = query => {
     return post('user/test', query)
 }
@@ -142,6 +146,9 @@ export const getAllContainer = query => {
 }
 export const getContainerPage = query => {
     return get('ca/getTbLogisticsPage', query)
+}
+export const updateContainer = query => {
+    return post('ca/update', query)
 }
 
 /**

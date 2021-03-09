@@ -11,7 +11,7 @@
                 <el-input v-model="name" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入货柜名称"></el-input>
                 <div class="status">
                     <span class="label">货柜状态</span>
-                    <el-select size="mini" v-model="type" placeholder="请选择">
+                    <el-select size="mini" v-model="type" placeholder="请选择" clearable>
                         <el-option
                         v-for="item in dict.containerStatus"
                         :key="item.value"
@@ -21,18 +21,20 @@
                     </el-select>
                 </div>
 
-                <!-- <div class="time">
-                    <span class="label">时间</span>
-                    <el-select size="mini" v-model="date" placeholder="请选择">
+                <div class="status">
+                    <span class="label">季度</span>
+                    <el-select size="mini" v-model="season" placeholder="请选择" clearable>
                         <el-option
-                            v-for="item in statusOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
+                        v-for="item in seasonOptions"
+                        :key="item.configValue"
+                        :label="item.configValue"
+                        :value="item.configValue">
                         </el-option>
                     </el-select>
-                </div> -->
-            <el-button icon="el-icon-search" @click="getData"></el-button>
+                </div>
+
+
+                <el-button icon="el-icon-search" @click="getData"></el-button>
 
 
                 <el-button
@@ -64,11 +66,13 @@
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">
-                        <el-button
+                        <!-- <el-button
                             icon="el-icon-s-operation"
                             @click="checkDetail(scope.row)"
                             type="primary"
-                        >查看详情</el-button>
+                        >查看详情</el-button> -->
+                        <el-button type="text" @click="checkDetail(scope.row)">详情</el-button>
+                        <el-button type="text" v-show="scope.row.contaninerType == 0" @click="sendContainer(scope.row)">发货</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -103,9 +107,9 @@
                     <el-select class="form-input" size="mini" v-model="form.quarter" placeholder="请选择">
                         <el-option
                         v-for="item in seasonOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        :key="item.configValue"
+                        :label="item.configValue"
+                        :value="item.configValue">
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -174,7 +178,9 @@ import {
     delContainer,
     getContainerPage,
     getAllTransporter,
-     } from '@/api/index';
+    getTitle,
+    updateContainer,
+    } from '@/api/index';
 import dict from '@/components/common/dict.js'
 
 export default {
@@ -185,14 +191,13 @@ export default {
             type: 0,
             date: '',
             name: '',
+            season: '',
             statusOptions: [
                 {label: '全部', value: 0},
                 {label: '已到货', value: 1},
                 {label: '即将到货', value: 2},
             ],
             seasonOptions: [
-                {label: '2021春', value: 0},
-                {label: '2021秋', value: 1},
             ],
             transporterOptions: [],
             transportType: [
@@ -215,6 +220,7 @@ export default {
         this.getDict = dict.getDict
         this.dict = dict
         this.getData();
+        this.getSeason()
         this.getTransporter()
     },
     methods: {
@@ -243,9 +249,11 @@ export default {
         // 查
         getData() {
             let obj = {
-                transpoterName: this.name,
+                container: this.name,
+                quarter: this.season,
                 pageSize:  this.page.size,
                 page:  this.page.no,
+                contaninerType: this.type,
             }
             getContainerPage(obj).then(res => {
                 this.tableData = res.records
@@ -288,8 +296,14 @@ export default {
         checkDetail(data) {
             this.$router.push({name: 'containerinfodetail', params: {data: data}})
         },
-       
 
+        sendContainer(data) {
+            updateContainer({id: data.id}).then(res => {
+                this.$message.success('操作成功')
+                this.getData()
+            })
+        },
+       
         // 分页导航
         basePageChange(val) {
             this.$set(this.page, 'no', val);
@@ -303,6 +317,15 @@ export default {
         },
         timeFormat(time) {
             return moment(time).format('YYYY-MM-DD')
+        },
+        getSeason() {
+            let obj = {
+                status: 'quarter'
+            }
+            getTitle(obj).then(res => {
+                let data = (res instanceof Array) ? res : []
+                this.seasonOptions = data || []
+            })
         },
     }
 };

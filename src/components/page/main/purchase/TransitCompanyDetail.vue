@@ -43,7 +43,15 @@
                 <div class="top">
                     <div class="title">查询</div>
                     <div class="search">
-                        <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                        <el-select size="mini" v-model="season" placeholder="请选择季度" clearable>
+                            <el-option
+                            v-for="(item,i) in seasonOptions"
+                            :key="i"
+                            :label="item.configValue"
+                            :value="item.configValue">
+                            </el-option>
+                        </el-select>
+                        <el-button style="margin-left: 10px;" size="mini" icon="el-icon-search" @click="getData"></el-button>
                     </div>
                     <div class="handle-box">
                         <!-- <el-button
@@ -78,7 +86,7 @@
                             {{getDict(scope.row.contaninerType, 'containerStatus')}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="cost" label="金额" align="center"></el-table-column>
+                    <el-table-column prop="cost" label="运输金额" align="center"></el-table-column>
                     <!-- <el-table-column label="操作" width="130" align="center">
                         <template slot-scope="scope">
                             <el-button
@@ -198,7 +206,8 @@ import {
     delTransporter,
     getAllTransporter,
     getTransporterPage,
-    getContainerPage
+    getContainerPage,
+    getTitle
 } from '@/api/index';
 
 export default {
@@ -208,6 +217,8 @@ export default {
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
+            season: '',
+            seasonOptions: [],
             page: {
                 no: 1,
                 total: 0,
@@ -255,6 +266,7 @@ export default {
             transporterOther: data.transporterOther,
         }
         this.getData()
+        this.getSeason()
 
     },
     methods: {
@@ -285,7 +297,8 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
-                id: this.comInfo.id
+                transpoterId: this.comInfo.id,
+                quarter: this.season
             }
             getContainerPage(obj).then(res => {
                 this.tableData = res.records
@@ -359,7 +372,17 @@ export default {
         },
         back() {
             this.$router.push({name: 'transitcompany'})
-        }
+        },
+        getSeason() {
+            let obj = {
+                status: 'quarter'
+            }
+            getTitle(obj).then(res => {
+                let data = (res instanceof Array) ? res : []
+                this.seasonOptions = data || []
+                console.log(this.seasonOptions);
+            })
+        },
     }
 };
 </script>

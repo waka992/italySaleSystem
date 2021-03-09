@@ -22,13 +22,13 @@
                 header-cell-class-name="table-header"
             >
                 <el-table-column prop="transporterName" label="运输方名称" align="center"></el-table-column>
-                <el-table-column prop="goods" label="货物" align="center"></el-table-column>
+                <el-table-column prop="containerName" label="货柜名称" align="center"></el-table-column>
                 <el-table-column prop="status" label="状态" align="center">
                      <template slot-scope="scope">
                         {{scope.row.status == 1 ? '运输完成' : '运输中'}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="date" label="日期" align="center" width="120"></el-table-column>
+                <el-table-column prop="estimate" label="货柜日期" align="center" width="120"></el-table-column>
                 <el-table-column prop="transporterMobile" label="电话" align="center"></el-table-column>
                 <el-table-column prop="transporterAddress" label="地址" align="center"></el-table-column>
                 
