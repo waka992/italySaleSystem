@@ -2,7 +2,7 @@
     <div >
         <el-form ref="form" :model="form" :rules="rules" label-width="80px" >
             <el-form-item label="支付金额" prop="amount">
-                <el-input size="mini" class="form-input" v-model="form.amount" placeholder="请输入" ></el-input>
+                <el-input size="mini" disabled class="form-input" v-model="form.amount" placeholder="请输入" ></el-input>
             </el-form-item>
             <el-form-item label="支付方式" prop="payType">
                 <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
@@ -61,9 +61,10 @@ export default {
         setId(id) {
             this.id = id
         },
-        resetData() {
+        resetData(data) {
+            this.id = data.id
             this.form = {
-                amount: 0,
+                amount: data.price,
                 payType: '',
                 // accountType: 0,
             }

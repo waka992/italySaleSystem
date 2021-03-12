@@ -13,10 +13,10 @@
                 v-model="delVisible">
                 <div class="del-word">是否确定到货</div>
                 <div style="text-align: right; margin: 0">
-                    <el-button class="del-btn1" size="mini" type="text" @click="delVisible = false">取消</el-button>
+                    <el-button size="mini" type="text" @click="delVisible = false">取消</el-button>
                     <el-button class="del-btn2" size="mini" @click="arriveConfirm">确定</el-button>
                 </div>
-                <el-button v-show="comInfo.contaninerType == 0" class="del-btn2 outer" slot="reference">确定到货</el-button>
+                <el-button v-show="comInfo.contaninerType == 1" class="del-btn2 outer" slot="reference">确定到货</el-button>
             </el-popover>
         </div>
         <div class="box">
@@ -236,6 +236,7 @@ export default {
             confirmArrival(obj).then(res => {
                 this.$message.success('操作成功')
                 this.delVisible = false
+                this.getData()
                 // this.$router.push({name: 'containerinfo'})
             })
         },
@@ -470,7 +471,7 @@ export default {
 }
 
 .del-btn1, .del-btn2 {
-    width: 89px;
+    width: 70px;
     height: 32px;
     background: #FFFFFF;
     border-radius: 3px;
@@ -486,6 +487,7 @@ export default {
     color: #fff;
 
     &.outer {
+        width: 100px;
         position: absolute;
         top: 16px;
         right: 23px;

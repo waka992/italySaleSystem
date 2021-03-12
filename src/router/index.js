@@ -15,9 +15,9 @@ export default new Router({
             meta: { title: '自述文件' },
             children: [
                 {
-                    path: '/dashboard',
-                    name: 'dashboard',
-                    component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/main/home/HomePage.vue'),
+                    path: '/home',
+                    name: 'home',
+                    component: () => import(/* webpackChunkName: "home" */ '../components/page/main/home/HomePage.vue'),
                     meta: { title: '首页' }
                 },
                 {
@@ -138,7 +138,6 @@ export default new Router({
                 {
                     path: '/user',
                     name: 'user',
-                    // component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
                     component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/main/UserManage.vue'),
                     meta: { title: '会员管理' }
                 },

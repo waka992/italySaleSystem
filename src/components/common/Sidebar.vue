@@ -14,7 +14,7 @@
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
                         <template slot="title">
-                            <image class="icon-img" :src="item.iconPic" v-if="item.iconPic"></image>
+                            <img class="icon-img" :src="item.iconPic" v-if="item.iconPic" />
                             <i v-else :class="item.icon"></i>
                             <span slot="title">{{ item.title }}</span>
                         </template>
@@ -42,7 +42,7 @@
                 </template>
                 <template v-else>
                     <el-menu-item :index="item.index" :key="item.index">
-                        <image class="icon-img" :src="item.iconPic" v-if="item.iconPic"></image>
+                        <img class="icon-img" :src="item.iconPic" v-if="item.iconPic" />
                         <i v-else :class="item.icon"></i>
                         <span slot="title">{{ item.title }}</span>
                     </el-menu-item>
@@ -61,12 +61,14 @@ export default {
             items: [
                 {
                     icon: 'el-icon-lx-home',
-                    index: 'dashboard',
+                    iconPic: require('../../assets/img/icon-home.png'),
+                    index: 'home',
                     title: '首页'
                 },
          
                 {
                     icon: 'el-icon-lx-calendar',
+                    iconPic: require('../../assets/img/icon-company.png'),
                     index: '1',
                     title: '公司',
                     subs: [
@@ -87,6 +89,7 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-calendar',
+                    iconPic: require('../../assets/img/icon-purchase.png'),
                     index: '2',
                     title: '采购',
                     subs: [
@@ -112,11 +115,13 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-people',
+                    iconPic: require('../../assets/img/icon-item.png'),
                     index: 'iteminfo',
                     title: '单品'
                 },
                 {
                     icon: 'el-icon-lx-calendar',
+                    iconPic: require('../../assets/img/icon-sale.png'),
                     index: '3',
                     title: '销售',
                     subs: [
@@ -130,16 +135,16 @@ export default {
                         },
                     ]
                 },
+                {
+                    icon: 'el-icon-setting',
+                    index: 'setting',
+                    title: '参数设置'
+                },
                 // {
                 //     icon: 'el-icon-lx-people',
                 //     index: 'user',
                 //     title: '用户管理'
                 // },
-                {
-                    icon: 'el-icon-lx-people',
-                    index: 'setting',
-                    title: '参数设置'
-                },
                 // {
                 //     icon: 'el-icon-lx-copy',
                 //     index: 'tabs',
@@ -249,9 +254,12 @@ export default {
     background-color: #1E2441 !important;
 }
 .icon-img {
-    width: 24px;
-    height: 18px;
+    width: 18px;
+    height: 16px;
     display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    margin-left: 4px;
 }
 .sidebar-el-menu {
     .el-submenu.is-opened {

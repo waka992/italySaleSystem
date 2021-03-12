@@ -41,7 +41,7 @@
 
             <el-form-item label="支付方式" prop="payType">
                 <el-select v-model="form.payType" size="mini" class="form-input" placeholder="请选择" >
-                    <el-option v-for="(type,i) in dict.accountType" :value="type.value" :label="type.label" :key="i">
+                    <el-option v-for="(type,i) in accountType" :value="type.value" :label="type.label" :key="i">
                     </el-option>
                 </el-select>
             </el-form-item>
@@ -51,11 +51,18 @@
             </el-form-item>
 
             <el-form-item label="折扣" prop="discount">
-                <el-input :max="1" size="mini" class="form-input" v-model="form.discount" placeholder="请输入0-1，例如八折为0.8" ></el-input>
+                <el-input :max="1" size="mini" class="form-input" v-model="form.discount" placeholder="请输入折扣金额" ></el-input>
             </el-form-item>
 
             <el-form-item label="税率" prop="taxRate">
-                <el-input :max="1" size="mini" class="form-input" v-model="form.taxRate" placeholder="请输入小数，例如0.11" ></el-input>
+                <el-input :max="1" size="mini" class="form-input" v-model="form.taxRate" placeholder="例如输入14即为14%" ></el-input>
+            </el-form-item>
+
+            <el-form-item label="支付状态" prop="status">
+                <el-select v-model="form.status" size="mini" class="form-input" placeholder="请选择" >
+                    <el-option v-for="(type,i) in payStatus" :value="type.value" :label="type.label" :key="i">
+                    </el-option>
+                </el-select>
             </el-form-item>
         </el-form>
         <div class="prod-table">
@@ -63,11 +70,11 @@
             <div class="table-area">
                 <!-- 表头 -->
                 <div class="table-head">
-                    <div class="head-item" v-for="(title, i) in tableTitles" :key="i">{{title.label}}</div>
+                    <div class="head-item" :class="title.label == '型号' ? 'code' : ''" v-for="(title, i) in tableTitles" :key="i">{{title.label}}</div>
                 </div>
                 <!-- 表格 -->
-                <div class="table-list" v-for="(list, i) in goodsList" :key="i">
-                    <div class="list-item">
+                <div class="table-list" v-for="(list, i) in goodsList" :key="i" >
+                    <div class="list-item code">
                         <el-autocomplete
                             size="mini"
                             v-model="list.specification"
@@ -77,17 +84,22 @@
                         ></el-autocomplete>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.caseNum" @change="changaItem(list.caseNum, i, 'caseNum')"></el-input>
+                        <el-input size="mini" v-model="list.caseNum" @change="val => changaItem(val, list, i, 'caseNum')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.goodsTotal" @change="changaItem(list.goodsTotal, i, 'goodsTotal')"></el-input>
+                        <el-input size="mini" v-model="list.goodsTotal" @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input v-model="list.goodsPrice" @change="changaItem(list.goodsPrice, i, 'goodsPrice')"></el-input>
+                        <el-input size="mini" v-model="list.goodsPrice" @change="val => changaItem(val, list, i, 'goodsPrice')"></el-input>
                     </div>
                     <div class="list-item">
-                        <!-- 0不是 1是 -->
-                        <el-checkbox v-model="list.isTail"></el-checkbox>
+                        <span class="my-checkbox" @click="val => changaItem(true, list, i , 'isTail')">
+                            <i v-if="list.isTail" class="el-icon-check" @click.stop="val => changaItem(false, list, i , 'isTail')"></i>
+                            <i v-if="!list.isTail" class="el-icon-check" style="opacity: 0;"></i>
+                        </span>
+                    </div>
+                    <div class="list-item">
+                        {{list.stock}}
                     </div>
                     <div class="list-item">
                         {{list.caseNum * list.goodsTotal * list.goodsPrice || 0}}
@@ -99,6 +111,12 @@
                 <div class="add-btn" @click="addList">
                     <span class="plus">+</span>
                     <el-button type="text">添加产品</el-button>
+                </div>
+                <div class="count">
+                    <span class="label">总销售金额：</span>
+                    <span class="value">{{getTotal('total')}}</span>
+                    <span class="label">总箱数：</span>
+                    <span class="value">{{getTotal('caseNum')}}</span>
                 </div>
             </div>
         </div>
@@ -125,6 +143,8 @@ export default {
         return {
             dict: {},
             form: {},
+            payStatus: [],
+            accountType: [],
             taxRate: 0,
             tableTitles: [
                 {label: '型号', name: 'type'},
@@ -132,6 +152,7 @@ export default {
                 {label: '件数/箱', name: 'pics'},
                 {label: '售价', name: 'price'},
                 {label: '是否尾箱', name: 'isTail'},
+                {label: '库存', name: 'isTail'},
                 {label: '总计', name: 'total'},
             ],
             lockCustomer: false, // 是否从用户界面添加订单
@@ -141,16 +162,47 @@ export default {
 
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
-                transportName: [{ required: true, message: '请输入', trigger: 'change' }],
+                status: [{ required: true, message: '请选择', trigger: 'change' }],
             }
         }
     },
     created() {
         this.dict = dict
+        this.payStatus = [dict.payStatus[0], dict.payStatus[1]]
+        this.accountType = [dict.accountType[0], dict.accountType[2], dict.accountType[3]]
         this.getTaxRate()
     },
     methods: {
-        changaItem(val, i, name) {
+        changaItem(val, list, i, name) {
+            // 尾箱自动添加一条
+            if (name == 'isTail' && val === true && list['goodsId']) {
+                if (this.goodsList[i + 1] && (this.goodsList[i + 1].goodsId === list.goodsId)) { // 防止重复添加
+                    this.$set(this.goodsList[i], name, false) // 当前的设置false
+                    return
+                }
+                if (list.tailBox !== 0) {
+                    this.goodsList.splice(i+1, 0, {
+                        specification: list.specification,
+                        goodsId: list.goodsId,
+                        goodsName: list.goodsName,
+                        caseNum: list.tailBox,
+                        stock: list.tailBox + '（尾箱数)',
+                        goodsTotal: list.goodsTotal,
+                        goodsPrice: list.goodsPrice,
+                        isTail: true
+                    })
+                }
+                else {
+                    this.$message.warning('当前商品尾箱数为0无法选择销售尾箱')
+                }
+               
+                this.$set(this.goodsList[i], name, false) // 当前的设置false
+                return
+            }
+            else if (name == 'isTail' && val === false && list['goodsId']) {
+                this.delList(i)
+                return
+            }
             this.$set(this.goodsList[i], name, val)
         },
         addList() {
@@ -165,31 +217,43 @@ export default {
             this.form.exchangeRate = this.taxRate
             let data = cloneDeep(this.form)
             data.goodsList = cloneDeep(this.goodsList)
+            let flag = true
             data.goodsList.forEach(element => {
+                if (element.caseNum > element.stock) {
+                    this.$message.warning('销售箱数不能大于库存！请重新填写')
+                    flag = false
+                }
                 element.isTail ? element.isTail = 1 : element.isTail = 0
+                delete element.stock
+                delete element.tailBox
             });
+            if (!flag) {
+                return
+            }
+            data.taxRate = data.taxRate / 100
             this.$emit('saveData', data)
         },
         // 置空数据
         resetData(data, resetName = true) {
-            if (data.customerId) {
+            if (data && data.customerId) {
                 this.lockCustomer = true
             }
             else {
                 this.lockCustomer = false
             }
             this.form = {
-                customerId: data.customerId || '',
-                customerName: data.customerName ||  '',
+                customerId: (data ? data.customerId : ''),
+                customerName: (data ? data.customerName : ''),
                 customerAddress: '',
                 transportName: '',
                 payType: '',
-                monetaryUnit: '',
-                discount: '1',
+                monetaryUnit: '欧元',
+                discount: 0,
                 exchangeRate: '',
-                taxRate: '',
+                taxRate: 0,
                 companyName: '',
                 companyId: '',
+                status: '',
             }
             this.goodsList = [
                 {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
@@ -283,6 +347,11 @@ export default {
         handleProductSelect(item, i) {
             this.$set(this.goodsList[i], 'goodsId', item.goodsId)
             this.$set(this.goodsList[i], 'goodsName', item.name)
+            this.$set(this.goodsList[i], 'stock', item.caseNum)
+            this.$set(this.goodsList[i], 'tailBox', item.tailBox)
+            this.$set(this.goodsList[i], 'caseNum', 1)
+            this.$set(this.goodsList[i], 'goodsTotal', item.goodsTotal)
+            this.$set(this.goodsList[i], 'goodsPrice', item.salePrice)
         },
         handleSelect(item) {
             this.form.customerName = item.memberName
@@ -301,6 +370,22 @@ export default {
                 this.taxRate = data[0].configValue
             })
         },
+        // 计算总数
+        getTotal(tar) {
+            let caseNum = 0
+            let total = 0
+            for (let i = 0; i < this.goodsList.length; i++) {
+                const ele = this.goodsList[i];
+                caseNum += Number(ele.caseNum)
+                total += Number(ele.caseNum * ele.goodsTotal * ele.goodsPrice)
+            }
+            if (tar == 'caseNum') {
+                return caseNum
+            }
+            if (tar == 'total') {
+                return total
+            }
+        }
     }
 }
 </script>
@@ -335,6 +420,9 @@ export default {
             color: #909399;
             font-size: 12px;
         }
+        .code {
+            min-width: 130px;
+        }
     }
 
     .table-list {
@@ -355,6 +443,10 @@ export default {
 
             .el-input  {
                 width: 85px;
+            }
+
+            &.code {
+                min-width: 130px;
             }
         }
     }
@@ -379,6 +471,36 @@ export default {
             cursor: pointer;
         }
         
+    }
+
+    .count {
+        float: right;
+        .label {
+            color: $theme-color;
+            display: inline-block;
+            width: 120px;
+        }
+        .value {
+            display: inline-block;
+            width: 130px;
+            font-size: 16px;
+            color: #666;
+            font-weight: 800;
+        }
+    }
+
+    .my-checkbox {
+        display: inline-block;
+        border: 1px solid #ccc;
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
+        cursor: pointer;
+        color: $theme-color;
+
+        &:hover {
+            border: 1px solid $theme-color;
+        }
     }
 }
 </style>

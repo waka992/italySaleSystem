@@ -15,14 +15,14 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item prop="name">
-                            <span slot="label" style="color: #F25643;">商品名称</span>
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">商品名称</span>
                             <el-input :disabled="todo === 'check'" v-model="form.name" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
                         <el-form-item prop="size">
-                            <span slot="label" style="color: #F25643;">尺码</span>
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">尺码</span>
                             <el-select :disabled="todo === 'check'" size="mini" v-model="form.size" placeholder="请选择">
                                 <el-option
                                 v-for="(item,i) in sizeOptions"
@@ -61,15 +61,17 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item prop="specification">
-                            <span slot="label" style="color: #F25643;">型号编码</span>
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">型号编码</span>
                             <el-input :disabled="todo === 'check'" v-model="form.specification" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
                         <el-form-item prop="costPrice">
-                            <span slot="label" style="color: #F25643;">进价</span>
-                            <el-input :disabled="todo === 'check'" v-model="form.costPrice" placeholder="请输入"></el-input>
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">进价</span>
+                            <el-input :disabled="todo === 'check'" v-model="form.costPrice" placeholder="请输入" @input="countProfit">
+                                <template slot="prepend">￥</template>
+                            </el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
@@ -89,14 +91,16 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item prop="salePrice">
-                            <span slot="label" style="color: #F25643;">售价</span>
-                            <el-input :disabled="todo === 'check'" v-model="form.salePrice" placeholder="请输入"></el-input>
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">售价</span>
+                            <el-input :disabled="todo === 'check'" v-model="form.salePrice" placeholder="请输入" @input="countProfit">
+                                <template slot="prepend">€</template>
+                            </el-input>
                         </el-form-item>
                     </el-col>
 
                     <el-col :span="8">
                         <el-form-item>
-                            <span slot="label" style="color: #F25643;"><span>*</span>总数量</span>
+                            <span slot="label" :style="todo == 'check' ? 'color: #F25643;fontWeight:800;' : 'color: #F25643;'"><span v-show="todo != 'check'">*</span>{{todo == 'check' || todo == 'edit'? '库存数量' : '入库数量'}}</span>
                             <el-input :disabled="todo === 'check'" class="small-input" v-model="form.caseNum" placeholder="箱数">
                                 <template slot="append">箱</template>
                             </el-input>
@@ -108,7 +112,7 @@
                     </el-col>
                     <el-col :span="8">
                          <el-form-item label="盈利">
-                            <el-input :disabled="todo === 'check'" v-model="form.profit" placeholder="请输入"></el-input>
+                            <el-input :disabled="todo === 'check'" v-model="form.profit" placeholder="请输入" @input="$forceUpdate()"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -129,7 +133,7 @@
 
                     <el-col :span="8">
                         <el-form-item>
-                            <span slot="label" style="color: #F25643;"><span>*</span>尾箱</span>
+                            <span slot="label" :style="todo == 'check' ? 'color: #F25643;fontWeight:800;' : ''">尾箱</span>
                             <el-input :disabled="todo === 'check'" class="small-input" v-model="form.tailBox" placeholder="箱数">
                                 <template slot="append">箱</template>
                             </el-input>
@@ -167,7 +171,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="季度">
+                        <el-form-item prop="quarter">
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">季度</span>
                             <el-select :disabled="todo === 'check'" size="mini" v-model="form.quarter" placeholder="请选择">
                                 <el-option
                                 v-for="(item,i) in seasonOptions"
@@ -178,18 +183,19 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    <!-- <el-col :span="8">
-                        <el-form-item  label="货柜">
-                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.container" placeholder="请选择">
-                                <el-option
-                                v-for="(item,i) in containerOptions"
-                                :key="i"
-                                :label="item.container"
-                                :value="item.container">
-                                </el-option>
-                            </el-select>
+                    <el-col :span="8">
+                        <el-form-item prop="container">
+                            <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">货柜</span>
+                            <el-autocomplete
+                                :disabled="todo === 'check'"
+                                size="mini"
+                                v-model="form.container"
+                                :fetch-suggestions="queryContainer"
+                                @select="handleContainerSelect"
+                                placeholder="请输入"
+                            ></el-autocomplete>
                         </el-form-item>
-                    </el-col> -->
+                    </el-col>
 
 
                 </el-row>
@@ -234,6 +240,40 @@
 
                 <el-row v-if="todo !== 'new'">
                     <div class="pic-upload">
+                        <div class="pic-title">运输记录</div>
+                        <el-table
+                            :data="transportTableData"
+                            stripe
+                            class="table"
+                            ref="multipleTable"
+                            header-cell-class-name="table-header"
+                        >
+                            <el-table-column prop="container" label="货柜名称" align="center"></el-table-column>
+                            <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                            <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
+                            <!-- <el-table-column prop="costPrice" label="单品进价" align="center"></el-table-column> -->
+                            <el-table-column prop="contaninerType" label="货柜状态" align="center">
+                                <template slot-scope="scope">
+                                    {{getDict(scope.row.contaninerType, 'containerStatus')}}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <div class="pagination">
+                            <el-pagination
+                                background
+                                :current-page="transportPage.no"
+                                :page-size="transportPage.size"
+                                :page-sizes="[5,10,20]"
+                                :total="transportPage.total"
+                                layout="total, prev, pager, next, sizes, jumper"
+                                @size-change="handleTransportSizeChange"
+                                @current-change="baseTransportPageChange"
+                            ></el-pagination>
+                        </div>
+                    </div>
+                </el-row>
+                <el-row v-if="todo !== 'new'">
+                    <div class="pic-upload">
                         <div class="pic-title">销售记录</div>
                         <el-table
                             :data="sellTableData"
@@ -243,10 +283,9 @@
                             header-cell-class-name="table-header"
                         >
                             <el-table-column prop="time" label="卖出时间" align="center"></el-table-column>
-                            <el-table-column prop="buyer" label="买家" align="center"></el-table-column>
-                            <el-table-column prop="color" label="颜色" align="center"></el-table-column>
-                            <el-table-column prop="size" label="尺码" align="center"></el-table-column>
-                            <el-table-column prop="amount" label="数量" align="center"></el-table-column>
+                            <el-table-column prop="buyer" label="客户" align="center"></el-table-column>
+                            <el-table-column prop="amount" label="箱数" align="center"></el-table-column>
+                            <el-table-column prop="amount" label="件数" align="center"></el-table-column>
                             <el-table-column prop="value" label="金额" align="center"></el-table-column>
                         </el-table>
                         <div class="pagination">
@@ -275,7 +314,6 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import uploadPic from '@/utils/uploadPic.js';
 import { 
     createGoods,
@@ -285,14 +323,24 @@ import {
     getAttrList,
     getTitle,
     getAllContainer,
-    goodsDetail, } from '@/api/index';
+    goodsDetail,
+    getContainerPage,
+    itemTransportRecord,
+    getItemSellRecord
+     } from '@/api/index';
+import Big from 'big.js'
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'SingleInfoNew',
     data() {
         return {
+            dict: {},
+            getDict: null,
             todo: 'check', // check edit
+            skuId: '',
             pic: [],
+            rate: 0,
             goodsImgListNum: 0,
             transporterOptions: [],
             supplierOptions: [],
@@ -303,30 +351,42 @@ export default {
             seasonOptions: [],
             componentOptions: [],
             ratioOptions: [],
-            containerOptions: [],
+            copyContainerOptions: [],
             rules: {
+
+            },
+            sellTableData: [],
+            transportTableData: [],
+            page: {
+                no: 1,
+                total: 0,
+                size: 10
+            },
+            transportPage: {
+                no: 1,
+                total: 0,
+                size: 10
+            },
+        };
+    },
+    mounted() {
+        this.dict = dict
+        this.getDict = dict.getDict
+        this.getSelector()
+        this.todo = this.$route.params.todo
+        if (this.todo == 'new') {
+            this.resetData();
+            this.rules = {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 size: [{ required: true, message: '请输入', trigger: 'change' }],
                 transporter: [{ required: true, message: '请选择', trigger: 'change' }],
                 specification: [{ required: true, message: '请输入', trigger: 'change' }],
                 costPrice: [{ required: true, message: '请输入', trigger: 'change' }],
                 salePrice: [{ required: true, message: '请输入', trigger: 'change' }],
-            },
-            sellTableData: [
-                {time: '2021.11.13 13:05', buyer: 'testman', color: '白色', size: 'L', amount: '2', value: '34'}
-            ],
-            page: {
-                no: 1,
-                total: 0,
-                size: 20
-            },
-        };
-    },
-    mounted() {
-        this.getSelector()
-        this.todo = this.$route.params.todo
-        if (this.todo == 'new') {
-            this.resetData();
+                quarter: [{ required: true, message: '请输入', trigger: 'change' }],
+                container: [{ required: true, message: '请输入', trigger: 'change' }],
+            }
+            this.clearValidate()
         }
         else {
             this.form.id = this.$route.params.id
@@ -349,22 +409,25 @@ export default {
                 supplierName: '',
                 supplierId: '',
                 salePrice: '',
-                caseNum: '',
-                goodsTotal: '',
+                caseNum: 0,
+                goodsTotal: 0,
                 profit: '',
                 label: '',
-                tailBox: '',
-                tailTotal: '',
+                tailBox: 0,
+                tailTotal: 0,
                 noticenum: '',
                 component: '',
-                // container: '',
-                // containerId: '',
+                container: '',
+                containerId: '',
                 mixtureAtio: '',
                 color: '',
                 quarter: '',
                 // skuType: '',
                 goodsImgList: []
             }
+            this.clearValidate()
+        },
+        clearValidate() {
             this.$nextTick(() => {
                 this.$refs.form.clearValidate()
             })
@@ -374,14 +437,17 @@ export default {
                 this.$router.push({name: 'iteminfo', params: {}})
             }
             if (this.todo == 'edit') {
+                this.rules = {
+                }
+                this.clearValidate()
                 this.todo = 'check'
             }
         },
         // 增准备
         save() {
-            let {caseNum,goodsTotal,tailBox,tailTotal} = this.form
-            if (this.judgeBlank([caseNum,goodsTotal,tailBox,tailTotal])) {
-                this.$message.warning('请填写总数量和尾箱')
+            let {caseNum,goodsTotal} = this.form
+            if (this.judgeBlank([caseNum,goodsTotal])) {
+                this.$message.warning('请填写入库数量')
                 return
             }
             this.$refs.form.validate(valid => {
@@ -396,25 +462,27 @@ export default {
                             }
                         }
                     }
-                    // if (params.container) {
-                    //      for (let i = 0; i < this.containerOptions.length; i++) {
-                    //         const element = this.containerOptions[i];
-                    //         if (element.container == params.container) {
-                    //             params.containerId = element.id
-                    //             delete params.container // 这个参数不用提交
-                    //             break
-                    //         }
-                    //     }
-                    // }
+                    // 防止不点选择项
+                    if (params.container) {
+                         for (let i = 0; i < this.copyContainerOptions.length; i++) {
+                            const element = this.copyContainerOptions[i];
+                            if (element.container == params.container) {
+                                params.containerId = element.id
+                                delete params.container
+                                break
+                            }
+                        }
+                    }
                     if (this.todo == 'new') {
                         createGoods(params).then(res => {
                             this.$message.success('添加成功')
+                            this.$router.push({name: 'iteminfo', params: {}})
                         })
                         return
                     }
                     // 编辑
                     else if (this.todo == 'edit') {
-                        createGoods(params).then(res => {
+                        updateGoods(params).then(res => {
                             this.$message.success('修改成功')
                             this.todo = 'check'
                         })
@@ -499,7 +567,7 @@ export default {
             })
             // 获取属性
             getAttrList().then(res => {
-                this.colorOptions = res[1]
+                this.colorOptions = res[0]
                 this.sizeOptions = res[1]
                 this.labelOptions = res[5]
                 this.componentOptions = res[2]
@@ -508,9 +576,30 @@ export default {
             getTitle({status: 'quarter'}).then(res => {
                 this.seasonOptions = res
             })
-            getAllContainer({}).then(res => {
-                this.containerOptions = res
+            getTitle({status: 'taxRate'}).then(res => {
+                this.rate = res[0].configValue
             })
+        },
+        queryContainer(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                container: qs
+            }
+            getContainerPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.container
+                        ele.id = ele.id
+                        arr.push(ele)
+                    }
+                this.copyContainerOptions = arr
+                cb(arr)
+            })
+        },
+        handleContainerSelect(item){
+            this.form.containerId = item.id
         },
         getDetail() {
             goodsDetail({id: this.form.id}).then(res=> {
@@ -519,6 +608,7 @@ export default {
             profit,label,noticenum,component,container,containerId,mixtureAtio,
             color,} = res
             let {costPrice, supplierName, supplierId, salePrice, caseNum, goodsTotal,tailBox,tailTotal,quarter} = res.sku
+            this.skuId = res.sku.id
             this.pic = goodsImgList
             this.goodsImgListNum = 0
             this.form = {
@@ -540,29 +630,83 @@ export default {
                 component: component,
                 container: container,
                 containerId: containerId,
+                oldContainerId: containerId,
                 mixtureAtio: mixtureAtio,
                 color: color,
                 quarter: quarter,
                 // skuType: skuType,
-                goodsImgList: goodsImgList
+                goodsImgList: goodsImgList,
             }
-            this.$nextTick(() => {
-                this.$refs.form.clearValidate()
+            this.clearValidate()
+            this.getTransportData()
+            this.getSellData()
             })
-            })
+        },
+        // 销售记录
+        getSellData() {
+            let obj  = {
+                skuId: this.skuId,
+                pageSize:  this.page.size,
+                page:  this.page.no,
+            }
+            getItemSellRecord(obj).then(res => {
+                this.sellTableData = res.records
+                this.page.total = res.total
+                this.page.no = res.current
+            }) 
+        },
+        // 运输记录
+        getTransportData() {
+            let obj  = {
+                skuId: this.skuId,
+                pageSize:  this.transportPage.size,
+                page:  this.transportPage.no,
+            }
+            itemTransportRecord(obj).then(res => {
+                this.transportTableData = res.records
+                this.transportPage.total = res.total
+                this.transportPage.no = res.current
+            }) 
         },
         basePageChange(val) {
             this.$set(this.page, 'no', val);
-            this.getData();
+            this.getSellData();
         },
         // 每页数量改变
         handleSizeChange(val) {
             this.$set(this.page, 'size', val);
             this.$set(this.page, 'no', 1);
-            this.getData();
+            this.getSellData();
+        },
+        
+        baseTransportPageChange(val) {
+            this.$set(this.transportPage, 'no', val);
+            this.getTransportData();
+        },
+        // 每页数量改变
+        handleTransportSizeChange(val) {
+            this.$set(this.transportPage, 'size', val);
+            this.$set(this.transportPage, 'no', 1);
+            this.getTransportData();
         },
         edit() {
             this.todo = 'edit'
+            this.rules = {
+                name: [{ required: true, message: '请输入', trigger: 'change' }],
+                size: [{ required: true, message: '请输入', trigger: 'change' }],
+                transporter: [{ required: true, message: '请选择', trigger: 'change' }],
+                specification: [{ required: true, message: '请输入', trigger: 'change' }],
+                costPrice: [{ required: true, message: '请输入', trigger: 'change' }],
+                salePrice: [{ required: true, message: '请输入', trigger: 'change' }],
+                quarter: [{ required: true, message: '请输入', trigger: 'change' }],
+                container: [{ required: true, message: '请输入', trigger: 'change' }],
+            }
+            this.clearValidate()
+        },
+        countProfit() {
+            let {salePrice = 0, costPrice = 0} = this.form
+            let x = new Big(salePrice * this.rate)
+            this.form.profit = x.minus(costPrice).toNumber()
         }
     }
 };
@@ -613,7 +757,7 @@ export default {
 }
 
 .pagination {
-    margin-top: 40px;
+    margin: 20px 0 40px;
 
     ::v-deep .el-input {
         width: 80px !important;

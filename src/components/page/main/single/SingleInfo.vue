@@ -122,8 +122,6 @@
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import { 
     getGoods,
     getAttrList,} from '@/api/index';
@@ -150,7 +148,7 @@ export default {
             page: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             tableData: [],
             form: {

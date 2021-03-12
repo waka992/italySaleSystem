@@ -18,7 +18,6 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import qs from 'qs'
 import HomeSearch from './HomeSearch'
 import HomeCommingNotice from './HomeCommingNotice'
 import HomeFlowStatics from './HomeFlowStatics'

@@ -177,13 +177,8 @@
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
 import { 
-addCompAccount,
 addCompOrUpdate,
-delComp,
-delCompAccount,
-getCompDetail,
 getCompPage,
-getCompPayLog,
 profitSum, } from '@/api/index';
 export default {
     name: 'CompanyBaseInfo',

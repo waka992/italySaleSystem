@@ -43,10 +43,7 @@
                     <span class="title">{{labels.taxFee}}</span>
                     <span class="value">{{form.taxFee}}</span>
                 </el-col> -->
-                <el-col :span="8">
-                    <span class="title">{{labels.pieces}}</span>
-                    <span class="value">{{form.pieces}}</span>
-                </el-col>
+           
             </el-row>
 <!-- 二 -->
             <el-row>
@@ -137,8 +134,8 @@
                     </div>
                     <div class="item">
                         <div class="item-title">{{labels.payType}}</div>
-                        <div class="item-value" v-if="language == 'CN'">{{getDict(total.payType, 'payWay')}}</div>
-                        <div class="item-value" v-else>{{getDict(total.payType, 'payENWay')}}</div>
+                        <div class="item-value" v-if="language == 'CN'">{{getDict(total.payType, 'accountType')}}</div>
+                        <div class="item-value" v-else>{{getDict(total.payType, 'accountTypeEN')}}</div>
                     </div>
                 </div>
                 <div class="statistics-inner">
@@ -147,12 +144,12 @@
                         <div class="item-value">{{total.taxRate}}</div>
                     </div>
                     <div class="item">
-                        <div class="item-title">{{labels.discount}}</div>
-                        <div class="item-value">{{total.discount}}</div>
+                        <div class="item-title" >{{labels.pieces}}</div>
+                        <div class="item-value" >{{form.pieces}}</div>
                     </div>
                     <div class="item">
-                         <div class="item-title"> </div>
-                        <div class="item-value"> </div>
+                        <div class="item-title">{{labels.discount}}</div>
+                        <div class="item-value">{{total.discount}}</div>
                     </div>
                 </div>
             </div>
@@ -188,6 +185,7 @@ export default {
                 totalBoxes: '总箱数',
                 payType: '支付方式',
                 taxRate: '税收',
+                pieces: '总件数',
                 discount: '折扣',
             },
             total: {
@@ -307,6 +305,7 @@ export default {
                     payType: '支付方式',
                     taxRate: '税收',
                     discount: '折扣',
+                    pieces: '总件数',
                 }
             }
             if (val == 'EN') {

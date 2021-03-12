@@ -7,6 +7,11 @@ sessionStorage.clear() // 先清理锁
 
 function post(name, query) {
     if (sessionStorage.getItem(name) === 'true') {
+        // 防止请求出错完全不能请求
+        setTimeout(() => {
+            console.log('session清理');
+            sessionStorage.clear()
+        }, 3000)
         let donothingPromise = new Promise((res, rej) => {
             rej()
         })
@@ -148,7 +153,10 @@ export const getContainerPage = query => {
     return get('ca/getTbLogisticsPage', query)
 }
 export const updateContainer = query => {
-    return post('ca/update', query)
+    return get('ca/update', query)
+}
+export const itemTransportRecord = query => {
+    return get('ca/getSkuCon', query)
 }
 
 /**
@@ -194,6 +202,15 @@ export const updateGoods = query => {
 }
 export const getGoods = query => {
     return post('sku/getSkuPage', query)
+}
+export const getItemSellRecord = query => {
+    return get('sku/getSkuSell', query)
+}
+export const getUserList = query => {
+    return get('ht/list', query)
+}
+export const addUser = query => {
+    return post('ht/add', query)
 }
 
 
@@ -280,4 +297,18 @@ export const customerSum = query => {
 
 export const goodsSum = query => {
     return get('sa/goodsSum', query)
+}
+
+// 首页
+export const getIndexArrival = query => {
+    return get('index/arrival', query)
+}
+export const cancalStockRemind = query => {
+    return get('index/cancelReminder', query)
+}
+export const getSellRemind = query => {
+    return get('index/sellRemind', query)
+}
+export const getStockRemind = query => {
+    return get('index/stockReminder', query)
 }

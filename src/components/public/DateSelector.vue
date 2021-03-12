@@ -3,6 +3,7 @@
         <div class="date">
             <el-date-picker
             ref="dateSelector"
+            :picker-options='pickerOptions'
             v-model="date"
             type="date"
             value-format="yyyy-MM-dd"
@@ -18,6 +19,7 @@
 </template>
 
 <script>
+import moment  from 'moment'
 export default {
     name: 'DateSelector',
     props: {
@@ -25,7 +27,12 @@ export default {
     },
     data() {
         return {
-           date: '',
+            date: moment().format('YYYY-MM-DD'),
+            pickerOptions: {
+                disabledDate(time){
+                    return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7
+                }
+            }
         };
     },
     mounted() {

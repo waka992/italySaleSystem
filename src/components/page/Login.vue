@@ -53,7 +53,8 @@ export default {
                     login(param).then(res => {
                         if (res !== undefined) {
                             localStorage.setItem('ms_username', this.param.username);
-                            this.$router.push('/');
+                            localStorage.setItem('level', res.level);
+                            this.$router.push('/home');
                         }
                     })
                 } else {

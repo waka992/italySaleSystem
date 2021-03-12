@@ -1,11 +1,14 @@
 <template>
-    <div class="goods-form">
-        <div class="table-area">
-        <div>
-            <el-button type="primary" @click="create">新建</el-button>
-            <!-- <el-button type="primary" @click="edit">编辑</el-button> -->
-    
+    <div >
+         <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+            </el-breadcrumb>
         </div>
+        <div class="box">
+            <div class="handle-box">
+                <el-button class="new-btn" type="primary" @click="create">新建</el-button>
+            </div>
         <div style="margin: 10px 0;">
             会员等级：
             <el-select clearable style="width: 150px;margin:0 10px;" v-model="level"  placeholder="请选择会员等级" @change="changeLevel"> 
@@ -121,21 +124,14 @@
 
 <script>
 import { 
-    userList,
-    userUpdate,
-    userRegister,
+    getUserList,
     test
- } from '../../../api/index';
+ } from '@/api/index';
 import {uniqBy, cloneDeep} from 'lodash'
-// import RSA from '../../../utils/rsa'
 
 export default {
-    name: 'typeForm',
+    name: 'UserManage',
     props: {
-    },
-    components: {
-    },
-    computed: {
     },
     data() {
         return {
@@ -179,7 +175,7 @@ export default {
                 level: this.level,
                 userName: this.userName,
             }
-            userList(obj).then(res => {
+            getUserList(obj).then(res => {
                 console.log(res.records);
                 this.tableData = res.records
                 this.page.total = res.total
@@ -261,7 +257,23 @@ export default {
 };
 </script>
 
-<style  scoped>
+<style lang="scss" scoped>
+.box {
+    position: relative;
+    padding: 12px;
+    margin: 0 23px;
+    background-color: #fff;
+}
+.handle-box {
+    width: 100%;
+    margin-bottom: 20px;
+
+    .new-btn {
+        float: right;
+        margin-top: 2px;
+    }
+    
+}
     .el-select {
         width: 100%;
     }
@@ -281,11 +293,7 @@ export default {
     .upload-demo {
         text-align: center;
     }
-    .upload-demo /deep/ .el-upload.el-upload--text {
-        width: 200px;
-        border: none;
-        height: 30px;
-    }
+   
     .pic-list {
         text-align: center;
     }

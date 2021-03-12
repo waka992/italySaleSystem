@@ -6,6 +6,7 @@
                 <el-breadcrumb-item>客户信息详情</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="operate-btns">
+                <el-button class="btn3 outer" @click="showDialog('receive')">收款</el-button>
                 <el-button class="btn3 outer" @click="showDialog('balance')">结欠</el-button>
                 <el-button class="btn2 outer" @click="showDialog('bill')">账单总汇</el-button>
                 <el-button class="btn2 outer" @click="showDialog('sold')">销售统计</el-button>
@@ -61,6 +62,15 @@
             <div class="record-card">
                 <div class="top">
                     <div class="title">销售记录</div>
+                    <el-select style="margin:0 20px;" size="mini" v-model="status" placeholder="请选择" clearable>
+                        <el-option
+                        v-for="item in dict.payStatus"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                    <el-button icon="el-icon-search" size="mini" @click="getData"></el-button>
                     <div class="operate-btns">
                         <el-button type="primary" @click="showDialog('new')">+添加订单</el-button>
                     </div>
@@ -92,17 +102,13 @@
                     <el-table-column label="审核状态" align="center">
                         <template slot-scope="scope">
                     <!-- 0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货 -->
-                            {{
-                            (scope.row.process == 0 || scope.row.process == null) ? '待审核' :
-                            scope.row.process == 1 ? '不通过' :
-                            scope.row.process == 2 ? '待发货' :
-                            scope.row.process == 3 ? '欠款' : '仓库发货'}}
+                            {{ getDict(scope.row.process, 'verifyStatus') }}
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
                             <el-button type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
-                            <el-button type="text" @click="showDialog('pay', scope.row.id)">支付</el-button>
+                            <el-button type="text" @click="showDialog('pay', scope.row)">支付</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -226,6 +232,66 @@
                 <el-button class="curr-btn" type="primary" @click="getPay">支付</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog 
+        :close-on-click-modal='false'
+        :show-close="false"
+        :title="'新增收款'" :visible.sync="incomeDialogVisible" width="551px">
+            <el-form ref="incomeform" 
+                :model="incomeform" label-width="178px"
+                :rules="incomerules"
+            >
+                <el-form-item label="客户名" prop="customerName">
+                    <el-autocomplete
+                        size="mini"
+                        class="form-input"
+                        v-model="incomeform.customerName"
+                        :fetch-suggestions="queryName"
+                        :maxlength="15" 
+                        show-word-limit
+                        placeholder="请选择客户名"
+                        @select="handleSelect"
+                    ></el-autocomplete>
+                </el-form-item>
+
+                <el-form-item label="收款公司" prop="companyName">
+                    <el-autocomplete
+                        size="mini"
+                        class="form-input"
+                        v-model="incomeform.companyName"
+                        :fetch-suggestions="queryCompanyName"
+                        placeholder="请选择公司"
+                        @select="handleCompanySelect"
+                    ></el-autocomplete>
+                </el-form-item>
+
+                <el-form-item label="日期" prop="createTime">
+                    <el-date-picker
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        v-model="incomeform.createTime"
+                        type="datetime"
+                        placeholder="选择今日日期时间">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="收款金额" prop="money">
+                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="例如+1000" ></el-input>
+                </el-form-item>
+                <el-form-item label="资金状态" prop="accountType">
+                    <el-select class="form-input" size="mini" v-model="incomeform.accountType" placeholder="请选择">
+                        <el-option v-for="(type,i) in dict.accountType" 
+                        :label="type.label" :value="type.value"
+                        :key="i"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="备注" prop="remark">
+                    <el-input size="mini" class="form-input" v-model="incomeform.remark" placeholder="请输入备注内容" ></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button class="curr-btn" plain @click="incomeDialogVisible = false">取消</el-button>
+                <el-button class="curr-btn" type="primary" @click="saveIncome">保存</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -237,7 +303,7 @@ import DialogBill from './DialogBill';
 import DialogSold from './DialogSold';
 import DialogBalance from './DialogBalance';
 import DialogPay from './DialogPay';
-
+import {cloneDeep} from 'lodash'
 import { 
     customerList,
     registerCustomer,
@@ -246,7 +312,10 @@ import {
     orderDetail,
     settleOrder,
     sumOrder,
-    payOrder
+    payOrder,
+    addCompAccount,
+    userList,
+    getCompPage
     } from '@/api/index';
 export default {
     name: 'CustomerInfoDetail',
@@ -260,9 +329,12 @@ export default {
     data() {
         return {
             id: '',
+            status: '',
+            dict: {},
             newOrderDialog: false,
             billDialog: false,
             balanceDialog: false,
+            incomeDialogVisible: false,
             soldDialog: false,
             payDialog: false,
             page: {
@@ -277,10 +349,20 @@ export default {
             deptTableData: [],
             receiveTableData: [],
             selectedRecord: [],
+            incomeform: {},
+            incomerules: {
+                customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
+                companyName: [{ required: true, message: '请选择公司', trigger: 'change' }],
+                createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
+                money: [{ required: true, message: '请输入', trigger: 'change' }],
+            },
+            searchAdvice: [],
+            searchCompanyAdvice: [],
         };
     },
     created() {
         this.getDict = dict.getDict // 获取字典
+        this.dict = dict
         let data = this.$route.params.data
         this.id = data.id
         this.comInfo = {
@@ -298,25 +380,13 @@ export default {
         this.getData()
     },
     methods: {
-        // 置空数据
-        getDetail() {
-            this.form = {
-                name: '广东沈外贸科技有限公司',
-                address: '广州白云区家和',
-                mobile: '1377292010',
-                otherContact: '390525235@qq.com',
-                remark: '外贸科技供应商',
-                payStatus: '+8000',
-                use: '文案文案',
-            }
-        },
-
         getData() {
             if (!this.id){return}
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
                 customerId: this.id,
+                status: this.status
             }
             getOrderByCustomer(obj).then(res => {
                 if(res.list) {
@@ -417,13 +487,21 @@ export default {
         showDialog(tar, id) {
             // 结欠
             if (tar == 'balance') {
+           
                 if (!this.selectedRecord.length) {
                     this.$message.warning('请选择需要结欠的销售记录')
                     return
                 }
+                for (let i = 0; i < this.selectedRecord.length; i++) {
+                    const ele = this.selectedRecord[i];
+                    if (ele.process == 0 || ele.process == 1) {
+                        this.$message.warning('需要通过审核才能进行结欠')
+                        return
+                    }
+                }
                 this.balanceDialog = true
                 this.$nextTick(() => {
-                    this.$refs.balanceDialogRef.resetData()
+                    this.$refs.balanceDialogRef.resetData(this.comInfo.arrears)
                 })
             }
             // 账单总汇
@@ -453,8 +531,7 @@ export default {
             if (tar == 'pay') {
                 this.payDialog = true
                 this.$nextTick(() => {
-                    this.$refs.payDialog.resetData()
-                    this.$refs.payDialog.setId(id)
+                    this.$refs.payDialog.resetData(id)
                 })
             }
             // 销售统计
@@ -488,7 +565,8 @@ export default {
                     discount,
                     exchangeRate,
                     taxRate,
-                    createTime} = res
+                    createTime,
+                    status} = res
                     details.forEach(element => {
                         element.isTail = (element.isTail == 1 ?  true : false)
                     });
@@ -503,7 +581,8 @@ export default {
                         monetaryUnit: monetaryUnit,
                         discount: discount,
                         exchangeRate: exchangeRate,
-                        taxRate: taxRate,
+                        taxRate: taxRate * 100,
+                        status: Number(status),
                     }
                     let goodsList = details
                     this.$nextTick(() => {
@@ -514,6 +593,110 @@ export default {
                     })
                 })
             }
+            if (tar == 'receive') {
+                this.addIncomeReady()
+            }
+        },
+        addIncomeReady() {
+            this.incomeform = {
+                companyId: '',
+                companyName: '',
+                customerName: this.comInfo.memberName,
+                customerId: this.comInfo.id,
+                createTime: '',
+                money: '',
+                remark: '',
+                accountType: '', //0现金1转账2现金3微信
+            },
+            this.incomeDialogVisible = true;
+            this.$nextTick(() => {
+                this.$refs.incomeform.clearValidate()
+            })
+        },
+        saveIncome() {
+            let params = cloneDeep(this.incomeform)
+            if (params.money < 0) {
+                params.bookType = 0 // 支出
+            }
+            else {
+                params.bookType = 1 // 收入
+            }
+            params.money = Math.abs(params.money)
+            // 防止用户不点选客户
+            for (let i = 0; i < this.searchAdvice.length; i++) {
+                const ele = this.searchAdvice[i];
+                if (params.customerName == ele.memberName) {
+                    params.customerId = ele.id
+                }
+            }
+            for (let i = 0; i < this.searchCompanyAdvice.length; i++) {
+                const ele = this.searchCompanyAdvice[i];
+                if (params.companyName == ele.name) {
+                    params.companyId = ele.id
+                }
+            }
+
+            this.$refs.incomeform.validate(valid => {
+                if (valid) {
+                    // 校验通过
+                    addCompAccount(params).then(res => {
+                        if (res) {
+                            this.$message.success({message: '新增成功',});
+                            this.incomeDialogVisible = false
+                            // this.getPayLog()
+                        }
+                    })
+                }
+            })
+        },
+        // 查询客户名
+        queryName(queryString, cb) {
+            userList({
+                level: '',
+                status: '',
+                page: 1,
+                pageSize: 5,
+                userName: queryString
+                }).then(res => {
+                    let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        arr.push({
+                            value: ele.memberName,
+                            id: ele.id,
+                            memberName: ele.memberName
+                        })
+                    }
+                this.searchAdvice = arr
+                cb(arr)
+            })
+        },
+     
+        handleSelect(item) {
+            this.incomeform.customerId = item.id
+        },
+        // 查询公司
+        queryCompanyName(qs, cb) {
+            let obj = {
+                pageSize:  5,
+                page:  1,
+                name: qs
+            }
+            getCompPage(obj).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.records.length; i++) {
+                        const ele = res.records[i];
+                        ele.value = ele.name
+                        arr.push(ele)
+                    }
+                    this.searchCompanyAdvice = arr
+                cb(arr)
+            })
+        },
+     
+        handleCompanySelect(item) {
+            this.incomeform.companyName = item.name
+            this.incomeform.companyId = item.id
         },
     }
 };

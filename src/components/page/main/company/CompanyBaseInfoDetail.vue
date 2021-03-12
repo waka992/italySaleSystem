@@ -317,9 +317,7 @@ addCompOrUpdate,
 delComp,
 delCompAccount,
 getCompDetail,
-getCompPage,
 getCompPayLog,
-profitSum, 
 userList,} from '@/api/index';
 import dict from '@/components/common/dict.js'
 

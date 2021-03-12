@@ -6,6 +6,15 @@ const dict =  {
         // {value: 2, label: '微信'},
         {value: 3, label: '发票'},
         {value: 4, label: '汇款'},
+        {value: 5, label: '欠款'},
+    ],
+    accountTypeEN: [
+        {value: 0, label: 'CASH'},
+        // {value: 1, label: '转账'},
+        // {value: 2, label: '微信'},
+        {value: 3, label: 'INVOICE'},
+        {value: 4, label: 'REMITTANCE'},
+        {value: 5, label: 'ARREARS'},
     ],
     payWay: [
         {value: 0, label: '发票'},
@@ -51,7 +60,19 @@ const dict =  {
         {value: 2, label: '空运'},
         {value: 3, label: '其他'},
     ],
-
+    verifyStatus: [
+        // <!-- 0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货 -->
+        {value: 0, label: '待审核'},
+        {value: 1, label: '不通过'},
+        {value: 2, label: '通过待发货'},
+        {value: 3, label: '通过欠款待发货'},
+        {value: 4, label: '仓库发货'},
+    ],
+    userLevel: [
+        {value: 0, label: '销售人员'},
+        {value: 1, label: '仓管'},
+        {value: 2, label: 'Boss'},
+    ],
 
     // 字典
     getDict: function(value, dictName) {

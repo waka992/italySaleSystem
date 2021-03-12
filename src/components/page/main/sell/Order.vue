@@ -10,6 +10,11 @@
             <div class="switch-item" :class="selectedSwitch == 0 ? 'selected' : ''" @click="switchSelect(0)">全部订单</div>
             <!-- <div class="switch-item" :class="selectedSwitch == 1 ? 'selected' : ''" @click="switchSelect(1)">今日订单（12月5号）</div> -->
         </div>
+        <el-button
+            class="new-btn"
+            type="primary"
+            @click="showDialog('new')"
+        >新订单</el-button>
         <div class="box">
             <div class="handle-box">
                 <el-input v-model="customerName" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名"></el-input>
@@ -19,6 +24,7 @@
                     <div class="time-comp">
                         <el-date-picker
                             value-format="yyyy-MM-dd"
+                            :picker-options='pickerOptions'
                             v-model="time"
                             type="daterange"
                             range-separator="至"
@@ -27,13 +33,18 @@
                         </el-date-picker>
                     </div>
                 </div>
-                <el-button icon="el-icon-search" @click="getData"></el-button>
 
-                <el-button
-                    class="new-btn"
-                    type="primary"
-                    @click="showDialog('new')"
-                    >新订单</el-button>
+                <div class="status">
+                    <span class="label">审核状态</span>
+                    <el-select v-model="process" size="mini" placeholder="请选择" clearable>
+                        <el-option v-for="(type,i) in dict.verifyStatus" :value="type.value" :label="type.label" :key="i">
+                        </el-option>
+                    </el-select>
+                </div>
+
+                <el-button size="mini" icon="el-icon-search" @click="getData"></el-button>
+
+                
             </div>
             <el-table
                 :data="tableData"
@@ -48,11 +59,14 @@
                         {{timeFormat(scope.row.createTime)}}
                     </template>
                 </el-table-column>
+                <el-table-column label="订单状态" align="center">
+                    <template slot-scope="scope">{{getDict(scope.row.process, 'verifyStatus')}}</template>
+                </el-table-column>
                 <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
                 <el-table-column prop="price" label="金额" align="center"></el-table-column>
                 <el-table-column prop="payStatus" label="支付方式" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{getDict(scope.row.payType, 'payWay')}}
+                        {{getDict(scope.row.payType, 'accountType')}}
                     </template>
                 </el-table-column>
                 
@@ -140,7 +154,9 @@ export default {
             status: 0,
             selectedSwitch: 0,
             customerName: '',
-            time: [],
+            process: '',
+            dict: {},
+            time: [moment().add(-1, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
 
             page: {
                 no: 1,
@@ -161,12 +177,18 @@ export default {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 season: [{ required: true, message: '请选择', trigger: 'change' }],
                 transporter: [{ required: true, message: '请选择', trigger: 'change' }],
+            },
+            pickerOptions: {
+                disabledDate(time){
+                    return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7
+                }
             }
         };
     },
     created() {
         this.getData();
         this.getDict = dict.getDict // 获取字典
+        this.dict = dict
 
     },
     methods: {
@@ -208,6 +230,7 @@ export default {
                 customerName: this.customerName,
                 startTime: this.time ? this.time[0] : '',
                 endTime: this.time ? this.time[1] : '',
+                process: this.process,
             }
             getOrderPage(obj).then(res => {
                 this.tableData = res.records
@@ -260,6 +283,14 @@ export default {
 
 <style lang="scss" scoped>
 .order-box {
+    position: relative;
+
+    .new-btn {
+        position: absolute;
+        right: 23px;
+        top: 30px;
+        width: 120px;
+    }
     .switch {
         margin-left: 22px;
 
@@ -320,14 +351,8 @@ export default {
         display: inline-block;
         width: 180px;
     }
-
-    .new-btn {
-        float: right;
-        width: 120px;
-    }
-    
 }
-
+  
 .title {
     position: absolute;
     top: 22px;
