@@ -1,6 +1,6 @@
 <template>
     <div class="horizon-line-box" :style="'width: 100%;'">
-        <div class="line-item" v-for="(line,i) in  lineData" :key="i">
+        <div class="line-item" v-for="(line,i) in  lineData" :key="i" v-show="showTarget.includes(line.id)">
             <div class="line-area">
                 <div class="label">{{line.label}}</div>
                 <div class="horizon-line-bg">
@@ -23,6 +23,10 @@
 export default {
     name: 'HorizonLine',
     props: {
+        showTarget: {
+            type: Array,
+            default: () => ['amount', 'profit']
+        },
         height: {
             type: String,
             default: '0px'
@@ -36,6 +40,7 @@ export default {
         return {
             lineData: [
                 {
+                    id: 'amount',
                     label: '销售量',
                     color: '#2183EA',
                     offset: '-100%',
@@ -45,6 +50,7 @@ export default {
                     ]
                 },
                 {
+                    id: 'profit',
                     label: '利润',
                     offset: '-100%',
                     color: '#E62A9A',

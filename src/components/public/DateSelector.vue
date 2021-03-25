@@ -27,7 +27,7 @@ export default {
     },
     data() {
         return {
-            date: moment().format('YYYY-MM-DD'),
+            date: this.$moment().format('YYYY-MM-DD'),
             pickerOptions: {
                 disabledDate(time){
                     return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7

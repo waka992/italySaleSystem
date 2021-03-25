@@ -7,6 +7,11 @@ import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 import './assets/css/icon.css';
 import './components/common/directives';
 import 'babel-polyfill';
+// 配置moment
+const moment = require('moment');
+require('moment/locale/zh-cn');
+moment.locale('zh-cn');
+Vue.prototype.$moment = moment
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI, {

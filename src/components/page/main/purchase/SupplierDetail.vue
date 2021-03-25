@@ -56,64 +56,111 @@
             <div class="record-card">
                 <div class="top">
                     <div class="title">查询</div>
-                    <div class="search">
-                        <el-date-picker
-                            :picker-options='pickerOptions'
-                            v-model="date"
-                            type="date"
-                            value-format="yyyy-MM-dd"
-                            placeholder="选择日期">
-                        </el-date-picker>
-                    </div>
+                    
                     <div class="handle-box">
                         <el-button
                             size="mini"
                             icon="el-icon-edit"
                             type="primary"
                             @click="addIncomeReady"
-                            >+新增记录</el-button>
+                            >新增付款</el-button>
                     </div>
                 </div>
-                <div class="topic">付款记录</div>
-                <el-table
-                    :data="tableData"
-                    stripe
-                    class="table"
-                    ref="multipleTable"
-                    header-cell-class-name="table-header"
-                >
-                    <el-table-column prop="supplierName" label="供应商名称"  align="center"></el-table-column>
-                    <el-table-column prop="createTime" label="日期" align="center">
-                        <template slot-scope="scope">
-                            {{timeFormat(scope.row.createTime)}}
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="money" label="支付金额" align="center"></el-table-column>
-                    <el-table-column prop="companyName" label="支付名" align="center"></el-table-column>
-                    <!-- <el-table-column prop="payType" label="支付方式" align="center"></el-table-column> -->
-                    <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-                    <el-table-column label="操作" align="center">
-                        <template slot-scope="scope">
-                            <span style="color:red;cursor:pointer;" @click="delPay(scope.row.id)">删除</span>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <div class="pagination">
-                    <el-pagination
-                        background
-                        :current-page="page.no"
-                        :page-size="page.size"
-                        :total="page.total"
-                    :page-sizes="[5,10,20]"
-                        layout="total, prev, pager, next, sizes, jumper"
-                        @size-change="handleSizeChange"
-                        @current-change="basePageChange"
-                    ></el-pagination>
+                <div class="pay-record">
+                    <div class="topic">付款记录</div>
+                    <div class="search">
+                            <el-date-picker
+                                :picker-options='pickerOptions'
+                                v-model="date"
+                                type="date"
+                                value-format="yyyy-MM-dd"
+                                placeholder="选择日期">
+                            </el-date-picker>
+                        </div>
+                    <el-button class="search-btn" size="mini" icon="el-icon-search" @click="getData"></el-button>
+                    <el-table
+                        :data="tableData"
+                        stripe
+                        class="table"
+                        ref="multipleTable"
+                        header-cell-class-name="table-header"
+                    >
+                        <el-table-column prop="supplierName" label="供应商名称"  align="center"></el-table-column>
+                        <el-table-column prop="createTime" label="日期" align="center">
+                            <template slot-scope="scope">
+                                {{timeFormat(scope.row.createTime)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="money" label="支付金额" align="center"></el-table-column>
+                        <el-table-column prop="companyName" label="支付名" align="center"></el-table-column>
+                        <!-- <el-table-column prop="payType" label="支付方式" align="center"></el-table-column> -->
+                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <span style="color:red;cursor:pointer;" @click="delPay(scope.row.id)">删除</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <div class="pagination">
+                        <el-pagination
+                            background
+                            :current-page="page.no"
+                            :page-size="page.size"
+                            :total="page.total"
+                        :page-sizes="[5,10,20]"
+                            layout="total, prev, pager, next, sizes, jumper"
+                            @size-change="handleSizeChange"
+                            @current-change="basePageChange"
+                        ></el-pagination>
+                    </div>
                 </div>
-                <div class="operate">
+                <div class="operation-record">
+                    <div class="topic">合作记录</div>
+                    <div class="search">
+                        <el-select size="mini" v-model="cooperationSeason" placeholder="请选择" clearable>
+                            <el-option
+                            v-for="item in seasonOptions"
+                            :key="item.configValue"
+                            :label="item.configValue"
+                            :value="item.configValue">
+                            </el-option>
+                        </el-select>
+                        </div>
+                    <el-button class="search-btn" size="mini" icon="el-icon-search" @click="getCooperationRecord"></el-button>
+                    <el-table
+                        :data="cooperationTableData"
+                        stripe
+                        class="table"
+                        ref="multipleTable"
+                        header-cell-class-name="table-header"
+                    >
+                        <el-table-column prop="supplierName" label="季度"  align="center"></el-table-column>
+                        <el-table-column prop="createTime" label="总箱数" align="center">
+                            <template slot-scope="scope">
+                                {{timeFormat(scope.row.createTime)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="money" label="总件数" align="center"></el-table-column>
+                        <el-table-column prop="companyName" label="金额" align="center"></el-table-column>
+                        <!-- <el-table-column prop="payType" label="支付方式" align="center"></el-table-column> -->
+                    </el-table>
+                    <div class="pagination">
+                        <el-pagination
+                            background
+                            :current-page="coopPage.no"
+                            :page-size="coopPage.size"
+                            :total="coopPage.total"
+                        :page-sizes="[5,10,20]"
+                            layout="total, prev, pager, next, sizes, jumper"
+                            @size-change="handleCoopSizeChange"
+                            @current-change="coopPageChange"
+                        ></el-pagination>
+                    </div>
+                </div>
+                <!-- <div class="operate">
                     <el-button plain @click="back">返回</el-button>
                     <el-button type="primary">生成pdf</el-button>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -216,13 +263,15 @@
 <script>
 import {cloneDeep} from 'lodash';
 import dict from '@/components/common/dict.js';
-import moment from 'moment';
+  
 import { 
     addSupplier,
     delSupplier,
     getSupplierPayPage,
     addSupplierPay,
-    delSupplierPay, } from '@/api/index';
+    delSupplierPay,
+    getSupplierGoods,
+    getTitle } from '@/api/index';
 
 export default {
     name: 'SupplierDetail',
@@ -230,10 +279,17 @@ export default {
         return {
             date: '',
             dict: {},
+            seasonOptions: [],
+            cooperationSeason: '',
             delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
             page: {
+                no: 1,
+                total: 0,
+                size: 10
+            },
+            coopPage: {
                 no: 1,
                 total: 0,
                 size: 10
@@ -251,6 +307,7 @@ export default {
             },
             // 支出收入列表
             tableData: [],
+            cooperationTableData: [],
             // 修改用
             form: {
                 name: '',
@@ -294,7 +351,9 @@ export default {
     },
     mounted() {
         this.dict = dict
+        this.getSeason()
         this.getData()
+        this.getCooperationRecord()
     },
     methods: {
         editReady() {
@@ -316,6 +375,15 @@ export default {
                 }
             })
         },
+        getSeason() {
+            let obj = {
+                status: 'quarter'
+            }
+            getTitle(obj).then(res => {
+                let data = (res instanceof Array) ? res : []
+                this.seasonOptions = data || []
+            })
+        },
 
         // 查
         getData() {
@@ -329,6 +397,20 @@ export default {
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
+            })
+        },
+
+        getCooperationRecord() {
+            let obj = {
+                id: this.comInfo.id,
+                season: this.cooperationSeason,
+                pageSize:  this.coopPage.size,
+                page:  this.coopPage.no,
+            }
+            getSupplierGoods(obj).then(res => {
+                // this.cooperationTableData = res.records
+                // this.coopPage.total = res.total
+                // this.coopPage.no = res.current
             })
         },
 
@@ -397,7 +479,7 @@ export default {
         },
 
         timeFormat(time) {
-            return moment(time).add(8, 'h').format('YYYY-MM-DD')
+            return this.$moment(time).add(8, 'h').format('YYYY-MM-DD')
         },
         // 返回
         back() {
@@ -413,6 +495,18 @@ export default {
             this.$set(this.page, 'size', val);
             this.$set(this.page, 'no', 1);
             this.getData();
+        },
+
+        // 分页导航
+        coopPageChange(val) {
+            this.$set(this.coopPage, 'no', val);
+            this.getCooperationRecord();
+        },
+        // 每页数量改变
+        handleCoopSizeChange(val) {
+            this.$set(this.coopPage, 'size', val);
+            this.$set(this.coopPage, 'no', 1);
+            this.getCooperationRecord();
         },
     }
 };
@@ -471,20 +565,29 @@ export default {
         display: inline-block;
         font-size: 20px;
         margin-left: 12px;
+        margin-top: 3px;
         color: #333;
         font-weight: 500;
     }
 
-    .search {
-        position: absolute;
-        left: 90px;
+    .search, .search-btn {
         display: inline-block;
-        width: 240px;
-        height: 27px;
+        margin: 10px;
     }
+    
+    
 
     .top {
         height: 39px;
+    }
+
+    .pay-record {
+        position: relative;
+    }
+
+    .operation-record {
+        position: relative;
+        margin-top: 60px;
     }
 
     .topic {
@@ -523,7 +626,7 @@ export default {
 }
 
 .pagination {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .table {

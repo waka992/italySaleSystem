@@ -1,10 +1,9 @@
 <template>
     <div class="box">
-        <div class="showDate" @click="dateClick">
-            {{date ? date : '请选择日期'}}
-            <span class="unfold-pic" ></span>
+        <div class="date-select">
+            <date-selector @change="getSellDate"></date-selector>
         </div>
-        <div class="top-num">
+        <!-- <div class="top-num">
             <div class="top-num1">
                 <span>总汇款余数 ¥</span>
                 <span>{{num1}}</span>
@@ -13,21 +12,21 @@
                 <span>总现金余数 ¥</span>
                 <span>{{num2}}</span>
             </div>
-        </div>
+        </div> -->
         <!-- 图表 -->
         <div class="charts">
             <div class="left-chart">
                 <pie-chart ref="pieChart1" :width="'200'" :height="'164'"></pie-chart>
                 <div class="bottom-num">
                     <span>总收入：</span>
-                    <span>{{num2}}元</span>
+                    <span>{{income.total}}元</span>
                 </div>
             </div>
             <div class="right-chart">
                 <pie-chart ref="pieChart2" :width="'200'" :height="'164'"></pie-chart>
                 <div class="bottom-num">
                     <span>总支出：</span>
-                    <span>{{num2}}元</span>
+                    <span>{{pay.total}}元</span>
                 </div>
             </div>
         </div>
@@ -35,43 +34,94 @@
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
-import PieChart from '../../../charts/PieChart.vue'
+import PieChart from '@/components/charts/PieChart.vue'
+import DateSelector from '@/components/public/DateSelector'
+  
+import {cloneDeep} from 'lodash'
+import dict from '@/components/common/dict.js'
+
+import {
+    dailyJournal,
+    } from '@/api/index';
+import { format } from 'path'
 export default {
     name: 'HomeFlowStatics',
     components: {
         PieChart,
+        DateSelector
     },
     data() {
         return {
-            date: '',
-            num1: 8000,
-            num2: 53000
+            saleDate: '',
+            income: {
+                total: ''
+            },
+            pay: {
+                total: ''
+            }
         };
     },
     mounted() {
-        this.setChartData()
+        this.dict = dict
+        this.getPieData()
     },
     methods: {
-        dateClick(date) {
-            console.log(date);
+        getSellDate(date) {
+            this.saleDate = date
+            this.getPieData(this.saleDate)
         },
-        setChartData() {
-            // 测试数据
-            let data1 = [
-                {name: '现金', value: 10000},
-                {name: '汇款', value: 3000},
-                {name: '发票', value: 0},
-            ]
-            let data2 = [
-                {name: '汇款', value: 8000},
-                {name: '其他', value: 4000},
-            ]
+        getPieData(date) {
+            let formatDate = ''
+            if (!date) {
+                formatDate = this.$moment().format('YYYY-MM-DD')
+            }
+            else {
+                formatDate = this.$moment(date).format('YYYY-MM-DD')
+            }
+         
+            let params = {
+                bookDate: formatDate,
+                payDate: formatDate,
+            }
+            dailyJournal(params).then(res => {
+                let {cash, remittance, incomde, pay} = res
+                let accountType = cloneDeep(this.dict.accountType)
+                let data1 = []
+                let data2 = []
+                // 初始化data1 data2
+                for (let i = 0; i < accountType.length; i++) {
+                    const ele = accountType[i];
+                    data1.push({
+                        name: ele.label,
+                        value: 0
+                    })
+                    data2.push({
+                        name: ele.label,
+                        value: 0
+                    })
+                }
+               
+                for (let i = 0; i < incomde.length; i++) {
+                    const ele = incomde[i];
+                    data1[ele.book_type].value = ele.cash
+                }
+
+                for (let i = 0; i < pay.length; i++) {
+                    const ele = pay[i];
+                    data2[ele.book_type].value = ele.cash
+                }
+
+                this.income.total = cash || 0
+                this.pay.total = remittance || 0
+                this.setChartData(data1, data2)
+            })
+        },
+        setChartData(data1, data2) {
             // 初始化option
             let option1 = {
                 color: ['#3BA0F6', '#5BE7C7', '#F6913B'],
                 legend: {
-                    top: 50,
+                    top: 40,
                     data: []
                 },
                 series: [{data: []}]
@@ -79,7 +129,7 @@ export default {
             let option2 = {
                 color: ['#EA7DE8', '#E7CF5B'],
                 legend: {
-                    top: 60,
+                    top: 40,
                     data: []
                 },
                 series: [{data: []}]
@@ -100,23 +150,19 @@ export default {
                 data2[i].name = name
             }
             option2.series[0].data = data2
-            console.log(option1);
             this.$refs.pieChart1.setData(option1)
             this.$refs.pieChart2.setData(option2)
-        }
+        },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-.showDate {
-    position: absolute;
-    top: 25px;
-    right: 16px;
-    width: 83px;
-    font-size: 11px;
-    color: #1F1F21;
-}
+    .date-select {
+        position: absolute;
+        top: 28px;
+        right: 28px;
+    }
 
 .unfold-pic {
     position: absolute;
@@ -144,15 +190,20 @@ export default {
     overflow-x: visible;
     height: 134px;
     margin-top: 30px;
+    text-align: center;
+
+    .bottom-num {
+        padding-left: 10px;
+        text-align: left;
+    }
 }
 .left-chart, .right-chart {
     display: inline-block;
     width: 200px;
 }
-.left-chart {
-    float: left;
-}
+
 .right-chart {
-    float: right;
+    margin-left: 30px;
 }
+
 </style>

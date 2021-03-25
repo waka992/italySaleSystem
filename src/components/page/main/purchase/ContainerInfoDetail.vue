@@ -19,7 +19,7 @@
                 <el-button v-show="comInfo.contaninerType == 1" class="del-btn2 outer" slot="reference">确定到货</el-button>
             </el-popover>
         </div>
-        <div class="box">
+        <div class="box" id="containerInfoDetail">
             
             <div class="detail-card">
                 <div class="title">{{comInfo.container}}</div>
@@ -113,11 +113,8 @@
                         @current-change="basePageChange"
                     ></el-pagination>
                 </div> -->
-                <div class="operate">
-                    <el-button plain @click="back">返回</el-button>
-                    <el-button type="primary">生成pdf</el-button>
-                </div>
             </div>
+           
             <el-dialog
                 class="custom-dialog"
                 :close-on-click-modal='false'
@@ -182,12 +179,16 @@
                 </span>
         </el-dialog>
         </div>
+        <div class="operate">
+            <el-button plain @click="back">返回</el-button>
+            <el-button type="primary" @click="downPdf">生成pdf</el-button>
+        </div>
     </div>
 </template>
 
 <script>
 import {cloneDeep} from 'lodash';
-import moment from 'moment'
+  
 import GoodList from './GoodList'
 import { 
     addOrUpdateContainer,
@@ -197,6 +198,7 @@ import {
     containerDetail,
     } from '@/api/index';
 import dict from '@/components/common/dict.js'
+import pdfservice from '@/utils/getpdf.js'
 
 export default {
     name: 'ContainerInfoDetail',
@@ -293,7 +295,7 @@ export default {
             this.getData();
         },
         timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            return this.$moment(time).format('YYYY-MM-DD')
         },
         addGoods() {
             this.baseDialogVisible = true
@@ -314,6 +316,9 @@ export default {
         addContainerSuccess() {
             this.getData()
             this.addDialogVisible = false
+        },
+        downPdf() {
+            pdfservice('#containerInfoDetail', '货柜详情')
         }
     }
 };
@@ -404,14 +409,7 @@ export default {
         height: 39px;
     }
 
-    .operate {
-        margin-top: 50px;
-        text-align: center;
-
-        .el-button  {
-            width: 89px;
-        }
-    }
+    
 
     .red {
         color: #FC5634;
@@ -421,7 +419,16 @@ export default {
         color: #33C179;
     }
 }
+.operate {
+        background-color: #fff;
+        padding: 50px 0;
+        margin: 0 23px;
+        text-align: center;
 
+        .el-button  {
+            width: 89px;
+        }
+}
 .handle-box {
     position: absolute;
     right: 12px;

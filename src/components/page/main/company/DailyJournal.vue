@@ -238,7 +238,7 @@ import {
     addCompAccount,
     userList,
     getCompPage} from '@/api/index';
-import moment from 'moment'
+  
 import dict from '@/components/common/dict.js'
 export default {
     name: 'DailyJournal',
@@ -254,7 +254,7 @@ export default {
             incomeform:{},
             income: {
                 companyName: '',
-                date: moment().format('YYYY-MM-DD'),
+                date: this.$moment().format('YYYY-MM-DD'),
                 payment: '',
                 total: 0,
                 tableData: [
@@ -266,7 +266,7 @@ export default {
                 },
             },
             pay: {
-                date: moment().format('YYYY-MM-DD'),
+                date: this.$moment().format('YYYY-MM-DD'),
                 payment: '',
                 total: 0,
                 tableData: [],
@@ -307,8 +307,11 @@ export default {
     methods: {
         getPieData(date) {
             let formatDate = ''
-            if (date) {
-                formatDate = moment(date).format('YYYY-MM-DD')
+            if (!date) {
+                formatDate = this.$moment().format('YYYY-MM-DD')
+            }
+            else {
+                formatDate = this.$moment(date).format('YYYY-MM-DD')
             }
          
             let params = {
@@ -335,8 +338,6 @@ export default {
                
                 for (let i = 0; i < incomde.length; i++) {
                     const ele = incomde[i];
-                    console.log(ele.book_type);
-                    console.log(data1);
                     data1[ele.book_type].value = ele.cash
                 }
 
@@ -344,7 +345,6 @@ export default {
                     const ele = pay[i];
                     data2[ele.book_type].value = ele.cash
                 }
-
                 this.income.total = cash || 0
                 this.pay.total = remittance || 0
                 this.setChartData(data1, data2)
@@ -428,8 +428,6 @@ export default {
         },
 
         setChartData(data1, data2) {
-            // 测试数据
-             console.log(data1, data2);
             // 初始化option
             let option1 = {
                 color: ['#3BA0F6', '#5BE7C7', '#F6913B'],
@@ -463,7 +461,6 @@ export default {
                 data2[i].name = name
             }
             option2.series[0].data = data2
-            console.log(option1);
             this.$refs.pieChart1.setData(option1)
             this.$refs.pieChart2.setData(option2)
         },
@@ -537,13 +534,11 @@ export default {
             })
         },
         handleSelectCompany(item){
-            console.log(item);
             this.incomeform.companyName = item.name
             this.incomeform.companyId = item.id
         },
         // 选择日期
         getFlowDate(date) {
-            console.log(date);
             this.getPieData(date)
         },
 
@@ -554,7 +549,9 @@ export default {
         },
         // 每页数量改变
         handleIncomeSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.income.page, 'size', val);
+            this.$set(this.income.page, 'no', 1);
+            this.getIncomeData();
         },
          // 分页导航
         basePayPageChange(val) {
@@ -563,10 +560,12 @@ export default {
         },
         // 每页数量改变
         handlePaySizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.pay.page, 'size', val);
+            this.$set(this.pay.page, 'no', 1);
+            this.getPayData();
         },
         timeFormat(time) {
-            return moment(time).add(8, 'h').format('YYYY-MM-DD')
+            return this.$moment(time).format('YYYY-MM-DD')
         },
     }
 };

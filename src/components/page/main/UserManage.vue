@@ -9,16 +9,10 @@
             <div class="handle-box">
                 <el-button class="new-btn" type="primary" @click="create">新建</el-button>
             </div>
-        <div style="margin: 10px 0;">
-            会员等级：
-            <el-select clearable style="width: 150px;margin:0 10px;" v-model="level"  placeholder="请选择会员等级" @change="changeLevel"> 
-                <el-option :value="1" label="游客"></el-option>
-                <el-option :value="2" label="普通"></el-option>
-                <el-option :value="3" label="VIP"></el-option>
-            </el-select>
-            用户搜索：
+        <div style="height: 43px;">
+            <!-- 用户搜索：
             <el-input v-model="userName" style="width: 150px;margin:0 10px;"></el-input>
-            <el-button icon="el-icon-search" @click="search"></el-button>
+            <el-button icon="el-icon-search" @click="search"></el-button> -->
         </div>
         <el-table
             :data="tableData"
@@ -29,28 +23,28 @@
             header-cell-class-name="table-header"
             @selection-change="handleSelectionChange"
             >
-            <el-table-column type="selection" width="55" align="center"></el-table-column>
+            <!-- <el-table-column type="selection" width="55" align="center"></el-table-column> -->
             <!-- <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column> -->
             <!-- <el-table-column type="index" label="序号" width="55" align="center"></el-table-column> -->
 
-            <el-table-column prop="memberName" label="会员呢称">
+            <el-table-column prop="userName" label="昵称" align="center">
             </el-table-column>
-            <el-table-column prop="level" label="会员等级">
+            <el-table-column prop="level" label="权限" align="center">
                 <template slot-scope="scope">
-                    {{scope.row.level == 1 ? '游客' : scope.row.level == 2 ? '普通' : 'VIP'}}
+                    {{dict.getDict(scope.row.level, 'userLevel')}}
                 </template>
             </el-table-column>
-            <el-table-column prop="status" label="会员状态">
+            <!-- <el-table-column prop="status" label="用户状态">
                 <template slot-scope="scope">
                     {{scope.row.status == 1  ? '激活' : '注销'}}
                 </template>
+            </el-table-column> -->
+            <!-- <el-table-column prop="remarks" label="备注" align="center"> -->
             </el-table-column>
-            <el-table-column prop="remarks" label="备注">
-            </el-table-column>
-            <el-table-column prop="status" label="操作" width="180">
+            <el-table-column prop="status" label="操作" width="180" align="center">
                 <template slot-scope="scope">
-                    <el-button type="primary" @click="edit(scope.row)">编辑</el-button>
-                    <el-button type="danger" @click="del(scope.row)">注销</el-button>
+                    <el-button type="text" @click="edit(scope.row)">编辑</el-button>
+                    <el-button type="text" @click="del(scope.row)">注销</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -67,50 +61,52 @@
         <el-dialog
             class="user-dialog"
             :close-on-click-modal='false'
-            :title="operate === 'create' ? '创建会员' : '编辑会员'"
+            :title="operate === 'create' ? '创建用户' : '编辑用户'"
             :visible.sync="dialogVisible"
             width="700px">
                 <el-form :model="form" class="demo-form-inline" label-width="80px">
                     <el-row :gutter="20">
                         <el-col :span="12">
-                            <el-form-item label="会员呢称">
-                                <el-input v-model="form.memberName"></el-input>
+                            <el-form-item label="用户呢称">
+                                <el-input v-model="form.userName"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            <el-form-item label="会员密码" v-if="operate === 'create'">
+                            <el-form-item label="用户密码" v-if="operate === 'create'">
                                 <el-input v-model="form.password"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="新密码" v-if="operate !== 'create'">
+                                <el-input v-model="form.newPassword" placeholder="非必填，如需要修改密码请填写" @input="newPasswordChange"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="20">
-                        <el-col :span="12">
-                            <el-form-item label="会员状态">
-                                <!-- 0注销,1激活 -->
-                                <el-select :disabled="operate === 'create'" style="width: 200px;" v-model="form.status"  placeholder="请选择会员状态"> 
+                        <!-- <el-col :span="12">
+                            <el-form-item label="用户状态">
+                                <el-select :disabled="operate === 'create'" style="width: 200px;" v-model="form.status"  placeholder="请选择用户状态"> 
                                     <el-option :value="0" label="注销"></el-option>
                                     <el-option :value="1" label="激活"></el-option>
                                 </el-select>
                             </el-form-item>
-                        </el-col>
+                        </el-col> -->
                         <el-col :span="12">
-                            <el-form-item label="会员等级">
-                                <el-select style="width: 200px;" v-model="form.level"  placeholder="请选择会员等级"> 
-                                    <el-option :value="1" label="游客"></el-option>
-                                    <el-option :value="2" label="普通"></el-option>
-                                    <el-option :value="3" label="VIP"></el-option>
+                            <el-form-item label="用户权限">
+                                <el-select style="width: 200px;" v-model="form.level"  placeholder="请选择用户等级"> 
+                                    <el-option v-for="(user, i) in dict.userLevel" :value="user.value" :label="user.label" :key="i"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                     </el-row>
 
-                    <el-row>
+                    <!-- <el-row>
                         <el-col :span="24">
                             <el-form-item label="备注">
                                 <el-input type="textarea" v-model="form.remarks"></el-input>
                             </el-form-item>
                         </el-col>
-                    </el-row>
+                    </el-row> -->
 
                 </el-form>
             <span slot="footer" class="dialog-footer">
@@ -125,9 +121,13 @@
 <script>
 import { 
     getUserList,
-    test
+    addUser,
+    delUser,
+    updateUser,
+    updatePwd
  } from '@/api/index';
 import {uniqBy, cloneDeep} from 'lodash'
+import dict from '@/components/common/dict.js'
 
 export default {
     name: 'UserManage',
@@ -143,21 +143,18 @@ export default {
                 size: 20
             },
             form: {
-                remarks:'',
-                level: 1,
-                status: 1,
-                password: '',
-                memberName: ''
             },
             dialogVisible: false,
             selectRow: [],
 
             level: '',
-            userName: ''
+            userName: '',
+            dict: '',
         };
     },
     created() {
         this.getData();
+        this.dict = dict
     },
     methods: {
         search() {
@@ -192,43 +189,37 @@ export default {
         create() {
             this.operate = 'create'
             this.form =  {
-                remarks:'',
                 level: 1,
-                status: 1,
                 password: '',
-                memberName: ''
+                userName: ''
             }
             this.openDialog()
         },
         edit(row) {
-            // if (this.selectRow.length == 0) {
-            //     this.$message.warning({message: '请选择需要编辑的内容',});
-            //     return
-            // }
-            // else if (this.selectRow.length > 1) {
-            //     this.$message.warning({message: '只能同时编辑一条',});
-            //     return
-            // }
             this.operate = 'edit'
-            row.status = Number(row.status)
             this.form = row
+            this.form.newPassword = ''
             this.openDialog()
         },
         del(row) {
-            this.operate = 'edit'
-            row.status = Number(row.status)
-            this.form = row
-            this.form.status = 0
-            this.save()
+            this.$confirm('确认注销当前用户？').then(_ => {
+                delUser({id: row.id}).then(res => {
+                    this.$message.success({message: '注销成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
         },
         // 保存
         save() {
             let params = cloneDeep(this.form)
-            if (params.password) {
-                params.password = window.btoa(params.password)
-            }
+           
             if (this.operate == 'create') {
-                userRegister(params).then(res => {
+                if (params.password) {
+                    params.password = window.btoa(params.password)
+                }
+                addUser(params).then(res => {
+                    delete params.newPassword
                     if (res) {
                         this.$message.success({message: '创建成功',});
                         this.dialogVisible = false
@@ -237,8 +228,18 @@ export default {
                 })
             }
             if (this.operate == 'edit') {
+                if (params.newPassword != '') {
+                    let pwdParam = {
+                        userName: params.userName,
+                        password: window.btoa(params.newPassword)
+                    }
+                    updatePwd(pwdParam).then(res => {
+                        console.log(res);
+                    })
+                }
+                delete params.newPassword
                 delete params.password
-                userUpdate(params).then(res => {
+                addUser(params).then(res => {
                     if (res) {
                         this.$message.success({message: '修改成功',});
                         this.dialogVisible = false
@@ -253,6 +254,10 @@ export default {
         closeDialog() {
             this.dialogVisible = false
         },
+        newPasswordChange(val) {
+            this.form.newPassword = val
+            this.$forceUpdate()
+        }
     }
 };
 </script>
@@ -265,12 +270,13 @@ export default {
     background-color: #fff;
 }
 .handle-box {
-    width: 100%;
-    margin-bottom: 20px;
+    position: absolute;
+    right: 12px;
+    top: 12px;
 
     .new-btn {
-        float: right;
-        margin-top: 2px;
+
+        @include primarybtn;
     }
     
 }
@@ -307,5 +313,9 @@ export default {
     }
     .user-dialog .el-select {
         width: 100% !important;
+    }
+
+    .pagination {
+        margin: 20px;
     }
 </style>

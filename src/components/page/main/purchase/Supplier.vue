@@ -26,7 +26,7 @@
                 <el-table-column prop="supplierAddress" label="地址" align="center"></el-table-column>
                 <el-table-column prop="supplierMobile" label="联系方式" align="center" width="120">
                     <template  slot-scope="scope">
-                        {{scope.row.supplierMobile + ' ' + scope.row.supplierOther}}
+                        {{(scope.row.supplierMobile ? scope.row.supplierMobile : '')}}
                     </template>
                 </el-table-column>
                 <el-table-column prop="memorandum" label="备忘录" align="center"></el-table-column>

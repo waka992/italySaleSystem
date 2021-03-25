@@ -1,13 +1,14 @@
 import axios from 'axios';
 import {Message} from 'element-ui'
 import Router from 'vue-router';
+import RSA from './encode'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 const service = axios.create({
     // process.env.NODE_ENV === 'development' 来判断是否开发环境
     // easy-mock服务挂了，暂时不使用了
-    baseURL: 'http://2o6465101l.wicp.vip/',
-    // baseURL: 'http://www.bruceyao.cn:8085/',
+    // baseURL: 'http://2o6465101l.wicp.vip/',
+    baseURL: 'http://www.bruceyao.cn:8085/',
 
     timeout: 10000,
 });
@@ -18,6 +19,7 @@ service.interceptors.request.use(
         if (token) {
             config.headers['xc-token'] = token
         }
+   
         return config;
     },
     error => {
@@ -34,8 +36,11 @@ service.interceptors.response.use(
             sessionStorage.clear()
         }, 500) // 延迟一下等js处理，关窗口之类的
         if (response.status === 200) {
+            // 解密
+            if (typeof(response.data) == 'string') {
+                response.data = RSA.DecryptData(response.data)
+            }
             if (response.data.code == 1) {
-              
                 // token
                 if (response.headers['xc-token']) {
                     localStorage.setItem('xc-token', response.headers['xc-token']) // 获取header的token

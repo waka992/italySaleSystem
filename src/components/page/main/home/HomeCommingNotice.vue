@@ -22,7 +22,7 @@
 import {
     getIndexArrival,
 } from '@/api/index';
-import moment from 'moment'
+  
 export default {
     name: 'HomeCommingNotice',
     data() {
@@ -41,7 +41,7 @@ export default {
             })
         },
         timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            return this.$moment(time).format('YYYY-MM-DD')
         },
     }
 };

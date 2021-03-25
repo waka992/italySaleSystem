@@ -14,7 +14,19 @@
                         <el-button size="mini" type="text" @click="delVisible = false">取消</el-button>
                         <el-button type="primary" size="mini" @click="approval">确定</el-button>
                     </div>
-                    <el-button @confirm="approval" v-show="process == 0 && level == 2" slot="reference" plain icon="el-icon-circle-check">审核确认</el-button>
+                    <el-button @confirm="approval" v-show="(process == 4 || process == 5)&& level == 2" slot="reference" plain icon="el-icon-circle-check">审核确认</el-button>
+                    <!-- 发货后状态4到tony审核 -->
+                </el-popover>
+
+                <el-popover
+                    placement="bottom"
+                    v-model="sendVisible">
+                    <p>确认发货？</p>
+                    <div style="text-align: right; margin: 0">
+                        <el-button size="mini" type="text" @click="sendVisible = false">取消</el-button>
+                        <el-button type="primary" size="mini" @click="sendApproval">确定</el-button>
+                    </div>
+                    <el-button @confirm="sendApproval" v-show="(process == 0 || process == 5) && level == 1" slot="reference" plain icon="el-icon-circle-check">发货</el-button>
                 </el-popover>
 
                 <el-popover
@@ -25,13 +37,24 @@
                         <el-button size="mini" type="text" @click="delCancelVisible = false">取消</el-button>
                         <el-button type="primary" size="mini" @click="cancelApproval">确定</el-button>
                     </div>
-                    <el-button style="margin-right:20px;" @confirm="cancelApproval" v-show="process != 0 && level == 2" slot="reference" plain icon="el-icon-s-release">取消审核</el-button>
+                    <el-button style="margin-right:20px;" @confirm="cancelApproval" v-show="process == 2 && level == 2" slot="reference" plain icon="el-icon-s-release">取消审核</el-button>
+                    <!-- tony审核完是2 -->
                 </el-popover>
 
-                <el-button plain icon="el-icon-edit" @click="edit" v-show="process == 0">编辑</el-button>
-                <span class="verified" v-show="process != 0">
+                <el-button plain icon="el-icon-edit" @click="edit" v-show="process == 0 || process == 5">编辑</el-button>
+                <span class="verified" v-show="process == 2">
                     <i class="el-icon-s-check"></i>
                     已审核
+                </span>
+
+                <span class="verified" v-show="process == 5">
+                    <i class="el-icon-s-check"></i>
+                    退审处理中
+                </span>
+
+                <span class="verified" v-show="process == 0">
+                    <i class="el-icon-s-check"></i>
+                    待发货确认
                 </span>
             </div>
         </div>
@@ -202,7 +225,6 @@
             <div class="form-btns">
                 <el-button @click="cancel">完成</el-button>
                 <el-button type="primary" v-if="todo === 'edit'" @click="save">保存</el-button>
-                <!-- <el-button type="primary" v-if="todo === 'check'" @click="getPDF">生成PDF</el-button> -->
             </div>
         </div>
     </div>
@@ -232,6 +254,7 @@ export default {
         return {
             delVisible: false,
             delCancelVisible: false,
+            sendVisible: false,
             id: '',
             level: '',
             process: 1,
@@ -290,11 +313,23 @@ export default {
                 this.getData()
             })
         },
+        // 发货
+        sendApproval() {
+            this.sendVisible = false
+            let params = {
+                id: this.id,
+                status: 4, 
+            }
+            approvalOrder(params).then(res => {
+                this.$message.success('发货完成')
+                this.getData()
+            })
+        },
         cancelApproval() {
             this.delCancelVisible = false
             let params = {
                 id: this.id,
-                status: 0, //0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货
+                status: 5, //5反审
             }
             approvalOrder(params).then(res => {
                 this.$message.success('取消审核完成')
@@ -329,7 +364,7 @@ export default {
                         customerName: customerName,
                         customerAddress: customerAddress,
                         transportName: transportName,
-                        payType: Number(payType),
+                        payType: payType ? Number(payType) : '',
                         monetaryUnit: monetaryUnit,
                         discount: discount,
                         exchangeRate: exchangeRate,
@@ -875,6 +910,7 @@ export default {
     .verified {
         display: inline-block;
         margin-top: 10px;
+        margin-left: 10px;
         color: red;
     }
 </style>

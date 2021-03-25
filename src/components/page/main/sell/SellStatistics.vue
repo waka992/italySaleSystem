@@ -62,7 +62,7 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import moment from 'moment'
+  
 import DateSelector from '@/components/public/DateSelector'
 import LineChart from '@/components/charts/LineChart'
 import { 
@@ -122,7 +122,7 @@ export default {
         // 查
         getSingleData() {
             let obj = {
-                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                STime: this.date || this.$moment().format("YYYY-MM-DD"), // 选择时间
                 type: this.dateSelected,
             }
             goodsSum(obj).then(res => {
@@ -140,7 +140,7 @@ export default {
 
         getCustomerData() {
             let obj = {
-                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                STime: this.date || this.$moment().format("YYYY-MM-DD"), // 选择时间
                 type: this.dateSelected,
             }
             customerSum(obj).then(res => {
@@ -161,7 +161,7 @@ export default {
                 return
             }
             let obj = {
-                stime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                stime: this.date || this.$moment().format("YYYY-MM-DD"), // 选择时间
                 type: this.dateSelected,
                 characteristic: this.attrForm.special ? [this.attrForm.special] : [], // 后端好像可以多选
                 color: this.attrForm.color ? [this.attrForm.color] : [],

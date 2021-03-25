@@ -64,6 +64,16 @@
                 <div class="top">
                     <div class="title">支出收入记录({{tableData.length}})</div>
                     <div class="search">
+                        <el-date-picker
+                            :picker-options='pickerOptions'
+                            v-model="logDate"
+                            type="date"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                        </el-date-picker>
+                        <div class="search-btn">
+                            <el-button size="mini" icon="el-icon-search" @click="getPayLog"></el-button>
+                        </div>
                         <!-- <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input> -->
                     </div>
                     <div class="handle-box">
@@ -95,8 +105,8 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-                    <el-table-column prop="rest" label="余额"  width="120" align="center"></el-table-column>
-                    <el-table-column prop="rest" label="操作"  width="120" align="center">
+                    <el-table-column prop="balance" label="余额"  width="120" align="center"></el-table-column>
+                    <el-table-column label="操作"  width="120" align="center">
                         <template slot-scope="scope">
                             <el-popover
                                 width="120"
@@ -320,6 +330,7 @@ getCompDetail,
 getCompPayLog,
 userList,} from '@/api/index';
 import dict from '@/components/common/dict.js'
+import RSA from '@/utils/encode'
 
 export default {
     name: 'CompanyBaseInfo',
@@ -356,6 +367,12 @@ export default {
                 createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
                 money: [{ required: true, message: '请输入', trigger: 'change' }],
             },
+            logDate: '',
+            pickerOptions: {
+                disabledDate(time){
+                    return time.getTime() > Date.now()   //如果当天可选，就不用减8.64e7
+                }
+            }
         };
     },
     created() {
@@ -430,6 +447,7 @@ export default {
                 id: this.id,
                 page: this.page.no,
                 pageSize: this.page.size,
+                date: this.logDate,
             }
             getCompPayLog(obj).then(res => {
                 if (res) {
@@ -624,16 +642,24 @@ export default {
         display: inline-block;
         font-size: 14px;
         margin-left: 12px;
+        margin-top: 8px;
         color: #303133;
         font-weight: 500;
+        vertical-align: middle;
     }
 
     .search {
         position: absolute;
-        right: 260px;
+        left: 160px;
         display: inline-block;
         width: 240px;
         height: 27px;
+    }
+
+    .search-btn {
+        position: absolute;
+        left: 240px;
+        top: 0;
     }
 
     .top {

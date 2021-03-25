@@ -28,7 +28,11 @@
                         {{scope.row.status == 1 ? '运输完成' : '运输中'}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="estimate" label="货柜日期" align="center" width="120"></el-table-column>
+                <el-table-column prop="estimate" label="货柜日期" align="center" width="120">
+                    <template slot-scope="scope">
+                        {{timeFormat(scope.row.estimate)}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="transporterMobile" label="电话" align="center"></el-table-column>
                 <el-table-column prop="transporterAddress" label="地址" align="center"></el-table-column>
                 
@@ -108,7 +112,7 @@ export default {
             page: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             tableData: [],
             form: {},
@@ -184,7 +188,13 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
+        },
+
+        timeFormat(time) {
+            return this.$moment(time).format('YYYY-MM-DD')
         },
     }
 };

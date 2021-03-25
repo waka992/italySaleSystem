@@ -2,11 +2,19 @@ import service from '../utils/request';
 let axiosPost = service.post
 let axiosGet = service.get
 import qs from 'qs'
+import RSA from '../utils/encode'
 
 sessionStorage.clear() // 先清理锁
 
-function post(name, query) {
-    if (sessionStorage.getItem(name) === 'true') {
+/**
+ * 
+ * @param {*} name 
+ * @param {*} query 
+ * @param {*} limit 请求限制，默认开，需要同时请求多次的接口设置为false即可
+ * @param {*} encode 是否加密，默认不加，部分接口需要就加
+ */
+function post(name, query, limit = true, encode = false) {
+    if (sessionStorage.getItem(name) === 'true' && limit) {
         // 防止请求出错完全不能请求
         setTimeout(() => {
             console.log('session清理');
@@ -18,6 +26,11 @@ function post(name, query) {
         return donothingPromise
     }
     sessionStorage.setItem(name, true)
+    // 加密
+    if (encode === true) {
+        console.log(query);
+        query = RSA.EncryptData(JSON.stringify(query))
+    }
     return axiosPost(name, query)
 }
 
@@ -30,7 +43,12 @@ export const fetchData = query => {
     });
 };
 
-function get(path, query) {
+function get(path, query, limit = false, encode = false) {
+    // 加密
+    if (encode === true) {
+        console.log(query);
+        query = RSA.EncryptData(JSON.stringify(query))
+    }
     // get一般不用上锁
     // if (sessionStorage.getItem(path) === 'true') {
     //     // return new Promise
@@ -49,12 +67,12 @@ function get(path, query) {
 }
 // 登陆
 export const login = query => {
-    return post('user/login', query)
+    return post('user/login', query, true, true)
 }
 
 // 会员
 export const userList = query => {
-    return post('user/ht/userList', query)
+    return post('user/ht/userList', query, true, true)
 }
 
 // 会员修改 
@@ -65,10 +83,6 @@ export const userUpdate = query => {
 // 会员注册
 export const userRegister = query => {
     return post('user/ht/register', query)
-}
-
-export const delUser = query => {
-    return get('user/ht/delete', query)
 }
 
 export const test = query => {
@@ -127,6 +141,9 @@ export const addSupplierPay = query => {
 export const delSupplierPay = query => {
     return get('su/payDel', query)
 }
+export const getSupplierGoods = query => {
+    return get('su/getSupplierByGoods', query)
+}
 
 /**
  * 采购 - 货柜信息
@@ -179,9 +196,7 @@ export const getTransporterPage = query => {
  * 
  * 客户信息 
  */
-export const customerList = query => {
-    return post('user/ht/userList', query)
-}
+
 export const registerCustomer = query => {
     return post('user/ht/register', query)
 }
@@ -206,12 +221,12 @@ export const getGoods = query => {
 export const getItemSellRecord = query => {
     return get('sku/getSkuSell', query)
 }
-export const getUserList = query => {
-    return get('ht/list', query)
+
+export const addOrder = query => {
+    return post('sku/addOrder', query)
 }
-export const addUser = query => {
-    return post('ht/add', query)
-}
+
+
 
 
 /** 
@@ -221,7 +236,7 @@ export const approvalOrder = query => {
     return get('order/approval', query)
 }
 export const createOrUpdateOrder = query => {
-    return post('order/createOrUpdate', query)
+    return post('order/createOrUpdate', query, true, true)
 }
 export const delOrder = query => {
     return get('order/delOrder', query)
@@ -239,7 +254,7 @@ export const sumOrder = query => {
     return post('order/orderSum', query)
 }
 export const payOrder = query => {
-    return post('order/pay', query)
+    return post('order/pay', query, true, true)
 }
 export const settleOrder= query => {
     return post('order/settle', query)
@@ -311,4 +326,21 @@ export const getSellRemind = query => {
 }
 export const getStockRemind = query => {
     return get('index/stockReminder', query)
+}
+export const getIndexSearch = query => {
+    return get('index/search', query)
+}
+
+// 用户管理
+export const getUserList = query => {
+    return get('user/ht/list', query, true, true)
+}
+export const addUser = query => {
+    return post('user/ht/add', query, true, true)
+}
+export const delUser = query => {
+    return get('user/ht/del', query)
+}
+export const updatePwd = query => {
+    return post('user/updatePwd', query, true, true)
 }

@@ -36,8 +36,7 @@
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
-import moment from 'moment'
+  
 import LineChart from '@/components/charts/LineChart'
 import HorizonLine from '@/components/charts/HorizonLine'
 import DateSelector from '@/components/public/DateSelector'
@@ -54,7 +53,7 @@ export default {
     },
     data() {
         return {
-            topTar: '',
+            topTar: 'sold',
             year: 2020,
             topSelected: 0, 
             dateSelected: 0,
@@ -71,7 +70,7 @@ export default {
         // 查
         getData() {
             let params = {
-                saleDate: this.saleDate || moment().format('YYYY-MM-DD'),
+                saleDate: this.saleDate || this.$moment().format('YYYY-MM-DD'),
                 saleType: (this.dateSelected * 7 - 1) > 0 ? (this.dateSelected * 7 - 1) : 0
             }
             profitSum(params).then(res => {

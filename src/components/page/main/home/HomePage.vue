@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
 import HomeSearch from './HomeSearch'
 import HomeCommingNotice from './HomeCommingNotice'
 import HomeFlowStatics from './HomeFlowStatics'
@@ -46,7 +45,7 @@ export default {
             componentInfo: [
                 {comp: HomeSoldOrder, title: '今日销售订单'},
                 {comp: HomeSoldStatics, title: '销售统计'},
-                {comp: HomeSoldProfit, title: '销售利润'},
+                {comp: HomeSoldProfit, title: '今日销售'},
                 {comp: HomeFlowStatics, title: '流水总汇'},
                 {comp: HomeSoldOutNotice, title: '售罄提醒'},
                 {comp: HomeCommingNotice, title: '即将到货货柜'},

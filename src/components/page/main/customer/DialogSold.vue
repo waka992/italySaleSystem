@@ -54,7 +54,7 @@
 import {cloneDeep} from 'lodash';
 import dict from '@/components/common/dict.js'
 import StatisticsPie from '@/components/charts/StatisticsPie.vue'
-import moment from 'moment';
+  
 import DateSelector from '@/components/public/DateSelector'
 import { 
     customerStatistics,
@@ -87,7 +87,6 @@ export default {
         this.getDict = dict.getDict
     },
     mounted() {
-        this.setChartData();
     },
     methods: {
         setId(id) {
@@ -116,7 +115,7 @@ export default {
         getData() {
             let data = {
                 type: this.dateType,
-                STime: this.date || moment().format("YYYY-MM-DD"), // 选择时间
+                STime: this.date || this.$moment().format("YYYY-MM-DD"), // 选择时间
                 id: this.id, // 客户id
             }
             customerStatistics(data).then(res => {
@@ -161,7 +160,7 @@ export default {
         },
         getDateRange(date) {
             if (date) {
-                this.date = moment(date).format("YYYY-MM-DD")
+                this.date = this.$moment(date).format("YYYY-MM-DD")
                 this.getData()
             }
         },
@@ -175,14 +174,12 @@ export default {
                 seriesData[i].name = element.label
                 seriesData[i].value = element.caseNum
             }
-            console.log(legendData);
-            console.log(seriesData);
             let legendOption = []
             if (legendData.length < 6) {
                 legendOption = {
                     data: legendData,
                     orient: 'vertical',
-                    right: 10,
+                    right: 250,
                     top: 80,
                     bottom: 20,
                     formatter: function(name) {

@@ -28,7 +28,7 @@
                 <!-- <el-input size="mini" class="form-input" v-model="form.transportName" placeholder="请输入" ></el-input> -->
             </el-form-item>
 
-            <el-form-item label="公司" prop="company">
+            <el-form-item label="公司" prop="companyName">
                 <el-autocomplete
                     class="form-input" 
                     size="mini"
@@ -112,12 +112,16 @@
                     <span class="plus">+</span>
                     <el-button type="text">添加产品</el-button>
                 </div>
-                <div class="count">
-                    <span class="label">总销售金额：</span>
-                    <span class="value">{{getTotal('total')}}</span>
-                    <span class="label">总箱数：</span>
-                    <span class="value">{{getTotal('caseNum')}}</span>
-                </div>
+            </div>
+            <div class="count">
+                <span class="count-label">总销售金额：</span>
+                <span class="value">{{getTotal('total')}}</span>
+                <span class="count-label">总箱数：</span>
+                <span class="value">{{getTotal('caseNum')}}</span>
+                <span class="count-label">折扣金额：</span>
+                <span class="value">{{getTotal('discount')}}</span>
+                <span class="count-label">税后金额：</span>
+                <span class="value">{{getTotal('tax')}}</span>
             </div>
         </div>
     </div>
@@ -133,6 +137,7 @@ getTransporterPage,
 getTitle,
 getCompPage } from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
+import Big from 'big.js'
 
 export default {
     name: 'DialogNewOrder',
@@ -163,6 +168,7 @@ export default {
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 status: [{ required: true, message: '请选择', trigger: 'change' }],
+                companyName: [{ required: true, message: '请选择', trigger: 'change' }],
             }
         }
     },
@@ -214,24 +220,28 @@ export default {
         },
         // 保存提交
         saveSubmit() {
-            this.form.exchangeRate = this.taxRate
-            let data = cloneDeep(this.form)
-            data.goodsList = cloneDeep(this.goodsList)
-            let flag = true
-            data.goodsList.forEach(element => {
-                if (element.caseNum > element.stock) {
-                    this.$message.warning('销售箱数不能大于库存！请重新填写')
-                    flag = false
+            this.$refs.form.validate((valid) => {
+                if (valid) {
+                    this.form.exchangeRate = this.taxRate
+                    let data = cloneDeep(this.form)
+                    data.goodsList = cloneDeep(this.goodsList)
+                    let flag = true
+                    data.goodsList.forEach(element => {
+                        if (element.caseNum > element.stock) {
+                            this.$message.warning('销售箱数不能大于库存！请重新填写')
+                            flag = false
+                        }
+                        element.isTail ? element.isTail = 1 : element.isTail = 0
+                        delete element.stock
+                        delete element.tailBox
+                    });
+                    if (!flag) {
+                        return
+                    }
+                    data.taxRate = data.taxRate / 100
+                    this.$emit('saveData', data)
                 }
-                element.isTail ? element.isTail = 1 : element.isTail = 0
-                delete element.stock
-                delete element.tailBox
-            });
-            if (!flag) {
-                return
-            }
-            data.taxRate = data.taxRate / 100
-            this.$emit('saveData', data)
+            })
         },
         // 置空数据
         resetData(data, resetName = true) {
@@ -358,7 +368,7 @@ export default {
             this.form.customerId = item.id
         },
         handleSelectCompany(item){
-            this.form.companyName = item.name
+            // this.form.companyName = item.name
             this.form.companyId = item.id
         },
         getTaxRate() {
@@ -374,6 +384,8 @@ export default {
         getTotal(tar) {
             let caseNum = 0
             let total = 0
+            let discount = this.form.discount || 0
+            let taxRate = this.form.taxRate || 0
             for (let i = 0; i < this.goodsList.length; i++) {
                 const ele = this.goodsList[i];
                 caseNum += Number(ele.caseNum)
@@ -384,6 +396,15 @@ export default {
             }
             if (tar == 'total') {
                 return total
+            }
+            if (tar == 'discount') {
+                let res = new Big(total).minus(discount).toNumber()
+                return res
+            }
+            if (tar == 'tax') {
+                let x = new Big(total).minus(discount)
+                let y = new Big(1).minus(taxRate / 100)
+                return x.times(y).toNumber()
             }
         }
     }
@@ -474,15 +495,16 @@ export default {
     }
 
     .count {
-        float: right;
-        .label {
+        margin-top: 20px;
+        .count-label {
             color: $theme-color;
             display: inline-block;
-            width: 120px;
+            width: 100px;
+            padding: 5px;
         }
         .value {
             display: inline-block;
-            width: 130px;
+            width: 90px;
             font-size: 16px;
             color: #666;
             font-weight: 800;

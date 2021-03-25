@@ -216,7 +216,7 @@
             <div class="form-btns">
                 <el-button @click="cancel">取消</el-button>
                 <el-button type="primary" v-if="todo === 'edit'" @click="save">保存</el-button>
-                <el-button type="primary" v-if="todo === 'check'" @click="getPDF">生成PDF</el-button>
+                <!-- <el-button type="primary" v-if="todo === 'check'" @click="getPDF">生成PDF</el-button> -->
             </div>
         </div>
     </div>

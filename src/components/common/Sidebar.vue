@@ -57,6 +57,7 @@ import bus from '../common/bus';
 export default {
     data() {
         return {
+            leve: '',
             collapse: false,
             items: [
                 {
@@ -224,6 +225,15 @@ export default {
             this.collapse = msg;
             bus.$emit('collapse-content', msg);
         });
+        this.level = Number(localStorage.getItem('level'))
+        if (this.level == 2) {
+            // level2可以管理用户
+            this.items.push({
+                icon: 'el-icon-lx-people',
+                index: 'user',
+                title: '用户管理'
+            })
+        }
     }
 };
 </script>

@@ -36,7 +36,7 @@ const dict =  {
     ],
     
     soldStatus: [
-        {value: '', label: '预录入'},
+        // {value: '', label: '预录入'},
         {value: 0, label: '即将到货'},
         {value: 1, label: '现货'},
         {value: 2, label: '售罄'},
@@ -61,17 +61,22 @@ const dict =  {
         {value: 3, label: '其他'},
     ],
     verifyStatus: [
-        // <!-- 0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货 -->
         {value: 0, label: '待审核'},
         {value: 1, label: '不通过'},
-        {value: 2, label: '通过待发货'},
+        {value: 2, label: '审核通过'},
         {value: 3, label: '通过欠款待发货'},
         {value: 4, label: '仓库发货'},
+        {value: 5, label: '退审处理中'},
+    ],
+    verifyCheckStatus: [
+        {value: 0, label: '未审核'},
+        {value: 1, label: '已审核'},
+        {value: 2, label: '退审'},
     ],
     userLevel: [
-        {value: 0, label: '销售人员'},
-        {value: 1, label: '仓管'},
-        {value: 2, label: 'Boss'},
+        // {value: 0, label: '销售人员'},
+        {value: 1, label: '销售人员'},
+        {value: 2, label: '管理员'},
     ],
 
     // 字典

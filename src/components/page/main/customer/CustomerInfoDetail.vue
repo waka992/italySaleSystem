@@ -101,14 +101,13 @@
                     </el-table-column>
                     <el-table-column label="审核状态" align="center">
                         <template slot-scope="scope">
-                    <!-- 0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货 -->
                             {{ getDict(scope.row.process, 'verifyStatus') }}
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
-                            <el-button type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
-                            <el-button type="text" @click="showDialog('pay', scope.row)">支付</el-button>
+                            <el-button v-show="scope.row.process == 0 || scope.row.process == 1" type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
+                            <el-button  v-show="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 0" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -141,7 +140,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="price" label="总金额" align="center"></el-table-column>
+                        <el-table-column prop="price" label="销售金额" align="center"></el-table-column>
                         <el-table-column prop="startArrears" label="初始欠款" align="center"></el-table-column>
                         <el-table-column prop="goodsTotal" label="件数" align="center" width="80"></el-table-column>
                         <el-table-column prop="collection" label="总收款" align="center" width="80"></el-table-column>
@@ -161,18 +160,14 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="date" label="日期" align="center">
+                        <!-- <el-table-column prop="date" label="日期" align="center">
                             <template slot-scope="scope">
                                 {{dateFormat(scope.row.createTime)}}
                             </template>
-                        </el-table-column>
+                        </el-table-column> -->
                         <el-table-column prop="payWay" label="收款方式" align="center">
-                            <template slot-scope="scope">
-                                {{getDict(scope.row.payWay, 'payWay')}}
-                            </template>
                         </el-table-column>
                         <el-table-column prop="value" label="金额" align="center"></el-table-column>
-                        <el-table-column prop="totalValue" label="总金额" align="center"></el-table-column>
                     </el-table>
                 </div>
             </div>
@@ -205,6 +200,7 @@
         class="custom-dialog"
         :close-on-click-modal='false'
         :show-close="true"
+        
         :title="'账单总汇'" :visible.sync="billDialog" width="830px">
             <dialog-bill @getPDF="receiveBillPDF" ref="billDialog"></dialog-bill>
             <span slot="footer" class="dialog-footer">
@@ -296,7 +292,7 @@
 </template>
 
 <script>
-import moment from 'moment'
+  
 import dict from '@/components/common/dict.js'
 import DialogNewOrder from './DialogNewOrder';
 import DialogBill from './DialogBill';
@@ -304,9 +300,8 @@ import DialogSold from './DialogSold';
 import DialogBalance from './DialogBalance';
 import DialogPay from './DialogPay';
 import {cloneDeep} from 'lodash'
+import pdfservice from '@/utils/getpdf.js'
 import { 
-    customerList,
-    registerCustomer,
     getOrderByCustomer,
     createOrUpdateOrder,
     orderDetail,
@@ -401,6 +396,25 @@ export default {
                         arrears
                     ]
                 }
+                if (res.pay) {
+                    let payArr = []
+                    let pay = res.pay
+                    for (let i = 0; i < this.dict.accountType.length; i++) {
+                        const ele = this.dict.accountType[i];
+                        for (const key in pay) {
+                            const objele = pay[key];
+                            if (key == ele.value) {
+                                payArr.push({
+                                    date: '',
+                                    payWay: ele.label,
+                                    value: objele
+                                })
+                            }
+                        }
+                    }
+                   
+                    this.receiveTableData = payArr
+                }
             })
         },
 
@@ -472,14 +486,14 @@ export default {
         },
         // 生成pdf
         receiveBillPDF() {
-
+            pdfservice('#billDialog', '账单总汇')
         },
         dateFormat(date, lang = 'CN') {
             if (lang == 'CN') {
-                return moment(date).format('YYYY.MM.DD')
+                return this.$moment(date).format('YYYY.MM.DD')
             }
             if (lang == 'EN') {
-                return moment(date).format('YYYY/MM/DD')
+                return this.$moment(date).format('YYYY/MM/DD')
             }
         },
 
@@ -518,7 +532,7 @@ export default {
                 sumOrder(ids).then(res => {
                     let data = {
                         name: this.comInfo.memberName,
-                        date: moment().format('YYYY-MM-DD'),
+                        date: this.$moment().format('YYYY-MM-DD'),
                         res: res.order
                     }
                     this.billDialog = true
@@ -899,7 +913,7 @@ export default {
         display: inline-block;
         width: 49%;
         background-color: #fff;
-        min-height: 174px;
+        min-height: 274px;
 
         .box-title {
             height: 46px;

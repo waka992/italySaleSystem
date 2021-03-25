@@ -37,7 +37,7 @@
                 <div class="status">
                     <span class="label">审核状态</span>
                     <el-select v-model="process" size="mini" placeholder="请选择" clearable>
-                        <el-option v-for="(type,i) in dict.verifyStatus" :value="type.value" :label="type.label" :key="i">
+                        <el-option v-for="(type,i) in dict.verifyCheckStatus" :value="type.value" :label="type.label" :key="i">
                         </el-option>
                     </el-select>
                 </div>
@@ -129,9 +129,10 @@
 import dict from '@/components/common/dict.js'
 import DialogNewOrder from '../customer/DialogNewOrder';
 import DialogReview from './DialogReview';
-import moment from 'moment';
-import { 
+  
+import pdfservice from '@/utils/getpdf.js'
 
+import { 
 createOrUpdateOrder,
 delOrder,
 orderDetail,
@@ -156,7 +157,7 @@ export default {
             customerName: '',
             process: '',
             dict: {},
-            time: [moment().add(-1, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+            time: [this.$moment().add(-1, 'days').format('YYYY-MM-DD'), this.$moment().format('YYYY-MM-DD')],
 
             page: {
                 no: 1,
@@ -259,7 +260,7 @@ export default {
 
         // 生成pdf
         getReviewPDF() {
-
+            pdfservice('#dialogReview', '订单预览')
         },
 
         // 分页导航
@@ -275,7 +276,7 @@ export default {
         },
 
         timeFormat(time) {
-            return moment(time).format('YYYY.MM.DD')
+            return this.$moment(time).format('YYYY.MM.DD')
         }
     }
 };

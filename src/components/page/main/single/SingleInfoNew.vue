@@ -7,6 +7,7 @@
                 <el-breadcrumb-item v-if="todo !== 'new'">查看单品信息</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="edit-btn" v-if="todo !== 'new'">
+                <el-button plain icon="el-icon-folder-add" @click="add">加单</el-button>
                 <el-button plain icon="el-icon-edit" @click="edit">编辑</el-button>
             </div>
         </div>
@@ -308,6 +309,63 @@
                 <el-button @click="back">取消</el-button>
                 <el-button type="primary" @click="save">保存</el-button>
             </div>
+
+        <el-dialog 
+        :close-on-click-modal='false'
+        :show-close="false"
+        :title="'加单'" :visible.sync="addOrderVisible" width="850px">
+            <el-form ref="addForm" 
+                class="add-form"
+                :model="addForm" label-width="120px" :inline="true"
+                :rules="addRules"
+            >
+                <el-row>
+                    <el-col :span="12">
+                          <el-form-item>
+                            <span slot="label" ><span style="color: red;">*</span>{{'入库数量'}}</span>
+                            <el-input  class="small-input" v-model="addForm.caseNum" placeholder="箱数">
+                                <template slot="append">箱</template>
+                            </el-input>
+                            X
+                            <el-input  class="mid-input" v-model="addForm.goodsTotal" placeholder="每箱件数">
+                                <template slot="append">件</template>
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item>
+                            <span slot="label">尾箱</span>
+                            <el-input class="small-input" v-model="addForm.tailBox" placeholder="箱数">
+                                <template slot="append">箱</template>
+                            </el-input>
+                            X
+                            <el-input class="mid-input" v-model="addForm.tailTotal" placeholder="每箱件数">
+                                <template slot="append">件</template>
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item prop="container">
+                            <span slot="label">货柜</span>
+                                <el-autocomplete
+                                    size="mini"
+                                    v-model="addForm.container"
+                                    :fetch-suggestions="queryContainer"
+                                    @select="handleAddContainerSelect"
+                                    placeholder="请输入"
+                                ></el-autocomplete>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button class="curr-btn" plain @click="addOrderVisible = false">取消</el-button>
+                <el-button class="curr-btn" type="primary" @click="addOrder">保存</el-button>
+            </span>
+        </el-dialog>
         </div>
     </div>
 </template>
@@ -326,7 +384,8 @@ import {
     goodsDetail,
     getContainerPage,
     itemTransportRecord,
-    getItemSellRecord
+    getItemSellRecord,
+    addOrder
      } from '@/api/index';
 import Big from 'big.js'
 import dict from '@/components/common/dict.js'
@@ -341,6 +400,8 @@ export default {
             skuId: '',
             pic: [],
             rate: 0,
+            addOrderVisible: false,
+            addForm: {},
             goodsImgListNum: 0,
             transporterOptions: [],
             supplierOptions: [],
@@ -354,6 +415,9 @@ export default {
             copyContainerOptions: [],
             rules: {
 
+            },
+            addRules: {
+                container: [{ required: true, message: '请选择', trigger: 'change' }],
             },
             sellTableData: [],
             transportTableData: [],
@@ -473,6 +537,9 @@ export default {
                             }
                         }
                     }
+                    if (params.oldContainerId == params.containerId) {
+                        delete params.containerId
+                    }
                     if (this.todo == 'new') {
                         createGoods(params).then(res => {
                             this.$message.success('添加成功')
@@ -540,17 +607,14 @@ export default {
         },
         // 删除imglist内的图片
         delPic(item, i) {
-            console.log(item);
-            console.log(i);
             this.$confirm('删除后图片不再显示，确定要删除吗？', '提示', {
                 type: 'warning'
             })
             .then(() => {
                 // delPic({key: item.ossFilePathName}).then(res => {
-                //     console.log(res);
                 //     if (res) {
-                //         this.form.goodsImgList.splice(i, 1)
-                //         this.$message.success('删除成功');
+                        this.form.goodsImgList.splice(i, 1)
+                        this.$message.success('删除成功');
                 //     }
                 // })
             })
@@ -584,7 +648,8 @@ export default {
             let obj = {
                 pageSize:  5,
                 page:  1,
-                container: qs
+                container: qs,
+                containerType: 0,
             }
             getContainerPage(obj).then(res => {
                 let arr = []
@@ -601,9 +666,12 @@ export default {
         handleContainerSelect(item){
             this.form.containerId = item.id
         },
+        
+        handleAddContainerSelect(item){
+            this.addForm.containerId = item.id
+        },
         getDetail() {
             goodsDetail({id: this.form.id}).then(res=> {
-                console.log(res);
             let {goodsImgList, id, name, size, specification,
             profit,label,noticenum,component,container,containerId,mixtureAtio,
             color,} = res
@@ -703,6 +771,36 @@ export default {
             }
             this.clearValidate()
         },
+        // 加单
+        add() {
+            this.addOrderVisible = true
+            let goodsTotal = this.form.goodsTotal
+            this.addForm = {
+                containerId: '',
+                container: '',
+                skuId: this.skuId,
+                caseNum: 0,
+                goodsTotal: goodsTotal,
+                tailBox: 0,
+                tailTotal: 0,
+            }
+        },
+        addOrder() {
+            this.$refs.addForm.validate(valid => {
+                if (valid) {
+                    if (this.addForm.caseNum === '' || this.addForm.goodsTotal === '') {
+                        return
+                    }
+                    let params = cloneDeep(this.addForm)
+                    addOrder(params).then(res=> {
+                        this.$message.success('加单成功')
+                        this.addOrderVisible = false
+                        this.getDetail()
+                    })
+                }
+            })
+        },
+        
         countProfit() {
             let {salePrice = 0, costPrice = 0} = this.form
             let x = new Big(salePrice * this.rate)
@@ -792,7 +890,7 @@ export default {
     width: 284px;
 }
 
-.new-prodt-form  {
+.new-prodt-form,.add-form  {
     ::v-deep .el-input {
         width: 150px;
     }
@@ -814,6 +912,8 @@ export default {
         width: 96px !important;
     }
 }
+
+
 // 上传图片
 .pic-upload {
     border: 1px solid #EEF1F6;

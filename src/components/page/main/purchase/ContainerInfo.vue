@@ -100,7 +100,7 @@
                 :rules="rules"
             >
                 <el-form-item label="货柜名称" prop="container">
-                    <el-input size="mini" class="form-input" v-model="form.container" placeholder="请输入供应商名" maxlength="15" show-word-limit></el-input>
+                    <el-input size="mini" class="form-input" v-model="form.container" placeholder="请输入货柜名" maxlength="15" show-word-limit></el-input>
                 </el-form-item>
 
                 <el-form-item label="季度" prop="quarter">
@@ -170,7 +170,7 @@
 <script>
 import {cloneDeep} from 'lodash';
 import qs from 'qs'
-import moment from 'moment'
+  
 import { 
     addGoodsToContainer,
     addOrUpdateContainer,
@@ -316,7 +316,7 @@ export default {
             this.getData();
         },
         timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            return this.$moment(time).format('YYYY-MM-DD')
         },
         getSeason() {
             let obj = {

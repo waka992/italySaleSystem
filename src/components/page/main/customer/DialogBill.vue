@@ -1,5 +1,5 @@
 <template>
-    <div class="dialog-bill">
+    <div class="dialog-bill" id="billDialog">
         <div class="language">
             <common-selector
                 :width="'70px'"
@@ -98,7 +98,7 @@
 import {cloneDeep} from 'lodash';
 import dict from '@/components/common/dict.js'
 import CommonSelector from '@/components/public/CommonSelector'
-import moment from 'moment';
+  
 export default {
     name: 'DialogBill',
     components: {
@@ -202,10 +202,10 @@ export default {
         },
         dateFormat(date, lang = 'CN') {
             if (lang == 'CN') {
-                return moment(date).format('YYYY-MM-DD')
+                return this.$moment(date).format('YYYY-MM-DD')
             }
             if (lang == 'EN') {
-                return moment(date).format('YYYY/MM/DD')
+                return this.$moment(date).format('YYYY/MM/DD')
             }
         }
     }

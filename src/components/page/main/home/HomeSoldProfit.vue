@@ -1,80 +1,63 @@
 <template>
     <div class="box">
-        <div class="date">
-            <el-date-picker
-            ref="dateSelector"
-            v-model="date"
-            type="date"
-            value-format="yyyy-MM-dd"
-            @change="dateChange"
-            placeholder="选择日期">
-            </el-date-picker>
+        <div class="date-select">
+            <date-selector @change="getSellDate"></date-selector>
         </div>
-        <div class="showDate" @click="dateClick">
-            {{date ? date : '请选日期'}}
-            <span class="unfold-pic" ></span>
+        <div class="horizon-charts">
+            <horizon-line :showTarget="['amount']" ref="horizonLine" :height="'180px'" :width="'300px'"></horizon-line>
         </div>
     </div>
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
+import HorizonLine from '@/components/charts/HorizonLine'
+import DateSelector from '@/components/public/DateSelector'
+  
+import { 
+profitSum, } from '@/api/index';
 export default {
     name: 'HomeSoldProfit',
+    components: {
+        HorizonLine,
+        DateSelector
+    },
     data() {
         return {
-            date: ''
+            saleDate: ''
         };
     },
     created() {
+        this.getData()
     },
     methods: {
-        dateClick() {
-            this.$refs.dateSelector.focus()
+        getData() {
+            let params = {
+                saleDate: this.saleDate || this.$moment().format('YYYY-MM-DD'),
+                saleType: 0
+            }
+            profitSum(params).then(res => {
+                this.$refs.horizonLine.setData(res.saleToday)
+            })
         },
-        dateChange(date) {
-            console.log(date);
-        }
+        getSellDate(date) {
+            this.saleDate = date
+            this.getData()
+        },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-
-.date {
-    position: absolute;
-    right: 16px;
-    top: 25px;
-    width: 113px;
-    opacity: 0;
-
-    ::v-deep .el-date-editor {
+    .horizon-charts {
         position: absolute;
-        top: -8px;
-        left: 0;
-        width: 130px;
-        z-index: 999;
-        background-color: transparent;
-    }
-}
-.showDate {
-    position: absolute;
-    top: 25px;
-    right: 16px;
-    width: 83px;
-    font-size: 11px;
-    color: #1F1F21;
-}
+        width: 400px;
+        top: 150px;
 
-.unfold-pic {
-    position: absolute;
-    top: 5px;
-    right: 0;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border: none;
-    border: 5px solid transparent;
-    border-top: 5px solid #C0C4CC;
-}
+        @include xcenter;
+    }
+    .date-select {
+        position: absolute;
+        top: 28px;
+        right: 28px;
+    }
 </style>

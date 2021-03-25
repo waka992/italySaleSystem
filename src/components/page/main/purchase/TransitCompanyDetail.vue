@@ -70,14 +70,14 @@
                     ref="multipleTable"
                     header-cell-class-name="table-header"
                 >
-                    <el-table-column prop="estimate" label="货柜时间"  align="center">
-                        <template slot-scope="scope">
-                            {{timeFormat(scope.row.estimate)}}
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="createTime" label="日期" align="center">
+                    <el-table-column prop="createTime" label="货柜时间"  align="center">
                         <template slot-scope="scope">
                             {{timeFormat(scope.row.createTime)}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="createTime" label="到货日期" align="center">
+                        <template slot-scope="scope">
+                            {{timeFormat(scope.row.finshTime)}}
                         </template>
                     </el-table-column>
                     <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
@@ -199,7 +199,7 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import moment from 'moment'
+  
 import dict from '@/components/common/dict.js'
 import {
     addOrUpdateTransporter,
@@ -368,7 +368,12 @@ export default {
             this.getData();
         },
         timeFormat(time) {
-            return moment(time).format('YYYY-MM-DD')
+            if (time) {
+                return this.$moment(time).format('YYYY-MM-DD')
+            }
+            else {
+                return ''
+            }
         },
         back() {
             this.$router.push({name: 'transitcompany'})

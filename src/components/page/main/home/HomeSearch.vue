@@ -1,7 +1,15 @@
 <template>
 <div class="out-box">
     <div class="box">
-        <el-input class="input" placeholder="输入关键词查找" v-model="keyword"></el-input>
+        <!-- <el-input class="input" placeholder="输入关键词查找" v-model="keyword"></el-input> -->
+         <el-autocomplete
+            class="home-search-input"
+            size="mini"
+            v-model="keyword"
+            :fetch-suggestions="queryProduct"
+            placeholder="请输入单品型号查找"
+            @select="val => {handleProductSelect(val)}"
+        ></el-autocomplete>
         <el-button class="btn" type="primary" @click="search">
             <img src="../../../../assets/img/icon-search.png">
         </el-button>
@@ -13,17 +21,37 @@
 </template>
 
 <script>
-import {cloneDeep} from 'lodash';
+import { 
+getIndexSearch,} from '@/api/index';
 export default {
     name: 'HomeCommingNotice',
     data() {
         return {
-            keyword: ''
+            keyword: '',
+            id: '',
         };
     },
     methods: {
         search() {
-        }
+            this.$router.push({name: 'iteminfonew', params: {id: this.id, todo: 'check'}})
+        },
+        queryProduct(qs, cb) {
+            getIndexSearch({
+                name: qs,
+            }).then(res => {
+                let arr = []
+                    for (let i = 0; i < res.length; i++) {
+                        const ele = res[i];
+                        ele.value = ele.specification
+                        arr.push(ele)
+                    }
+                    console.log(arr);
+                cb(arr)
+            })
+        },
+        handleProductSelect(item) {
+            this.id = item.id
+        },
     }
 };
 </script>
@@ -43,11 +71,13 @@ export default {
     @include xycenter;
 }
 // 输入框
-.input {
+.home-search-input {
     width: 396px;
     height: 100%;
     vertical-align: top;
-
+    ::v-deep .el-input {
+        height: 100%;
+    }
     ::v-deep .el-input__inner {
         width: 396px;
         height: 100%;

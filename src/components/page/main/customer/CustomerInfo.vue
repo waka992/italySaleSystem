@@ -231,9 +231,9 @@
 
 <script>
 import {cloneDeep} from 'lodash';
-import moment from 'moment'
+  
 import { 
-    customerList,
+    userList,
     registerCustomer,
     getBestCustomer,
     delUser,
@@ -302,7 +302,7 @@ export default {
                 page:  this.page.no,
                 userName: this.userName
             }
-            customerList(obj).then(res => {
+            userList(obj).then(res => {
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
@@ -416,10 +416,10 @@ export default {
         },
         dateFormat(date, lang = 'CN') {
             if (lang == 'CN') {
-                return moment(date).format('YYYY.MM.DD')
+                return this.$moment(date).format('YYYY.MM.DD')
             }
             if (lang == 'EN') {
-                return moment(date).format('YYYY/MM/DD')
+                return this.$moment(date).format('YYYY/MM/DD')
             }
         },
     }
@@ -450,7 +450,7 @@ export default {
         display: inline-block;
         width: 49%;
         background-color: #fff;
-        height: 174px;
+        min-height: 174px;
 
         .box-title {
             height: 46px;
