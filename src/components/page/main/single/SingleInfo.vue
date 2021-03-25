@@ -86,7 +86,7 @@
                         {{getDict(scope.row.skuStatus, 'soldStatus')}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="caseNum" label="库存箱数" align="center"></el-table-column>
+                <el-table-column prop="stock" label="库存箱数" align="center"></el-table-column>
                 <el-table-column prop="salePrice" label="售价" align="center"></el-table-column>
                 <el-table-column prop="price" label="总销售箱/件" align="center" v-if="false">
 

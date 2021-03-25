@@ -8,7 +8,7 @@
             ref="multipleTable"
             header-cell-class-name="table-header">
             <el-table-column prop="specification" label="型号"></el-table-column>
-            <el-table-column prop="caseNum" label="剩余箱数" align="center"></el-table-column>
+            <el-table-column prop="stock" label="剩余箱数" align="center"></el-table-column>
             <!-- <el-table-column prop="status" label="状态" align="center">
                 <template slot-scope="scope">
                     {{scope.row.status == 1 ? '货存不足' : '充裕'}}
@@ -33,12 +33,6 @@ export default {
     data() {
         return {
             tableData: [
-                {name: 'A64124', rest: '1', status: '1'},
-                {name: 'A64124', rest: '2', status: '2'},
-                {name: 'A64124', rest: '1', status: '1'},
-                {name: 'A64124', rest: '1', status: '2'},
-                {name: 'A64124', rest: '1', status: '1'},
-                {name: 'A64124', rest: '1', status: '1'},
             ]
         };
     },
