@@ -14,7 +14,7 @@
                         <el-button size="mini" type="text" @click="delVisible = false">取消</el-button>
                         <el-button type="primary" size="mini" @click="approval">确定</el-button>
                     </div>
-                    <el-button @confirm="approval" v-show="(process == 4 || process == 5)&& level == 2" slot="reference" plain icon="el-icon-circle-check">审核确认</el-button>
+                    <el-button @confirm="approval" v-show="(process == 4 || process == 6)&& level == 2" slot="reference" plain icon="el-icon-circle-check">审核确认</el-button>
                     <!-- 发货后状态4到tony审核 -->
                 </el-popover>
 
@@ -26,7 +26,7 @@
                         <el-button size="mini" type="text" @click="sendVisible = false">取消</el-button>
                         <el-button type="primary" size="mini" @click="sendApproval">确定</el-button>
                     </div>
-                    <el-button @confirm="sendApproval" v-show="(process == 0 || process == 5) && level == 1" slot="reference" plain icon="el-icon-circle-check">发货</el-button>
+                    <el-button @confirm="sendApproval" v-show="(process == 0 || process == 6) && level == 1" slot="reference" plain icon="el-icon-circle-check">发货</el-button>
                 </el-popover>
 
                 <el-popover
@@ -41,7 +41,7 @@
                     <!-- tony审核完是2 -->
                 </el-popover>
 
-                <el-button plain icon="el-icon-edit" @click="edit" v-show="process == 0 || process == 5">编辑</el-button>
+                <el-button plain icon="el-icon-edit" @click="edit" v-show="process == 0 || process == 5 || process == 6">编辑</el-button>
                 <span class="verified" v-show="process == 2">
                     <i class="el-icon-s-check"></i>
                     已审核
@@ -146,9 +146,17 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    
                 </el-row>
 <!-- 四 -->
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="备注" prop="remark">
+                            <el-input :disabled="todo === 'check'" v-model="form.remark" size="mini" class="form-input" placeholder="备注信息"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+<!-- 五 -->
+
                 <el-row>
                     <div class="pic-upload">
                         <div class="pic-title">产品</div>
@@ -173,7 +181,7 @@
                                     <el-input size="mini" :disabled="todo === 'check'" v-model="list.caseNum" @change="val => changaItem(val, list, i, 'caseNum')"></el-input>
                                 </div>
                                 <div class="list-item">
-                                    <el-input size="mini" :disabled="todo === 'check'" v-model="list.goodsTotal" @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
+                                    <el-input size="mini" :disabled="true" v-model="list.goodsTotal" @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
                                 </div>
                                 <div class="list-item">
                                     <el-input size="mini" :disabled="todo === 'check'" v-model="list.goodsPrice" @change="val => changaItem(val, list, i, 'goodsPrice')"></el-input>
@@ -206,7 +214,7 @@
                             </div>
                         </div>
                         <div class="pagination">
-                            <el-pagination
+                            <!-- <el-pagination
                                 background
                                 :current-page="page.no"
                                 :page-size="page.size"
@@ -215,7 +223,7 @@
                                 layout="total, prev, pager, next, sizes, jumper"
                                 @size-change="handleSizeChange"
                                 @current-change="basePageChange"
-                            ></el-pagination>
+                            ></el-pagination> -->
                         </div>
                     </div>
                 </el-row>
@@ -353,10 +361,11 @@ export default {
                     process,
                     companyName,
                     companyId,
-                    status} = res
+                    status,
+                    remark} = res
                     details.forEach(element => {
                         element.isTail = (element.isTail == 1 ?  true : false)
-                        element.stock = element.caseNum
+                        element._stock = Number(element.stock) + Number(element.caseNum) // 剩余的库存和已开单的库存
                     });
                     let form = {
                         id: id,
@@ -371,6 +380,7 @@ export default {
                         companyName: companyName,
                         companyId: companyId,
                         taxRate: taxRate * 100,
+                        remark: remark,
                         status: status ? Number(status) : '', // 这是payType，创建的时候，返回的时候status是别的状态
                     }
                     let goodsList = details
@@ -399,9 +409,9 @@ export default {
                         goodsName: list.goodsName,
                         caseNum: list.tailBox,
                         stock: list.tailBox + '（尾箱数)',
-                        goodsTotal: list.goodsTotal,
+                        goodsTotal: list.tailTotal,
                         goodsPrice: list.goodsPrice,
-                        isTail: true
+                        isTail: true,
                     })
                 }
                 else {
@@ -424,6 +434,7 @@ export default {
         delList(i) {
             this.goodsList.splice(i, 1)
         },
+       
         // 保存提交
         save() {
             this.form.exchangeRate = this.taxRate
@@ -431,13 +442,13 @@ export default {
             data.goodsList = cloneDeep(this.goodsList)
             let flag = true
             data.goodsList.forEach(element => {
-                if (element.caseNum > element.stock) {
-                    this.$message.warning('销售箱数不能大于库存！请重新填写')
-                    flag = false
-                }
-                element.isTail ? element.isTail = 1 : element.isTail = 0
-                delete element.stock
-                delete element.tailBox
+                // detail查询回来的有_stock
+                    if (element.caseNum  > element._stock) {
+                        this.$message.warning('销售箱数不能大于库存！请重新填写')
+                        flag = false
+                    }
+                    element.isTail ? element.isTail = 1 : element.isTail = 0
+                    delete element._stock
             });
             // data.process = 0
             if (!flag) {
@@ -468,6 +479,7 @@ export default {
                 discount: '1',
                 exchangeRate: '',
                 taxRate: '',
+                remark: '',
             }
             this.goodsList = [
                 {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
@@ -563,9 +575,11 @@ export default {
             this.$set(this.goodsList[i], 'goodsName', item.name)
             this.$set(this.goodsList[i], 'stock', item.caseNum)
             this.$set(this.goodsList[i], 'tailBox', item.tailBox)
+            this.$set(this.goodsList[i], 'tailTotal', item.tailTotal)
             this.$set(this.goodsList[i], 'caseNum', 1)
             this.$set(this.goodsList[i], 'goodsTotal', item.goodsTotal)
             this.$set(this.goodsList[i], 'goodsPrice', item.salePrice)
+            this.$set(this.goodsList[i], '_stock', item.caseNum) // 这里特殊兼容detail查询用的_stock字段，dialogneworder组件不用
         },
         handleSelect(item) {
             this.form.customerName = item.memberName
@@ -608,7 +622,9 @@ export default {
         },
         // 每页数量改变
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getData();
         },
         edit() {
             this.todo = 'edit'

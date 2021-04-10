@@ -113,7 +113,7 @@ export const getCompPayLog = query => {
     return get('cm/payLog', query)
 }
 export const getPayBook = query => {
-    return post('cm/payBook', query)
+    return post('cm/payBook', query, false)
 }
 
 
@@ -221,6 +221,9 @@ export const getGoods = query => {
 export const getItemSellRecord = query => {
     return get('sku/getSkuSell', query)
 }
+export const getStockStatistics = query => {
+    return get('sku/getSkuStock', query)
+}
 
 export const addOrder = query => {
     return post('sku/addOrder', query)
@@ -258,6 +261,9 @@ export const payOrder = query => {
 }
 export const settleOrder= query => {
     return post('order/settle', query)
+}
+export const getCustomerPay= query => {
+    return get('order/getCustomerPay', query)
 }
 export const checkSkuOrder = query => {
     return post('sku/orderSku', query)

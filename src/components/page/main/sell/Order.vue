@@ -157,7 +157,7 @@ export default {
             customerName: '',
             process: '',
             dict: {},
-            time: [this.$moment().add(-1, 'days').format('YYYY-MM-DD'), this.$moment().format('YYYY-MM-DD')],
+            time: [this.$moment().format('YYYY-MM-DD'), this.$moment().format('YYYY-MM-DD')],
 
             page: {
                 no: 1,

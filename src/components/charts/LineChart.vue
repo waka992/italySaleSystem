@@ -45,7 +45,7 @@ export default {
                 const options = {
                     grid: {
                         top: '20px',
-                        left: '30px',
+                        left: '20px',
                         right: 0,
                         bottom: '30px',
                     },
@@ -67,7 +67,7 @@ export default {
                     },
                     yAxis: {
                         axisTick: {
-                            show: true
+                            show: false
                         },
                         splitLine: {
                             show: false
@@ -76,6 +76,7 @@ export default {
                             show: true
                         },
                         axisLabel: {
+                            show: false,
                             fontSize: 9
                         }
                     },

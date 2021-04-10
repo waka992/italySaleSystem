@@ -5,6 +5,14 @@
                 <el-breadcrumb-item>单品</el-breadcrumb-item>
                 <el-breadcrumb-item>入库信息</el-breadcrumb-item>
             </el-breadcrumb>
+            <div class="stock-surplus">
+                <span>
+                    总库存 - {{surplus.total}}箱
+                </span>
+                <span>
+                    季度剩余 - {{surplus.quarter}}箱
+                </span>
+            </div>
         </div>
         <div class="box">
             <div class="handle-box">
@@ -124,7 +132,8 @@
 <script>
 import { 
     getGoods,
-    getAttrList,} from '@/api/index';
+    getAttrList,
+    getStockStatistics,} from '@/api/index';
 import dict from '@/components/common/dict.js'
 
 export default {
@@ -164,6 +173,10 @@ export default {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
                 season: [{ required: true, message: '请选择', trigger: 'change' }],
                 transporter: [{ required: true, message: '请选择', trigger: 'change' }],
+            },
+            surplus: {
+                total: '',
+                quarter: '',
             }
         };
     },
@@ -210,6 +223,9 @@ export default {
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
+            })
+            getStockStatistics({quarter: 1}).then(res => {
+                console.log(res);
             })
         },
 
@@ -320,5 +336,8 @@ export default {
 
 .form-input {
     width: 284px;
+}
+.stock-surplus {
+     float: right; 
 }
 </style>

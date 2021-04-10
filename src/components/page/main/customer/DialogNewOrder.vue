@@ -64,6 +64,10 @@
                     </el-option>
                 </el-select>
             </el-form-item>
+
+            <el-form-item label="备注" prop="remark">
+                <el-input  v-model="form.remark" size="mini" class="form-input" placeholder="备注"></el-input>
+            </el-form-item>
         </el-form>
         <div class="prod-table">
             <div class="label">产品</div>
@@ -87,7 +91,7 @@
                         <el-input size="mini" v-model="list.caseNum" @change="val => changaItem(val, list, i, 'caseNum')"></el-input>
                     </div>
                     <div class="list-item">
-                        <el-input size="mini" v-model="list.goodsTotal" @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
+                        <el-input size="mini" v-model="list.goodsTotal" disabled @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
                     </div>
                     <div class="list-item">
                         <el-input size="mini" v-model="list.goodsPrice" @change="val => changaItem(val, list, i, 'goodsPrice')"></el-input>
@@ -193,7 +197,7 @@ export default {
                         goodsName: list.goodsName,
                         caseNum: list.tailBox,
                         stock: list.tailBox + '（尾箱数)',
-                        goodsTotal: list.goodsTotal,
+                        goodsTotal: list.tailTotal,
                         goodsPrice: list.goodsPrice,
                         isTail: true
                     })
@@ -264,6 +268,7 @@ export default {
                 companyName: '',
                 companyId: '',
                 status: '',
+                remark: '',
             }
             this.goodsList = [
                 {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
@@ -359,6 +364,7 @@ export default {
             this.$set(this.goodsList[i], 'goodsName', item.name)
             this.$set(this.goodsList[i], 'stock', item.caseNum)
             this.$set(this.goodsList[i], 'tailBox', item.tailBox)
+            this.$set(this.goodsList[i], 'tailTotal', item.tailTotal)
             this.$set(this.goodsList[i], 'caseNum', 1)
             this.$set(this.goodsList[i], 'goodsTotal', item.goodsTotal)
             this.$set(this.goodsList[i], 'goodsPrice', item.salePrice)
@@ -403,7 +409,7 @@ export default {
             }
             if (tar == 'tax') {
                 let x = new Big(total).minus(discount)
-                let y = new Big(1).minus(taxRate / 100)
+                let y = new Big(1).add(taxRate / 100)
                 return x.times(y).toNumber()
             }
         }
@@ -414,6 +420,10 @@ export default {
 .form-input {
     width: 200px;
     margin-right: 90px;
+
+    ::v-deep .el-input{
+        font-size: 14px;
+    }
 }
 .prod-table {
     .label {

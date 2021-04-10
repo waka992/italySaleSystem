@@ -50,17 +50,23 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="date" label="日期" align="center"  width="100">
+                        <el-table-column prop="date" label="日期" align="center">
                             <template slot-scope="scope">
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
                         <el-table-column prop="customerName" label="收款方" align="center"></el-table-column>
-                        <el-table-column label="支付方式" align="center"  width="90">
+                        <el-table-column label="支付方式" align="center">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
-                        <el-table-column prop="money" label="金额" align="center"  width="80"></el-table-column>
+                        <el-table-column prop="money" label="金额" align="center"></el-table-column>
                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                        <el-table-column prop="remark" label="操作" align="center">
+                            <template slot-scope="scope">
+                                <span class="edit-btn" @click="operate('edit', scope.row, 'income')">编辑</span>
+                                <span class="del-btn" @click="operate('del', scope.row, 'income')">删除</span>
+                            </template>
+                        </el-table-column>
                     </el-table>
                     <div class="pagination">
                         <el-pagination
@@ -110,7 +116,7 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column label="日期" align="center"  width="130">
+                        <el-table-column label="日期" align="center">
                             <template slot-scope="scope">
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
@@ -119,12 +125,18 @@
                         <el-table-column label="支付方式" align="center">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
-                        <el-table-column prop="money" label="金额" align="center"  width="80">
+                        <el-table-column prop="money" label="金额" align="center">
                             <template slot-scope="scope">
                                 <span :class="scope.row.bookType == 1 ? 'red' : 'green'">{{scope.row.bookType == 1 ? '+' : '-'}}{{scope.row.money}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="remark" label="备注" align="center" width="100"></el-table-column>
+                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                        <el-table-column prop="remark" label="操作" align="center">
+                            <template slot-scope="scope">
+                                <span class="edit-btn" @click="operate('edit', scope.row, 'pay')">编辑</span>
+                                <span class="del-btn" @click="operate('del', scope.row, 'pay')">删除</span>
+                            </template>
+                        </el-table-column>
                     </el-table>
                     <div class="pagination">
                         <el-pagination
@@ -171,7 +183,7 @@
         <el-dialog 
         :close-on-click-modal='false'
         :show-close="false"
-        :title="'新增支出/收入记录'" :visible.sync="baseDialogVisible" width="551px">
+        :title="operateTar == 'new' ? '新增支出/收入记录' : '编辑支出/收入记录'" :visible.sync="baseDialogVisible" width="551px">
             <el-form ref="incomeform" 
                 :model="incomeform" label-width="178px"
                 :rules="incomerules"
@@ -207,7 +219,7 @@
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="收入/支出" prop="money">
-                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="例如+1000" ></el-input>
+                    <el-input size="mini" class="form-input" v-model="incomeform.money" placeholder="例如+1000" @input="$forceUpdate()"></el-input>
                 </el-form-item>
                 <el-form-item label="资金状态" prop="accountType">
                     <el-select class="form-input" size="mini" v-model="incomeform.accountType" placeholder="请选择">
@@ -236,8 +248,10 @@ import {
     dailyJournal,
     getPayBook,
     addCompAccount,
+    addCompOrUpdate,
     userList,
-    getCompPage} from '@/api/index';
+    getCompPage,
+    delCompAccount} from '@/api/index';
   
 import dict from '@/components/common/dict.js'
 export default {
@@ -250,7 +264,9 @@ export default {
         return {
             dict: {},
             searchAdvice: [],
+            chartDate: '',
             baseDialogVisible: false,
+            operateTar: 'new',
             incomeform:{},
             income: {
                 companyName: '',
@@ -327,10 +343,12 @@ export default {
                 for (let i = 0; i < accountType.length; i++) {
                     const ele = accountType[i];
                     data1.push({
+                        _dictValue: ele.value,
                         name: ele.label,
                         value: 0
                     })
                     data2.push({
+                        _dictValue: ele.value,
                         name: ele.label,
                         value: 0
                     })
@@ -338,12 +356,20 @@ export default {
                
                 for (let i = 0; i < incomde.length; i++) {
                     const ele = incomde[i];
-                    data1[ele.book_type].value = ele.cash
+                    for (let j = 0; j < data1.length; j++) {
+                        if (data1[j]._dictValue == ele.book_type) {
+                            data1[j].value = ele.cash
+                        }
+                    }
                 }
 
                 for (let i = 0; i < pay.length; i++) {
                     const ele = pay[i];
-                    data2[ele.book_type].value = ele.cash
+                    for (let j = 0; j < data1.length; j++) {
+                        if (data2[j]._dictValue == ele.book_type) {
+                            data2[j].value = ele.cash
+                        }
+                    }
                 }
                 this.income.total = cash || 0
                 this.pay.total = remittance || 0
@@ -366,6 +392,7 @@ export default {
 
         // 增准备
         addReady() {
+            this.operateTar = 'new'
             this.resetData()
             this.baseDialogVisible = true;
             this.$nextTick(() => {
@@ -406,22 +433,7 @@ export default {
         },
 
   
-        // 保存编辑
-        save() {
-            let params = cloneDeep(this.form)
-            this.$refs.form.validate(valid => {
-                if (valid) {
-                    // 校验通过
-                    // userUpdate(params).then(res => {
-                    //     if (res) {
-                    //         this.$message.success({message: '添加成功',});
-                    //         this.dialogVisible = false
-                    //         this.getData()
-                    //     }
-                    // })
-                }
-            })
-        },
+      
 
         checkDetail(id) {
             this.$router.push({name: 'compbaseinfodetail', params: {id: id}})
@@ -481,15 +493,27 @@ export default {
             }
             this.$refs.incomeform.validate(valid => {
                 if (valid) {
-                    // 校验通过
-                    addCompAccount(params).then(res => {
-                        if (res) {
-                            this.$message.success({message: '新增成功',});
-                            this.baseDialogVisible = false
-                            this.getIncomeData()
-                            this.getPayData()
-                        }
-                    })
+                    if (this.operateTar == 'new') {
+                        addCompAccount(params).then(res => {
+                            if (res) {
+                                this.$message.success({message: '新增成功',});
+                                this.baseDialogVisible = false
+                                this.getIncomeData()
+                                this.getPayData()
+                                this.getPieData(this.chartDate)
+                            }
+                        })
+                    }
+                    if (this.operateTar == 'edit') {
+                        addCompOrUpdate(params).then(res => {
+                            if (res) {
+                                this.$message.success({message: '编辑成功',});
+                                this.baseDialogVisible = false
+                                this.getIncomeData()
+                                this.getPayData()
+                            }
+                        })
+                    }
                 }
             })
         },
@@ -539,6 +563,7 @@ export default {
         },
         // 选择日期
         getFlowDate(date) {
+            this.chartDate = date
             this.getPieData(date)
         },
 
@@ -566,6 +591,48 @@ export default {
         },
         timeFormat(time) {
             return this.$moment(time).format('YYYY-MM-DD')
+        },
+        /**
+         * tar 操作
+         * row 行的数据
+         * from 收入还是支出
+         */
+        operate(tar, row, from) {
+            console.log(tar, row);
+            if (tar == 'edit') {
+                this.operateTar = 'edit'
+                let {id, companyId, companyName, customerName, customerId, createTime, money, remark, accountType, bookType} = row
+                this.incomeform = {
+                    id: id,
+                    companyName: companyName,
+                    companyId: companyId,
+                    customerName: customerName,
+                    customerId: customerId,
+                    createTime: createTime,
+                    // money: money,
+                    remark: remark,
+                    accountType: Number(accountType), //0现金1转账2现金3微信
+                }
+                this.incomeform.money = bookType == 0 ? Number(-money) : Number(money)
+                this.baseDialogVisible = true;
+                this.$nextTick(() => {
+                    this.$refs.incomeform.clearValidate()
+                })
+            }
+            if (tar == 'del') {
+                this.$confirm('确认删除该流水？').then(_ => {
+                    delCompAccount({id: row.id}).then(res=> {
+                        this.$message.success('删除成功')
+                        if (from == 'income') {
+                            this.getIncomeData()
+                        }
+                        if (from == 'pay') {
+                            this.getPayData()
+                        }
+                    })
+                })
+                .catch(_ => {});
+            }
         },
     }
 };
@@ -637,6 +704,16 @@ export default {
 .table {
     width: 100%;
     font-size: 11px;
+
+    .edit-btn {
+        display: inline-block; color: #2183EA; margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .del-btn {
+        display: inline-block; color: red;
+        cursor: pointer;
+    }
 }
 
 .mr10 {

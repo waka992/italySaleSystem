@@ -61,12 +61,13 @@ const dict =  {
         {value: 3, label: '其他'},
     ],
     verifyStatus: [
-        {value: 0, label: '待审核'},
+        {value: 0, label: '未审核'},
         {value: 1, label: '不通过'},
         {value: 2, label: '审核通过'},
         {value: 3, label: '通过欠款待发货'},
         {value: 4, label: '仓库发货'},
-        {value: 5, label: '退审处理中'},
+        {value: 5, label: '退审处理中'}, // 退审
+        {value: 6, label: '退审处理中'}, // 退审编辑后
     ],
     verifyCheckStatus: [
         {value: 0, label: '未审核'},

@@ -94,8 +94,8 @@
                                 {{dateFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="caseNum" label="箱件数" align="center" width="80"></el-table-column>
-                        <el-table-column prop="price" label="总金额" align="center" width="80"></el-table-column>
+                        <el-table-column prop="caseNum" label="箱件数" align="center"></el-table-column>
+                        <el-table-column prop="price" label="总金额" align="center"></el-table-column>
                     </el-table>
                 </div>
                 <div class="right-box">
@@ -113,8 +113,8 @@
                                 {{dateFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="caseNum" label="箱件数" align="center" width="80"></el-table-column>
-                        <el-table-column prop="price" label="总金额" align="center" width="80"></el-table-column>
+                        <el-table-column prop="caseNum" label="箱件数" align="center"></el-table-column>
+                        <el-table-column prop="price" label="总金额" align="center"></el-table-column>
                     </el-table>
                 </div>
             </div>

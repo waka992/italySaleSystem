@@ -39,6 +39,7 @@ service.interceptors.response.use(
             // 解密
             if (typeof(response.data) == 'string') {
                 response.data = RSA.DecryptData(response.data)
+                console.log(response.data);
             }
             if (response.data.code == 1) {
                 // token

@@ -142,9 +142,9 @@
                     >
                         <el-table-column prop="price" label="销售金额" align="center"></el-table-column>
                         <el-table-column prop="startArrears" label="初始欠款" align="center"></el-table-column>
-                        <el-table-column prop="goodsTotal" label="件数" align="center" width="80"></el-table-column>
-                        <el-table-column prop="collection" label="总收款" align="center" width="80"></el-table-column>
-                        <el-table-column prop="arrears" label="余数" align="center" width="80">
+                        <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
+                        <el-table-column prop="collection" label="总收款" align="center"></el-table-column>
+                        <el-table-column prop="arrears" label="余数" align="center">
                         </el-table-column>
                     </el-table>
                 </div>
@@ -160,15 +160,32 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <!-- <el-table-column prop="date" label="日期" align="center">
+                        <el-table-column prop="date" label="日期" align="center">
                             <template slot-scope="scope">
                                 {{dateFormat(scope.row.createTime)}}
                             </template>
-                        </el-table-column> -->
-                        <el-table-column prop="payWay" label="收款方式" align="center">
                         </el-table-column>
-                        <el-table-column prop="value" label="金额" align="center"></el-table-column>
+                        <el-table-column prop="payType" label="收款方式" align="center">
+                            <template slot-scope="scope">
+                                {{getDict(scope.row.payType, 'accountType')}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="money" label="金额" align="center"></el-table-column>
+                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                     </el-table>
+                    <div class="pagination">
+                        <el-pagination
+                            size="mini"
+                            background
+                            :current-page="incomepage.no"
+                            :page-size="incomepage.size"
+                            :page-sizes="[5,10,20]"
+                            :total="incomepage.total"
+                            layout="total, prev, pager, next, sizes, jumper"
+                            @size-change="handleIncomeSizeChange"
+                            @current-change="incomePageChange"
+                        ></el-pagination>
+                    </div>
                 </div>
             </div>
         </div>
@@ -201,7 +218,7 @@
         :close-on-click-modal='false'
         :show-close="true"
         
-        :title="'账单总汇'" :visible.sync="billDialog" width="830px">
+        :title="'账单总汇'" :visible.sync="billDialog" width="850px">
             <dialog-bill @getPDF="receiveBillPDF" ref="billDialog"></dialog-bill>
             <span slot="footer" class="dialog-footer">
                 <el-button class="curr-btn" plain @click="billDialog = false">取消</el-button>
@@ -310,7 +327,8 @@ import {
     payOrder,
     addCompAccount,
     userList,
-    getCompPage
+    getCompPage,
+    getCustomerPay,
     } from '@/api/index';
 export default {
     name: 'CustomerInfoDetail',
@@ -336,6 +354,11 @@ export default {
                 no: 1,
                 total: 0,
                 size: 10
+            },
+            incomepage: {
+                no: 1,
+                total: 0,
+                size: 5
             },
             // 展示用
             comInfo: {},
@@ -383,6 +406,7 @@ export default {
                 customerId: this.id,
                 status: this.status
             }
+            this.getIncomeStatistics()
             getOrderByCustomer(obj).then(res => {
                 if(res.list) {
                     let list = res.list
@@ -396,25 +420,36 @@ export default {
                         arrears
                     ]
                 }
-                if (res.pay) {
-                    let payArr = []
-                    let pay = res.pay
-                    for (let i = 0; i < this.dict.accountType.length; i++) {
-                        const ele = this.dict.accountType[i];
-                        for (const key in pay) {
-                            const objele = pay[key];
-                            if (key == ele.value) {
-                                payArr.push({
-                                    date: '',
-                                    payWay: ele.label,
-                                    value: objele
-                                })
-                            }
-                        }
-                    }
+                // if (res.pay) {
+                //     let payArr = []
+                //     let pay = res.pay
+                //     for (let i = 0; i < this.dict.accountType.length; i++) {
+                //         const ele = this.dict.accountType[i];
+                //         for (const key in pay) {
+                //             const objele = pay[key];
+                //             if (key == ele.value) {
+                //                 payArr.push({
+                //                     date: '',
+                //                     payWay: ele.label,
+                //                     value: objele
+                //                 })
+                //             }
+                //         }
+                //     }
                    
-                    this.receiveTableData = payArr
-                }
+                //     this.receiveTableData = payArr
+                // }
+            })
+        },
+        getIncomeStatistics() {
+            let obj = {
+                pageSize:  this.incomepage.size,
+                page:  this.incomepage.no,
+                customerId: this.id,
+            }
+            getCustomerPay(obj).then(res => {
+                this.receiveTableData = res.records
+                this.calcLeftBoxHeight()
             })
         },
 
@@ -428,6 +463,17 @@ export default {
             this.$set(this.page, 'size', val);
             this.$set(this.page, 'no', 1);
             this.getData();
+        },
+
+        incomePageChange(val) {
+            this.$set(this.incomepage, 'no', val);
+            this.getIncomeStatistics();
+        },
+        // 每页数量改变
+        handleIncomeSizeChange(val) {
+            this.$set(this.incomepage, 'size', val);
+            this.$set(this.incomepage, 'no', 1);
+            this.getIncomeStatistics();
         },
 
         save() {
@@ -712,6 +758,13 @@ export default {
             this.incomeform.companyName = item.name
             this.incomeform.companyId = item.id
         },
+        // 设置样式一样高度
+        calcLeftBoxHeight() {
+            this.$nextTick(() => {
+                let height = document.querySelector('.right-box').offsetHeight
+                document.querySelector('.left-box').style.height = height + 'px'
+            })
+        }
     }
 };
 </script>

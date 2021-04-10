@@ -215,6 +215,7 @@ export default {
 <style lang="scss" scoped>
 .dialog-bill {
     position: relative;
+    padding: 10px;
 
     .language {
         position: absolute;

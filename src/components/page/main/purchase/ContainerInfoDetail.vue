@@ -93,11 +93,20 @@
                     <el-table-column prop="specification" label="型号" align="center"></el-table-column>
                     <el-table-column prop="label" label="特色" align="center"></el-table-column>
                     <!-- <el-table-column prop="value" label="装数" align="center"></el-table-column> -->
-                    <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                    <el-table-column prop="caseNum" label="箱数" align="center">
+                        <template slot-scope="scope">
+                            {{scope.row.caseNum + (scope.row.isTail == '1' ? '（尾箱）' : '')}}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
                     <el-table-column label="金额" align="center">
                         <template slot-scope="scope">
-                            {{scope.row.caseNum * scope.row.costPrice}}
+                            {{scope.row.caseNum * scope.row.costPrice * scope.row.goodsTotal}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="是否尾箱" align="center">
+                        <template slot-scope="scope">
+                            {{scope.row.isTail == 0 ? '否' : scope.row.isTail == 1 ? '是' : ''}}
                         </template>
                     </el-table-column>
                 </el-table>

@@ -214,6 +214,13 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="商品描述">
+                            <el-input :disabled="todo === 'check'" size="mini" v-model="form.remark" placeholder="备注信息">
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
                 </el-row>
               
                 <el-row>
@@ -250,7 +257,11 @@
                             header-cell-class-name="table-header"
                         >
                             <el-table-column prop="container" label="货柜名称" align="center"></el-table-column>
-                            <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                            <el-table-column prop="caseNum" label="箱数" align="center">
+                                <template slot-scope="scope">
+                                    {{scope.row.caseNum + (scope.row.isTail == '1' ? '（尾箱）' : '')}}
+                                </template>
+                            </el-table-column>
                             <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
                             <!-- <el-table-column prop="costPrice" label="单品进价" align="center"></el-table-column> -->
                             <el-table-column prop="contaninerType" label="货柜状态" align="center">
@@ -283,11 +294,15 @@
                             ref="multipleTable"
                             header-cell-class-name="table-header"
                         >
-                            <el-table-column prop="time" label="卖出时间" align="center"></el-table-column>
-                            <el-table-column prop="buyer" label="客户" align="center"></el-table-column>
-                            <el-table-column prop="amount" label="箱数" align="center"></el-table-column>
-                            <el-table-column prop="amount" label="件数" align="center"></el-table-column>
-                            <el-table-column prop="value" label="金额" align="center"></el-table-column>
+                            <el-table-column prop="createTime" label="卖出时间" align="center">
+                                <template slot-scope="scope">
+                                    {{timeFormat(scope.row.createTime)}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="customerName" label="客户" align="center"></el-table-column>
+                            <el-table-column prop="caseNum" label="箱数" align="center"></el-table-column>
+                            <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
+                            <el-table-column prop="price" label="金额" align="center"></el-table-column>
                         </el-table>
                         <div class="pagination">
                             <el-pagination
@@ -487,7 +502,8 @@ export default {
                 color: '',
                 quarter: '',
                 // skuType: '',
-                goodsImgList: []
+                goodsImgList: [],
+                remark: '',
             }
             this.clearValidate()
         },
@@ -674,7 +690,7 @@ export default {
             goodsDetail({id: this.form.id}).then(res=> {
             let {goodsImgList, id, name, size, specification,
             profit,label,noticenum,component,container,containerId,mixtureAtio,
-            color,} = res
+            color,remark} = res
             let {costPrice, supplierName, supplierId, salePrice, caseNum, goodsTotal,tailBox,tailTotal,quarter} = res.sku
             this.skuId = res.sku.id
             this.pic = goodsImgList
@@ -704,6 +720,7 @@ export default {
                 quarter: quarter,
                 // skuType: skuType,
                 goodsImgList: goodsImgList,
+                remark: remark,
             }
             this.clearValidate()
             this.getTransportData()
@@ -718,6 +735,7 @@ export default {
                 page:  this.page.no,
             }
             getItemSellRecord(obj).then(res => {
+                console.log(res.records);
                 this.sellTableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
@@ -791,6 +809,10 @@ export default {
                     if (this.addForm.caseNum === '' || this.addForm.goodsTotal === '') {
                         return
                     }
+                    if (this.addForm.caseNum === 0) {
+                        this.$message.warning('入库数量不能为0')
+                        return
+                    }
                     let params = cloneDeep(this.addForm)
                     addOrder(params).then(res=> {
                         this.$message.success('加单成功')
@@ -805,7 +827,11 @@ export default {
             let {salePrice = 0, costPrice = 0} = this.form
             let x = new Big(salePrice * this.rate)
             this.form.profit = x.minus(costPrice).toNumber()
-        }
+        },
+
+        timeFormat(time) {
+            return this.$moment(time).format('YYYY-MM-DD')
+        },
     }
 };
 </script>
