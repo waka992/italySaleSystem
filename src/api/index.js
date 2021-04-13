@@ -144,6 +144,12 @@ export const delSupplierPay = query => {
 export const getSupplierGoods = query => {
     return get('su/getSupplierByGoods', query)
 }
+export const defectSum = query => {
+    return get('su/defectSum', query)
+}
+export const defectClean = query => {
+    return get('su/defectClean', query)
+}
 
 /**
  * 采购 - 货柜信息
@@ -261,6 +267,13 @@ export const payOrder = query => {
 }
 export const settleOrder= query => {
     return post('order/settle', query)
+}
+export const addDeFect= query => {
+    return post('order/addDeFect', query)
+}
+
+export const delDeFect= query => {
+    return get('order/delDeFect', query)
 }
 export const getCustomerPay= query => {
     return get('order/getCustomerPay', query)

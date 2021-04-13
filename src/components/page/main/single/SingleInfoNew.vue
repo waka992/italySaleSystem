@@ -121,7 +121,8 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="商品特色">
-                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.label" placeholder="请选择">
+                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.label" placeholder="请选择"
+                            filterable allow-create>
                                 <el-option
                                 v-for="(item,i) in labelOptions"
                                 :key="i"

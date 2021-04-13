@@ -151,28 +151,36 @@
                 <div class="right-box">
                     <div class="box-title">收款总汇</div>
                     <div class="box-operate">
-                        <!-- <el-button type="plain" class="btn3" @click="showDialog('pay')">收款总汇</el-button> -->
+                        <el-button type="plain" class="btn3" @click="getIncomePdf">生成PDF</el-button>
                     </div>
-                    <el-table
-                        :data="receiveTableData"
-                        stripe
-                        class="table"
-                        ref="multipleTable"
-                        header-cell-class-name="table-header"
-                    >
-                        <el-table-column prop="date" label="日期" align="center">
-                            <template slot-scope="scope">
-                                {{dateFormat(scope.row.createTime)}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="payType" label="收款方式" align="center">
-                            <template slot-scope="scope">
-                                {{getDict(scope.row.payType, 'accountType')}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="money" label="金额" align="center"></el-table-column>
-                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-                    </el-table>
+                    <div class="outer-box"
+                        v-loading="pdfLoading"
+                        element-loading-text="数据整理中"
+                        element-loading-spinner="el-icon-loading"
+                        element-loading-background="rgba(0, 0, 0, 0.2)">
+                        <div id="incomeTable">
+                            <el-table
+                                :data="receiveTableData"
+                                stripe
+                                class="table"
+                                ref="multipleTable"
+                                header-cell-class-name="table-header"
+                            >
+                                <el-table-column prop="date" label="日期" align="center">
+                                    <template slot-scope="scope">
+                                        {{dateFormat(scope.row.createTime)}}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="payType" label="收款方式" align="center">
+                                    <template slot-scope="scope">
+                                        {{getDict(scope.row.payType, 'accountType')}}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="money" label="金额" align="center"></el-table-column>
+                                <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                            </el-table>
+                        </div>
+                    </div>
                     <div class="pagination">
                         <el-pagination
                             size="mini"
@@ -376,6 +384,7 @@ export default {
             },
             searchAdvice: [],
             searchCompanyAdvice: [],
+            pdfLoading: false
         };
     },
     created() {
@@ -441,6 +450,7 @@ export default {
                 // }
             })
         },
+        // 收款总汇列表
         getIncomeStatistics() {
             let obj = {
                 pageSize:  this.incomepage.size,
@@ -449,7 +459,29 @@ export default {
             }
             getCustomerPay(obj).then(res => {
                 this.receiveTableData = res.records
+                this.incomepage.total = res.total
+                this.incomepage.no = res.current
+                this.pdfLoading = false
                 this.calcLeftBoxHeight()
+                console.log('11');
+            })
+        },
+
+        // 生成收款总汇pdf
+        getIncomePdf() {
+            this.pdfLoading = true
+             // 请求全部
+            let obj = {
+                pageSize:  99999,
+                page:  this.incomepage.no,
+                customerId: this.id,
+            }
+            getCustomerPay(obj).then(res => {
+                this.receiveTableData = res.records
+                this.$nextTick(async() => {
+                    await pdfservice('#incomeTable', '收款总汇')
+                    this.getIncomeStatistics() // 还原
+                })
             })
         },
 

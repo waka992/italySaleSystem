@@ -134,17 +134,14 @@
                         ref="multipleTable"
                         header-cell-class-name="table-header"
                     >
-                        <el-table-column prop="supplierName" label="季度"  align="center"></el-table-column>
-                        <el-table-column prop="createTime" label="总箱数" align="center">
-                            <template slot-scope="scope">
-                                {{timeFormat(scope.row.createTime)}}
-                            </template>
+                        <el-table-column prop="quarter" label="季度"  align="center"></el-table-column>
+                        <el-table-column prop="caseNum" label="总箱数" align="center">
                         </el-table-column>
-                        <el-table-column prop="money" label="总件数" align="center"></el-table-column>
-                        <el-table-column prop="companyName" label="金额" align="center"></el-table-column>
+                        <el-table-column prop="total" label="总件数" align="center"></el-table-column>
+                        <el-table-column prop="price" label="金额" align="center"></el-table-column>
                         <!-- <el-table-column prop="payType" label="支付方式" align="center"></el-table-column> -->
                     </el-table>
-                    <div class="pagination">
+                    <!-- <div class="pagination">
                         <el-pagination
                             background
                             :current-page="coopPage.no"
@@ -155,7 +152,25 @@
                             @size-change="handleCoopSizeChange"
                             @current-change="coopPageChange"
                         ></el-pagination>
+                    </div> -->
+                </div>
+
+                <div class="operation-record">
+                    <div class="topic">报损总汇</div>
+                    <div class="search">
+                        <el-button size="mini" @click="cleanDefect">清零</el-button>
                     </div>
+                    <el-table
+                        :data="defectTableData"
+                        stripe
+                        class="table"
+                        ref="multipleTable"
+                        header-cell-class-name="table-header"
+                    >
+                        <el-table-column prop="totals" label="件数"  align="center"></el-table-column>
+                        <el-table-column prop="sum" label="报损金额"  align="center"></el-table-column>
+                        
+                    </el-table>
                 </div>
                 <!-- <div class="operate">
                     <el-button plain @click="back">返回</el-button>
@@ -271,7 +286,9 @@ import {
     addSupplierPay,
     delSupplierPay,
     getSupplierGoods,
-    getTitle } from '@/api/index';
+    getTitle,
+    defectSum,
+    defectClean, } from '@/api/index';
 
 export default {
     name: 'SupplierDetail',
@@ -307,6 +324,7 @@ export default {
             },
             // 支出收入列表
             tableData: [],
+            defectTableData: [],
             cooperationTableData: [],
             // 修改用
             form: {
@@ -353,6 +371,7 @@ export default {
         this.dict = dict
         this.getSeason()
         this.getData()
+        this.getDefectData() // 报损总汇
         this.getCooperationRecord()
     },
     methods: {
@@ -400,6 +419,28 @@ export default {
             })
         },
 
+        getDefectData() {
+            let obj = {
+                id: this.comInfo.id
+            }
+            defectSum(obj).then(res => {
+                this.defectTableData = [res]
+            })
+        },
+
+        cleanDefect() {
+            this.$confirm('确认清零报损？').then(_ => {
+                let obj = {
+                    id: this.comInfo.id
+                }
+                defectClean(obj).then(res => {
+                    this.$message.success('清零报损成功')
+                    this.getDefectData()
+                })
+            })
+            .catch(_ => {});
+        },
+
         getCooperationRecord() {
             let obj = {
                 id: this.comInfo.id,
@@ -408,7 +449,7 @@ export default {
                 page:  this.coopPage.no,
             }
             getSupplierGoods(obj).then(res => {
-                // this.cooperationTableData = res.records
+                this.cooperationTableData = res
                 // this.coopPage.total = res.total
                 // this.coopPage.no = res.current
             })

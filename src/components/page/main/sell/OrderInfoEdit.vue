@@ -194,6 +194,28 @@
                                 </div>
                                 <div class="list-item">
                                     {{list.stock}}
+                                        <el-popover
+                                            placement="bottom"
+                                            width="380"
+                                            trigger="hover"
+                                            @hide="defectAmount = 0"
+                                            >
+                                            <div>
+                                                <div class="defect-title">报损操作</div>
+                                                <div class="defect-content">
+                                                    <el-input style="width: 100px; margin-right: 20px;" size="mini" v-model="defectAmount"></el-input>
+                                                    <el-button size="mini" type="primary" @click="addDefectHandler(list, 'defectAmount')">确认报损</el-button>
+                                                    <div style="margin-top: 10px;">
+                                                        快捷操作：
+                                                        <el-button plain class="defect-btn" size="mini" @click="addDefectHandler(list, 1)">-1</el-button>
+                                                        <el-button plain class="defect-btn" size="mini" @click="addDefectHandler(list, 5)">-5</el-button>
+                                                        <el-button plain class="defect-btn" size="mini" @click="addDefectHandler(list, 10)">-10</el-button>
+                                                        <el-button v-show="list.defectId" plain class="defect-btn" type="danger" size="mini" @click="delDefectHandler(list)">删除报损</el-button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <i class="el-icon-warning defect-outter-btn"  slot="reference"></i>
+                                        </el-popover>
                                 </div>
                                 <div class="list-item">
                                     {{list.caseNum * list.goodsTotal * list.goodsPrice || 0}}
@@ -207,6 +229,8 @@
                                 <el-button type="text">添加产品</el-button>
                             </div>
                             <div class="count">
+                                <span class="label defect" v-show="getTotal('defect')">报损金额：</span>
+                                <span class="value defect" v-show="getTotal('defect')">{{getTotal('defect')}}</span>
                                 <span class="label">总销售金额：</span>
                                 <span class="value">{{getTotal('total')}}</span>
                                 <span class="label">总箱数：</span>
@@ -250,6 +274,8 @@ getTitle,
 orderDetail,
 approvalOrder, 
 createOrUpdateOrder,
+addDeFect,
+delDeFect,
 getCompPage} from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
 
@@ -260,6 +286,7 @@ export default {
     },
     data() {
         return {
+            defectAmount: 0,
             delVisible: false,
             delCancelVisible: false,
             sendVisible: false,
@@ -305,7 +332,6 @@ export default {
         this.getTaxRate()
     },
     mounted() {
-        console.log(this.$route.params);
         this.id = this.$route.params.id
         this.getData()
     },
@@ -590,6 +616,33 @@ export default {
             this.form.companyName = item.name
             this.form.companyId = item.id
         },
+        addDefectHandler(list, amount) {
+            let total = amount
+            if (amount == 'defectAmount') {
+                if (!this.defectAmount) {return}
+                total = this.defectAmount
+            }
+            let obj = {
+                orderId: list.orderId,
+                list: [
+                    {
+                        detailId: list.id,
+                        skuId: list.skuId,
+                        totals: total,
+                    }
+                ]
+            }
+            addDeFect(obj).then(res => {
+                this.$message.success('报损成功')
+                this.getData()
+            })
+        },
+        delDefectHandler(list) {
+            delDeFect({id: list.defectId}).then(res => {
+                this.$message.success('取消报损成功')
+                this.getData()
+            })
+        },
         getTaxRate() {
             let obj = {
                 status: 'taxRate'
@@ -603,16 +656,21 @@ export default {
         getTotal(tar) {
             let caseNum = 0
             let total = 0
+            let defectTotal = 0
             for (let i = 0; i < this.goodsList.length; i++) {
                 const ele = this.goodsList[i];
                 caseNum += Number(ele.caseNum)
                 total += Number(ele.caseNum * ele.goodsTotal * ele.goodsPrice)
+                defectTotal += Number(ele.defectTotal) * ele.goodsPrice
             }
             if (tar == 'caseNum') {
                 return caseNum
             }
             if (tar == 'total') {
-                return total
+                return total - defectTotal
+            }
+            if (tar == 'defect') {
+                return -defectTotal
             }
         },
         // 分页导航
@@ -850,6 +908,7 @@ export default {
         .list-item {
             flex: 1;
             text-align: center;
+            position:relative;
 
 
             ::v-deep .el-input {
@@ -922,11 +981,27 @@ export default {
             color: #666;
             font-weight: 800;
         }
+        .defect {
+            color: red;
+        }
     }
     .verified {
         display: inline-block;
         margin-top: 10px;
         margin-left: 10px;
         color: red;
+    }
+    .defect-outter-btn {
+        color: #E6A23C;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .defect-title,.defect-content {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 5px;
+        text-align: center;
     }
 </style>

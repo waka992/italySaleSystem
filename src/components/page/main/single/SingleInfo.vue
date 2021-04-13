@@ -1,16 +1,25 @@
 <template>
     <div>
-        <div class="crumbs">
+        <div class="crumbs singleinfo-crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>单品</el-breadcrumb-item>
                 <el-breadcrumb-item>入库信息</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="stock-surplus">
                 <span>
-                    总库存 - {{surplus.total}}箱
+                    <span class="surplus-title">总库存</span> - <span class="surplus-rest">{{surplus.total}}</span>箱
                 </span>
-                <span>
-                    季度剩余 - {{surplus.quarter}}箱
+                <span style="margin-left: 10px;">
+                    <span class="surplus-title">季度</span> 
+                    <el-select clearable size="mini" v-model="stockQuarter" placeholder="请选择" @change="getData">
+                        <el-option
+                        v-for="(item,i) in seasonOptions"
+                        :key="i"
+                        :label="item.configValue"
+                        :value="item.configValue">
+                        </el-option>
+                    </el-select>
+                    剩余 - <span class="surplus-rest">{{surplus.quarter}}</span>箱
                 </span>
             </div>
         </div>
@@ -133,7 +142,8 @@
 import { 
     getGoods,
     getAttrList,
-    getStockStatistics,} from '@/api/index';
+    getStockStatistics,
+    getTitle} from '@/api/index';
 import dict from '@/components/common/dict.js'
 
 export default {
@@ -174,17 +184,19 @@ export default {
                 season: [{ required: true, message: '请选择', trigger: 'change' }],
                 transporter: [{ required: true, message: '请选择', trigger: 'change' }],
             },
+            seasonOptions: [],
+            stockQuarter: '',
             surplus: {
                 total: '',
                 quarter: '',
             }
         };
     },
-    created() {
+    async created() {
         this.getDict = dict.getDict // 获取字典
         this.soldStatus = dict.soldStatus
-        this.getData();
         this.getOptions()
+        this.getData();
     },
     methods: {
         // 置空数据
@@ -224,8 +236,25 @@ export default {
                 this.page.total = res.total
                 this.page.no = res.current
             })
-            getStockStatistics({quarter: 1}).then(res => {
-                console.log(res);
+            // 获取库存
+            getStockStatistics({quarter: this.stockQuarter}).then(res => {
+                // 返回多个的时候说明没选择quarter,计算总库存
+                if (res.length > 1) {
+                    let total = 0
+                    for (let i = 0; i < res.length; i++) {
+                        const element = res[i];
+                        total += Number(element.total)
+                    }
+                    this.surplus = {
+                        total: total,
+                        quarter: ''
+                    }
+                }
+                // 返回1个的时候说明选择了quarter
+                else if (res.length == 1) {
+                    this.surplus.quarter = res[0].total
+                }
+                
             })
         },
 
@@ -235,6 +264,14 @@ export default {
                 this.sizeOptions = res[1]
                 this.labelOptions = res[5]
                 this.componentOptions = res[2]
+            })
+
+            let obj = {
+                status: 'quarter'
+            }
+            getTitle(obj).then(res => {
+                let data = (res instanceof Array) ? res : []
+                this.seasonOptions = data || []
             })
         },
        
@@ -259,7 +296,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.singleinfo-crumbs {
+    position: relative;
+}
 .box {
     position: relative;
     padding: 12px;
@@ -319,9 +358,6 @@ export default {
     font-size: 11px;
 }
 
-.mr10 {
-    margin-right: 10px;
-}
 .el-dialog__header {
     padding: 30px 48px !important;
 }
@@ -338,6 +374,19 @@ export default {
     width: 284px;
 }
 .stock-surplus {
-     float: right; 
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    .surplus-title {
+        font-size: 15px;
+        font-weight: 800;
+        margin-right: 4px;
+    }
+
+    .surplus-rest {
+        color: $theme-color;
+        margin: 0 5px;
+    }
 }
 </style>
