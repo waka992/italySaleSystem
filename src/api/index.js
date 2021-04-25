@@ -314,7 +314,7 @@ export const customerStatistics  = query => {
 }
 
 export const profitSum = query => {
-    return post('sa/profit', query)
+    return post('sa/profit', query, false, false)
 }
 
 export const dailyJournal = query => {

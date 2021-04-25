@@ -37,6 +37,9 @@ export default {
             dateTab: [{name: '今日'}, {name: '7日'}, {name: '14日'}],
         };
     },
+    mounted() {
+        this.getData()
+    },
    
     methods: {
         getData() {

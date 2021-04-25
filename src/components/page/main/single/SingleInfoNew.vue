@@ -162,7 +162,7 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="面料信息">
-                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.component" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.component" placeholder="请选择">
                                 <el-option
                                 v-for="(item,i) in componentOptions"
                                 :key="i"
@@ -205,7 +205,7 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="商品颜色">
-                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.color" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.color" placeholder="请选择">
                                 <el-option
                                 v-for="(item,i) in colorOptions"
                                 :key="i"
@@ -658,7 +658,7 @@ export default {
                 this.seasonOptions = res
             })
             getTitle({status: 'taxRate'}).then(res => {
-                this.rate = res[0].configValue
+                this.rate = res ? res[0].configValue : 0
             })
         },
         queryContainer(qs, cb) {

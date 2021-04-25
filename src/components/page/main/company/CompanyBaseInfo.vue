@@ -230,7 +230,7 @@ export default {
                 address: '',
                 account: '',
                 phone: '',
-                balance: '',
+                balance: 0,
                 email: '',
                 remark: '',
                 cardNo: '',

@@ -36,9 +36,9 @@
 <script>
 import PieChart from '@/components/charts/PieChart.vue'
 import DateSelector from '@/components/public/DateSelector'
-  
 import {cloneDeep} from 'lodash'
 import dict from '@/components/common/dict.js'
+import Big from 'big.js'
 
 import {
     dailyJournal,
@@ -83,19 +83,22 @@ export default {
                 bookDate: formatDate,
                 payDate: formatDate,
             }
+            let incomeTotal = new Big(0), payTotal = new Big(0);
             dailyJournal(params).then(res => {
                 let {cash, remittance, incomde, pay} = res
                 let accountType = cloneDeep(this.dict.accountType)
                 let data1 = []
                 let data2 = []
                 // 初始化data1 data2
-                for (let i = 0; i < accountType.length; i++) {
+                  for (let i = 0; i < accountType.length; i++) {
                     const ele = accountType[i];
                     data1.push({
+                        _dictValue: ele.value,
                         name: ele.label,
                         value: 0
                     })
                     data2.push({
+                        _dictValue: ele.value,
                         name: ele.label,
                         value: 0
                     })
@@ -103,16 +106,26 @@ export default {
                
                 for (let i = 0; i < incomde.length; i++) {
                     const ele = incomde[i];
-                    data1[ele.book_type].value = ele.cash
+                    for (let j = 0; j < data1.length; j++) {
+                        if (data1[j]._dictValue == ele.book_type) {
+                            data1[j].value = ele.cash
+                            incomeTotal = incomeTotal.add(ele.cash) 
+                        }
+                    }
                 }
 
                 for (let i = 0; i < pay.length; i++) {
                     const ele = pay[i];
-                    data2[ele.book_type].value = ele.cash
+                    for (let j = 0; j < data1.length; j++) {
+                        if (data2[j]._dictValue == ele.book_type) {
+                            data2[j].value = ele.cash
+                            payTotal = payTotal.add(ele.cash) 
+                        }
+                    }
                 }
 
-                this.income.total = cash || 0
-                this.pay.total = remittance || 0
+                this.income.total = incomeTotal.toNumber() || 0
+                this.pay.total = payTotal.toNumber() || 0
                 this.setChartData(data1, data2)
             })
         },

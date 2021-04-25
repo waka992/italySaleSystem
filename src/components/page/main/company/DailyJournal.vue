@@ -252,6 +252,7 @@ import {
     userList,
     getCompPage,
     delCompAccount} from '@/api/index';
+import Big from 'big.js'
   
 import dict from '@/components/common/dict.js'
 export default {
@@ -353,12 +354,13 @@ export default {
                         value: 0
                     })
                 }
-               
+                let incomeTotal = new Big(0), payTotal = new Big(0);
                 for (let i = 0; i < incomde.length; i++) {
                     const ele = incomde[i];
                     for (let j = 0; j < data1.length; j++) {
                         if (data1[j]._dictValue == ele.book_type) {
                             data1[j].value = ele.cash
+                            incomeTotal = incomeTotal.add(ele.cash) 
                         }
                     }
                 }
@@ -368,11 +370,12 @@ export default {
                     for (let j = 0; j < data1.length; j++) {
                         if (data2[j]._dictValue == ele.book_type) {
                             data2[j].value = ele.cash
+                            payTotal = payTotal.add(ele.cash) 
                         }
                     }
                 }
-                this.income.total = cash || 0
-                this.pay.total = remittance || 0
+                this.income.total = incomeTotal.toNumber() || 0
+                this.pay.total = payTotal.toNumber() || 0
                 this.setChartData(data1, data2)
             })
         },

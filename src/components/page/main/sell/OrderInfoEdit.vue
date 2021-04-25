@@ -150,6 +150,20 @@
 <!-- 四 -->
                 <el-row>
                     <el-col :span="8">
+                        <el-form-item label="订单时间">
+                            <el-date-picker
+                            :disabled="todo === 'check'"
+                            size="mini"
+                            class="form-input"
+                                value-format="yyyy-MM-dd HH:mm:ss"
+                                v-model="form.createTime"
+                                type="datetime"
+                                placeholder="选择订单创建日期时间">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
                         <el-form-item label="备注" prop="remark">
                             <el-input :disabled="todo === 'check'" v-model="form.remark" size="mini" class="form-input" placeholder="备注信息"></el-input>
                         </el-form-item>
@@ -311,7 +325,7 @@ export default {
             lockCustomer: false, // 是否从用户界面添加订单
             goodsList: [],
             // list基本式(添加用)
-            listOrigin: {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
+            listOrigin: {defectTotal: '', specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
 
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -407,6 +421,7 @@ export default {
                         companyId: companyId,
                         taxRate: taxRate * 100,
                         remark: remark,
+                        createTime: createTime,
                         status: status ? Number(status) : '', // 这是payType，创建的时候，返回的时候status是别的状态
                     }
                     let goodsList = details
@@ -438,6 +453,7 @@ export default {
                         goodsTotal: list.tailTotal,
                         goodsPrice: list.goodsPrice,
                         isTail: true,
+                        defectTotal: '', // 防止bigjs出错
                     })
                 }
                 else {
@@ -623,12 +639,14 @@ export default {
                 total = this.defectAmount
             }
             let obj = {
-                orderId: list.orderId,
+                // orderId: list.orderId,
+                detailId: list.id,
                 list: [
                     {
                         detailId: list.id,
                         skuId: list.skuId,
                         totals: total,
+                        isTail: Number(list.isTail)
                     }
                 ]
             }

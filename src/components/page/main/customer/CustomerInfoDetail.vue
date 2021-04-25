@@ -106,8 +106,8 @@
                     </el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
-                            <el-button v-show="scope.row.process == 0 || scope.row.process == 1" type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
-                            <el-button  v-show="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 0" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
+                            <el-button v-if="scope.row.process == 0 || scope.row.process == 1" type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
+                            <el-button  v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 0" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -141,7 +141,11 @@
                         header-cell-class-name="table-header"
                     >
                         <el-table-column prop="price" label="销售金额" align="center"></el-table-column>
-                        <el-table-column prop="startArrears" label="初始欠款" align="center"></el-table-column>
+                        <el-table-column prop="startArrears" label="初始欠款" align="center">
+                            <!-- <template slot-scope="scope">
+                                {{Number(scope.row.startArrears) + Number(scope.row.arrears)}}
+                            </template> -->
+                        </el-table-column>
                         <el-table-column prop="goodsTotal" label="件数" align="center"></el-table-column>
                         <el-table-column prop="collection" label="总收款" align="center"></el-table-column>
                         <el-table-column prop="arrears" label="余数" align="center">
@@ -463,7 +467,6 @@ export default {
                 this.incomepage.no = res.current
                 this.pdfLoading = false
                 this.calcLeftBoxHeight()
-                console.log('11');
             })
         },
 
@@ -675,6 +678,7 @@ export default {
                         exchangeRate: exchangeRate,
                         taxRate: taxRate * 100,
                         status: Number(status),
+                        createTime: createTime,
                     }
                     let goodsList = details
                     this.$nextTick(() => {

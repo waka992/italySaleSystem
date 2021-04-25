@@ -32,8 +32,8 @@
             >
                 <el-table-column prop="memberName" label="客户名称" align="center"></el-table-column>
                 <el-table-column prop="caseNum" label="销售箱数" align="center"></el-table-column>
-                <el-table-column prop="arrears" label="欠款金额" align="center"></el-table-column>
-                <el-table-column prop="price" label="总金额" align="center"></el-table-column>
+                <el-table-column prop="arrears" label="初始金额" align="center"></el-table-column>
+                <el-table-column prop="price" label="总欠款金额" align="center"></el-table-column>
                 
                 <el-table-column label="操作" width="130" align="center">
                     <template slot-scope="scope">

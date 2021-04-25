@@ -68,6 +68,16 @@
             <el-form-item label="备注" prop="remark">
                 <el-input  v-model="form.remark" size="mini" class="form-input" placeholder="备注"></el-input>
             </el-form-item>
+
+            <el-form-item label="订单时间">
+                 <el-date-picker
+                    class="form-input"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    v-model="form.createTime"
+                    type="datetime"
+                    placeholder="选择订单创建日期时间">
+                </el-date-picker>
+            </el-form-item>
         </el-form>
         <div class="prod-table">
             <div class="label">产品</div>
@@ -118,6 +128,8 @@
                 </div>
             </div>
             <div class="count">
+                <span class="count-label defect" v-show="getTotal('defect')">报损金额：</span>
+                <span class="value defect" v-show="getTotal('defect')">{{getTotal('defect')}}</span>
                 <span class="count-label">总销售金额：</span>
                 <span class="value">{{getTotal('total')}}</span>
                 <span class="count-label">总箱数：</span>
@@ -167,7 +179,7 @@ export default {
             lockCustomer: false, // 是否从用户界面添加订单
             goodsList: [],
             // list基本式(添加用)
-            listOrigin: {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
+            listOrigin: {defectTotal: '', specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false},
 
             rules: {
                 name: [{ required: true, message: '请输入', trigger: 'change' }],
@@ -199,7 +211,8 @@ export default {
                         stock: list.tailBox + '（尾箱数)',
                         goodsTotal: list.tailTotal,
                         goodsPrice: list.goodsPrice,
-                        isTail: true
+                        isTail: true,
+                        defectTotal: '', // 防止bigjs出错
                     })
                 }
                 else {
@@ -269,9 +282,10 @@ export default {
                 companyId: '',
                 status: '',
                 remark: '',
+                createTime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
             }
             this.goodsList = [
-                {specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
+                {defectTotal: '', specification: '', goodsName: '', goodsId: '', caseNum: '', goodsPrice: '', goodsTotal: '', isTail: false}
             ]
             this.$nextTick(() => {
                 if (resetName) {
@@ -392,25 +406,30 @@ export default {
             let total = 0
             let discount = this.form.discount || 0
             let taxRate = this.form.taxRate || 0
+            let defectTotal = 0
             for (let i = 0; i < this.goodsList.length; i++) {
                 const ele = this.goodsList[i];
                 caseNum += Number(ele.caseNum)
                 total += Number(ele.caseNum * ele.goodsTotal * ele.goodsPrice)
+                defectTotal += Number(ele.defectTotal) * ele.goodsPrice
             }
             if (tar == 'caseNum') {
                 return caseNum
             }
             if (tar == 'total') {
-                return total
+                return total - defectTotal
             }
             if (tar == 'discount') {
-                let res = new Big(total).minus(discount).toNumber()
+                let res = new Big(total).minus(discount).minus(defectTotal).toNumber()
                 return res
             }
             if (tar == 'tax') {
-                let x = new Big(total).minus(discount)
+                let x = new Big(total).minus(discount).minus(defectTotal)
                 let y = new Big(1).add(taxRate / 100)
                 return x.times(y).toNumber()
+            }
+            if (tar == 'defect') {
+                return -defectTotal
             }
         }
     }
@@ -518,6 +537,9 @@ export default {
             font-size: 16px;
             color: #666;
             font-weight: 800;
+        }
+        .defect {
+            color: red;
         }
     }
 

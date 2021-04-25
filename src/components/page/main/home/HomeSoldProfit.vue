@@ -26,7 +26,7 @@ export default {
             saleDate: ''
         };
     },
-    created() {
+    mounted() {
         this.getData()
     },
     methods: {
