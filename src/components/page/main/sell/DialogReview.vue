@@ -155,7 +155,7 @@
                     </div>
 
                     <div class="statistics-inner">
-                        <div class="item">
+                        <!-- <div class="item">
                             <div class="item-title">{{labels.discountValue}}</div>
                             <div class="item-value">{{total.discountValue}}</div>
                         </div>
@@ -166,7 +166,7 @@
                         <div class="item">
                             <div class="item-title">{{ }}</div>
                             <div class="item-value">{{ }}</div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -197,10 +197,10 @@ export default {
                 customerName: '客户名称',
                 date: '账单日期',
                 supplier: '销售方',
-                totalSum: '总销售金额',
+                totalSum: '总金额',
                 payStatus: '支付状态',
                 totalBoxes: '总销售箱数',
-                allTotalSum: '总销售金额',
+                allTotalSum: '总金额',
                 totalBoxes: '总箱数',
                 payType: '支付方式',
                 taxRate: '税收',
@@ -286,15 +286,15 @@ export default {
                     data: details,
                 }
             ]
-            let taxCount = new Big(1).minus(taxRate)
+            let taxCount = new Big(1).add(taxRate)
             this.total = {
                 value: price,
                 boxes: caseTotal,
                 payType: payType,
                 taxRate: taxRate,
                 discount: discount,
-                discountValue: new Big(price).minus(discount).toNumber(),
-                taxValue: new Big(price).minus(discount).times(taxCount).toNumber()
+                discountValue: price,
+                taxValue: price
             }
         },
         // 语言
@@ -312,10 +312,10 @@ export default {
                     customerName: '客户名称',
                     date: '账单日期',
                     supplier: '销售方',
-                    totalSum: '总销售金额',
+                    totalSum: '总金额',
                     payStatus: '支付状态',
                     totalBoxes: '总销售箱数',
-                    allTotalSum: '总销售金额',
+                    allTotalSum: '总金额',
                     totalBoxes: '总箱数',
                     payType: '支付方式',
                     taxRate: '税收',

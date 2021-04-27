@@ -134,8 +134,8 @@
                 <span class="value">{{getTotal('total')}}</span>
                 <span class="count-label">总箱数：</span>
                 <span class="value">{{getTotal('caseNum')}}</span>
-                <span class="count-label">折扣金额：</span>
-                <span class="value">{{getTotal('discount')}}</span>
+                <!-- <span class="count-label">折扣金额：</span>
+                <span class="value">{{getTotal('discount')}}</span> -->
                 <span class="count-label">税后金额：</span>
                 <span class="value">{{getTotal('tax')}}</span>
             </div>
@@ -424,9 +424,9 @@ export default {
                 return res
             }
             if (tar == 'tax') {
-                let x = new Big(total).minus(discount).minus(defectTotal)
+                let x = new Big(total)
                 let y = new Big(1).add(taxRate / 100)
-                return x.times(y).toNumber()
+                return x.times(y).minus(discount).minus(defectTotal).toNumber()
             }
             if (tar == 'defect') {
                 return -defectTotal

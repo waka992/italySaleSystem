@@ -20,6 +20,7 @@
                         </el-option>
                     </el-select>
                     剩余 - <span class="surplus-rest">{{surplus.quarter}}</span>箱
+                    <span class="surplus-quarter">季度售出 - <span class="surplus-rest">{{surplus.sell}}</span>箱</span>
                 </span>
             </div>
         </div>
@@ -238,8 +239,8 @@ export default {
             })
             // 获取库存
             getStockStatistics({quarter: this.stockQuarter}).then(res => {
-                // 返回多个的时候说明没选择quarter,计算总库存
-                if (res.length > 1) {
+                // 没选季度时候计算总库存
+                if (this.stockQuarter == '') {
                     let total = 0
                     for (let i = 0; i < res.length; i++) {
                         const element = res[i];
@@ -247,12 +248,14 @@ export default {
                     }
                     this.surplus = {
                         total: total,
-                        quarter: ''
+                        quarter: '',
+                        sell: ''
                     }
                 }
                 // 返回1个的时候说明选择了quarter
                 else if (res.length == 1) {
                     this.surplus.quarter = res[0].total
+                    this.surplus.sell = res[0].sell
                 }
                 
             })
@@ -387,6 +390,10 @@ export default {
     .surplus-rest {
         color: $theme-color;
         margin: 0 5px;
+    }
+
+    .surplus-quarter {
+        margin-left: 20px;
     }
 }
 </style>

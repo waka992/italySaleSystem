@@ -170,11 +170,11 @@ export default {
                     date: '账单日期',
                     soldDate: '销售日期',
                     supplier: '销售方',
-                    totalSum: '总销售金额',
+                    totalSum: '总金额',
                     payStatus: '支付状态',
                     totalPics: '总销售件数',
                     totalBoxes: '总销售箱数',
-                    allTotalSum: '总销售金额',
+                    allTotalSum: '总金额',
                     discount: '折扣',
                 }
             }

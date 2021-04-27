@@ -243,12 +243,16 @@
                                 <el-button type="text">添加产品</el-button>
                             </div>
                             <div class="count">
-                                <span class="label defect" v-show="getTotal('defect')">报损金额：</span>
+                                <span class="count-label defect" v-show="getTotal('defect')">报损金额：</span>
                                 <span class="value defect" v-show="getTotal('defect')">{{getTotal('defect')}}</span>
-                                <span class="label">总销售金额：</span>
+                                <span class="count-label">总销售金额：</span>
                                 <span class="value">{{getTotal('total')}}</span>
-                                <span class="label">总箱数：</span>
+                                <span class="count-label">总箱数：</span>
                                 <span class="value">{{getTotal('caseNum')}}</span>
+                                <!-- <span class="count-label">折扣金额：</span>
+                                <span class="value">{{getTotal('discount')}}</span> -->
+                                <span class="count-label">税后金额：</span>
+                                <span class="value">{{getTotal('tax')}}</span>
                             </div>
                         </div>
                         <div class="pagination">
@@ -292,6 +296,7 @@ addDeFect,
 delDeFect,
 getCompPage} from '@/api/index';
 import CustomerNameSelector from '@/components/public/CustomerNameSelector.vue'
+import Big from 'big.js'
 
 export default {
     name: 'DialogNewOrder',
@@ -674,6 +679,8 @@ export default {
         getTotal(tar) {
             let caseNum = 0
             let total = 0
+            let discount = this.form.discount || 0
+            let taxRate = this.form.taxRate || 0
             let defectTotal = 0
             for (let i = 0; i < this.goodsList.length; i++) {
                 const ele = this.goodsList[i];
@@ -686,6 +693,15 @@ export default {
             }
             if (tar == 'total') {
                 return total - defectTotal
+            }
+            if (tar == 'discount') {
+                let res = new Big(total).minus(discount).minus(defectTotal).toNumber()
+                return res
+            }
+            if (tar == 'tax') {
+                let x = new Big(total)
+                let y = new Big(1).add(taxRate / 100)
+                return x.times(y).minus(discount).minus(defectTotal).toNumber()
             }
             if (tar == 'defect') {
                 return -defectTotal
@@ -706,7 +722,8 @@ export default {
             this.todo = 'edit'
         },
         cancel() {
-            this.$router.push({name: 'order'})
+            this.$router.back(-1)
+            // this.$router.push({name: 'order'})
         }
     }
 }
@@ -987,14 +1004,15 @@ export default {
     .count {
         float: right;
         margin-top: 20px;
-        .label {
+        .count-label {
             color: $theme-color;
             display: inline-block;
-            width: 120px;
+            width: 100px;
+            padding: 5px;
         }
         .value {
             display: inline-block;
-            width: 130px;
+            width: 90px;
             font-size: 16px;
             color: #666;
             font-weight: 800;
