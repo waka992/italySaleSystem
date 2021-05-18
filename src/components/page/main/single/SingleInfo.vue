@@ -27,52 +27,64 @@
         <div class="box">
             <div class="handle-box">
                 <el-input class="name-search" v-model="search.name" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
-
-                <div class="status">
-                    <span class="label">特色</span>
-                    <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
-                        <el-option
-                        v-for="(item,i) in labelOptions"
-                        :key="i"
-                        :label="item.arrtibute"
-                        :value="item.arrtibute">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div class="status">
-                    <span class="label">尺码</span>
-                    <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
-                        <el-option
-                        v-for="(item,i) in sizeOptions"
-                        :key="i"
-                        :label="item.arrtibute"
-                        :value="item.arrtibute">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div class="status">
-                    <span class="label">面料</span>
-                    <el-select size="mini" multiple v-model="search.component" placeholder="请选择">
-                        <el-option
-                        v-for="(item,i) in componentOptions"
-                        :key="i"
-                        :label="item.arrtibute"
-                        :value="item.arrtibute">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div class="status">
-                    <span class="label">状态</span>
-                    <el-select size="mini" v-model="search.skuStatus" placeholder="请选择">
-                        <el-option
-                        v-for="item in soldStatus"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
                 <el-button icon="el-icon-search" circle @click="getData"></el-button>
+                <div style="padding-top: 10px;">
+                    <div class="status">
+                        <span class="label">特色</span>
+                        <el-select size="mini" multiple v-model="search.label" placeholder="请选择">
+                            <el-option
+                            v-for="(item,i) in labelOptions"
+                            :key="i"
+                            :label="item.arrtibute"
+                            :value="item.arrtibute">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div class="status">
+                        <span class="label">尺码</span>
+                        <el-select size="mini" multiple v-model="search.size" placeholder="请选择">
+                            <el-option
+                            v-for="(item,i) in sizeOptions"
+                            :key="i"
+                            :label="item.arrtibute"
+                            :value="item.arrtibute">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div class="status">
+                        <span class="label">面料</span>
+                        <el-select size="mini" multiple v-model="search.component" placeholder="请选择">
+                            <el-option
+                            v-for="(item,i) in componentOptions"
+                            :key="i"
+                            :label="item.arrtibute"
+                            :value="item.arrtibute">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div class="status">
+                        <span class="label">颜色</span>
+                        <el-select size="mini" multiple v-model="search.color" placeholder="请选择">
+                            <el-option
+                            v-for="(item,i) in colorOptions"
+                            :key="i"
+                            :label="item.arrtibute"
+                            :value="item.arrtibute">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div class="status">
+                        <span class="label">状态</span>
+                        <el-select size="mini" v-model="search.skuStatus" placeholder="请选择">
+                            <el-option
+                            v-for="item in soldStatus"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </div>
 
                 <el-button
                     class="new-btn"
@@ -165,6 +177,7 @@ export default {
             sizeOptions: [],
             labelOptions: [],
             componentOptions: [],
+            colorOptions: [],
             page: {
                 no: 1,
                 total: 0,
@@ -267,6 +280,7 @@ export default {
                 this.sizeOptions = res[1]
                 this.labelOptions = res[5]
                 this.componentOptions = res[2]
+                this.colorOptions = res[0]
             })
 
             let obj = {
@@ -312,6 +326,7 @@ export default {
 .handle-box {
     width: 100%;
     margin-bottom: 20px;
+    position: relative;
 
     .label {
         width: 50px;
@@ -337,8 +352,9 @@ export default {
     }
 
     .new-btn {
-        float: right;
-        margin-left: 14px;
+        position: absolute;
+        right: 0;
+        top: 0;
     }
     
 }

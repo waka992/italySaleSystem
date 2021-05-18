@@ -363,7 +363,7 @@ export default {
                 mobile: [{ required: true, message: '请输入联系电话', trigger: 'change' }],
             },
             incomerules: {
-                customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
+                // customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
                 createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
                 money: [{ required: true, message: '请输入', trigger: 'change' }],
             },

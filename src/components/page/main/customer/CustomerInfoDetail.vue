@@ -107,7 +107,8 @@
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
                             <el-button v-if="scope.row.process == 0 || scope.row.process == 1" type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
-                            <el-button  v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 0" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
+                            <el-button v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 2" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
+                            <el-button v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 1" type="text" @click="cancelPay(scope.row)">取消支付</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -337,6 +338,7 @@ import {
     settleOrder,
     sumOrder,
     payOrder,
+    deletePayOrder,
     addCompAccount,
     userList,
     getCompPage,
@@ -388,7 +390,10 @@ export default {
             },
             searchAdvice: [],
             searchCompanyAdvice: [],
-            pdfLoading: false
+            pdfLoading: false,
+            cancelPayLock: false,
+            cancelPayLockTimer: null,
+
         };
     },
     created() {
@@ -411,6 +416,12 @@ export default {
         this.getData()
     },
     methods: {
+        cancelPayLockDebounce() {
+            this.cancelPayLock = true
+            this.cancelPayLockTimer = setTimeout(() => {
+                this.cancelPayLock = false
+            }, 5000);
+        },
         getData() {
             if (!this.id){return}
             let obj = {
@@ -692,6 +703,22 @@ export default {
             if (tar == 'receive') {
                 this.addIncomeReady()
             }
+        },
+        cancelPay(row) {
+            if (this.cancelPayLock) {return}
+            this.cancelPayLockDebounce()
+            this.$confirm('确认取消支付？').then(_ => {
+                let id = row.id
+                deletePayOrder({id: id}).then(res => {
+                    clearTimeout(this.cancelPayLockTimer)
+                    setTimeout(() => {
+                        this.cancelPayLock = false
+                    }, 1000);
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
+           
         },
         addIncomeReady() {
             this.incomeform = {

@@ -28,18 +28,31 @@
                 :value="item.value"></title-setting>
             </div>
         </div>
+
+         <div class="crumbs setting-crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item >信息管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="box">
+            <div class="detail-box">
+                <info-setting></info-setting>
+            </div>
+        </div>
     </div>
 </template>
 <script>
 import ItemSetting from './ItemSetting'
 import TitleSetting from './TitleSetting'
+import InfoSetting from './InfoSetting'
 import dict from '@/components/common/dict.js'
 
 export default {
     name: 'Setting',
     components: {
         ItemSetting,
-        TitleSetting
+        TitleSetting,
+        InfoSetting
     },
     data() {
         return {

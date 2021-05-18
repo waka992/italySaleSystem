@@ -10,13 +10,6 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <!-- <el-form-item label="资金来源" prop="accountType">
-                <el-select class="form-input" size="mini" v-model="form.accountType" placeholder="请选择">
-                    <el-option v-for="(type,i) in dict.accountType" 
-                    :label="type.label" :value="type.value"
-                    :key="i"></el-option>
-                </el-select>
-            </el-form-item> -->
         </el-form>
     </div>
 </template>

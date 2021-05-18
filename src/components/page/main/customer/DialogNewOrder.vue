@@ -59,7 +59,7 @@
             </el-form-item>
 
             <el-form-item label="支付状态" prop="status">
-                <el-select v-model="form.status" size="mini" class="form-input" placeholder="请选择" >
+                <el-select disabled v-model="form.status" size="mini" class="form-input" placeholder="请选择" >
                     <el-option v-for="(type,i) in payStatus" :value="type.value" :label="type.label" :key="i">
                     </el-option>
                 </el-select>
@@ -280,7 +280,7 @@ export default {
                 taxRate: 0,
                 companyName: '',
                 companyId: '',
-                status: '',
+                status: 0,
                 remark: '',
                 createTime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
             }

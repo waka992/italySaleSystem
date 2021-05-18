@@ -309,6 +309,7 @@ export default {
             delVisible: false,
             delCancelVisible: false,
             sendVisible: false,
+            approvalFlag: false, // 防重
             id: '',
             level: '',
             process: 1,
@@ -355,36 +356,57 @@ export default {
         this.getData()
     },
     methods: {
+        approvalDebounce() {
+            this.approvalFlag = true
+            setTimeout(() => {
+                this.approvalFlag = false
+            }, 5000);
+        },
         approval() {
+            if (this.approvalFlag) {return}
+            this.approvalDebounce()
             this.delVisible = false
             let params = {
                 id: this.id,
                 status: 2, //0:生成/待审批,1:不通过,2:tony通过/待发货,3:tony通过欠款/待发货,4:仓库发货
             }
             approvalOrder(params).then(res => {
+                setTimeout(() => {
+                    this.approvalFlag = false
+                }, 5000);
                 this.$message.success('审核通过完成')
                 this.getData()
             })
         },
         // 发货
         sendApproval() {
+            if (this.approvalFlag) {return}
+            this.approvalDebounce()
             this.sendVisible = false
             let params = {
                 id: this.id,
                 status: 4, 
             }
             approvalOrder(params).then(res => {
+                setTimeout(() => {
+                    this.approvalFlag = false
+                }, 5000);
                 this.$message.success('发货完成')
                 this.getData()
             })
         },
         cancelApproval() {
+            if (this.approvalFlag) {return}
+            this.approvalDebounce()
             this.delCancelVisible = false
             let params = {
                 id: this.id,
                 status: 5, //5反审
             }
             approvalOrder(params).then(res => {
+                setTimeout(() => {
+                    this.approvalFlag = false
+                }, 5000);
                 this.$message.success('取消审核完成')
                 this.getData()
             })

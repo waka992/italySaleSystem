@@ -80,7 +80,8 @@ export default {
             else {
                 this.lineData[0].offset = '-36%' // 图形标准基准！！！！！！！！！
                 let porperty = res.saleProfit / sum * 100 - 100
-                this.lineData[1].offset = porperty + '%'
+                // this.lineData[1].offset = porperty + '%'
+                this.lineData[1].offset = '-60%' // 不算了，图形表达不清楚
                 console.log(porperty);
             }
             // this.lineData = data

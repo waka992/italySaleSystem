@@ -236,7 +236,7 @@ import {
     userList,
     registerCustomer,
     getBestCustomer,
-    delUser,
+    delCustomer,
     userUpdate} from '@/api/index';
 
 export default {
@@ -367,7 +367,8 @@ export default {
                         mobile,
                         arrears,
                         remarks,
-                        cnImgUrl,} = data
+                        cnImgUrl,
+                        id} = data
                 this.form = {
                     memberName:memberName,
                     appName:appName,
@@ -380,6 +381,7 @@ export default {
                     arrears:arrears,
                     remarks:remarks,
                     cnImgUrl:cnImgUrl,
+                    id: id,
                 }
                 this.baseDialogVisible = true
             }
@@ -389,7 +391,7 @@ export default {
                     type: 'warning'
                 })
                     .then(() => {
-                        delUser({id: data.id}).then(res => {
+                        delCustomer({id: data.id}).then(res => {
                             this.$message.success('删除成功');
                             this.getData()
                         })

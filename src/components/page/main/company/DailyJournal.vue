@@ -55,7 +55,11 @@
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="customerName" label="收款方" align="center"></el-table-column>
+                        <el-table-column prop="customerName" label="收款方" align="center">
+                            <template slot-scope="scope">
+                                {{scope.row.customerName || scope.row.invoiceTitle }}
+                            </template>
+                        </el-table-column>
                         <el-table-column label="支付方式" align="center">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
@@ -63,7 +67,7 @@
                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                         <el-table-column prop="remark" label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="edit-btn" @click="operate('edit', scope.row, 'income')">编辑</span>
+                                <!-- <span class="edit-btn" @click="operate('edit', scope.row, 'income')">编辑</span> -->
                                 <span class="del-btn" @click="operate('del', scope.row, 'income')">删除</span>
                             </template>
                         </el-table-column>
@@ -121,7 +125,11 @@
                                 {{timeFormat(scope.row.createTime)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="customerName" label="支付方" align="center"></el-table-column>
+                        <el-table-column prop="customerName" label="支付方" align="center">
+                            <template slot-scope="scope">
+                                {{scope.row.customerName || scope.row.invoiceTitle }}
+                            </template>
+                        </el-table-column>
                         <el-table-column label="支付方式" align="center">
                             <template slot-scope="scope">{{dict.getDict(scope.row.accountType, 'accountType')}}</template>
                         </el-table-column>
@@ -133,7 +141,7 @@
                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                         <el-table-column prop="remark" label="操作" align="center">
                             <template slot-scope="scope">
-                                <span class="edit-btn" @click="operate('edit', scope.row, 'pay')">编辑</span>
+                                <!-- <span class="edit-btn" @click="operate('edit', scope.row, 'pay')">编辑</span> -->
                                 <span class="del-btn" @click="operate('del', scope.row, 'pay')">删除</span>
                             </template>
                         </el-table-column>
@@ -302,7 +310,7 @@ export default {
             },
             incomerules: {
                 companyName: [{ required: true, message: '请输入', trigger: 'change' }],
-                customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
+                // customerName: [{ required: true, message: '请输入客户名', trigger: 'change' }],
                 createTime: [{ required: true, message: '请输入日期', trigger: 'change' }],
                 money: [{ required: true, message: '请输入', trigger: 'change' }],
             },
@@ -488,11 +496,20 @@ export default {
                 params.bookType = 1 // 收入
             }
             params.money = Math.abs(params.money)
+            // 防止直接输入
+            let searchAdviceFound = false
             for (let i = 0; i < this.searchAdvice.length; i++) {
                 const ele = this.searchAdvice[i];
                 if (params.customerName == ele.memberName) {
                     params.customerId = ele.id
+                    searchAdviceFound = true // 如果找到建议
                 }
+            }
+            // 如果没找到customerName的id，说明是直接输入改用invoiceTitle
+            if (!searchAdviceFound) {
+                params.invoiceTitle = params.customerName
+                params.customerId = ''
+                params.customerName = ''
             }
             this.$refs.incomeform.validate(valid => {
                 if (valid) {
@@ -604,12 +621,12 @@ export default {
             console.log(tar, row);
             if (tar == 'edit') {
                 this.operateTar = 'edit'
-                let {id, companyId, companyName, customerName, customerId, createTime, money, remark, accountType, bookType} = row
+                let {id, companyId, companyName, customerName, customerId, createTime, money, remark, accountType, bookType, invoiceTitle} = row
                 this.incomeform = {
                     id: id,
                     companyName: companyName,
                     companyId: companyId,
-                    customerName: customerName,
+                    customerName: customerName || invoiceTitle,
                     customerId: customerId,
                     createTime: createTime,
                     // money: money,

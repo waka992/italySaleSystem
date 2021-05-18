@@ -209,6 +209,9 @@ export const registerCustomer = query => {
 export const getBestCustomer = query => {
     return get('me/star', query)
 } 
+export const delCustomer = query => {
+    return get('user/ht/delete', query)
+} 
 /** 
  * 单品
  */
@@ -264,6 +267,9 @@ export const sumOrder = query => {
 }
 export const payOrder = query => {
     return post('order/pay', query, true, true)
+}
+export const deletePayOrder = query => {
+    return get('order/delPay', query)
 }
 export const settleOrder= query => {
     return post('order/settle', query)
@@ -362,4 +368,12 @@ export const delUser = query => {
 }
 export const updatePwd = query => {
     return post('user/updatePwd', query, true, true)
+}
+
+// app 端
+export const updateAppCompanyMsg = query => {
+    return post('ht/myUs', query)
+}
+export const getCompanyMsg = query => {
+    return get('app/us', query)
 }
