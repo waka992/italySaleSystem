@@ -268,7 +268,6 @@ export default {
                 obj.parentId = this.parentId
             }
             getGoodsByMenu(obj).then(res => {
-                console.log(res);
                 for (let i = 0; i < res.records.length; i++) {
                     const element = res.records[i];
                     // res.records[i].elementDetail = element.elementDetail.split(',')
@@ -276,7 +275,6 @@ export default {
                         res.records[i].label = element.label.split(',')
                     }
                 }
-                console.log(res.records);
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current

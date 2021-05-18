@@ -217,6 +217,19 @@
                     </el-col>
 
                     <el-col :span="8">
+                        <el-form-item label="破洞">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.destroyed" placeholder="请选择">
+                                <el-option
+                                v-for="(item,i) in destroyedOptions"
+                                :key="i"
+                                :label="item.arrtibute"
+                                :value="item.arrtibute">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
                         <el-form-item label="商品描述">
                             <el-input :disabled="todo === 'check'" size="mini" v-model="form.remark" placeholder="备注信息">
                             </el-input>
@@ -225,8 +238,69 @@
                 </el-row>
               
                 <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="上级分类">
+                            <el-cascader :disabled="todo === 'check'" clearable v-model="formParentId" @change="formCascaderChange" :props="cascaderProps" :options="typeList"></el-cascader>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="浏览等级">
+                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.level" placeholder="请选择">
+                                 <el-option
+                                v-for="(item,i) in dict.customerLevel"
+                                :key="i"
+                                :label="item.label"
+                                :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
                     <div class="pic-upload">
-                        <div class="pic-title">上传图片</div>
+                        <div class="pic-title">商品封面</div>
+                        <div  v-if="area == 'eu'">
+                            <div  class="pic-list-item" v-for="(pic, i) in form.imgUrl" :key="i">
+                                <el-image 
+                                    class="pic-list-item-img"
+                                    :src="pic" 
+                                    :preview-src-list="[pic]">
+                                </el-image>
+                            </div>
+                            <el-upload
+                            v-if="todo !== 'check'"
+                            class="upload-btn"
+                            :show-file-list="false"
+                            :action="'http://www.missbonbon.co:8021/file/uploadOss'"
+                            :http-request="uploadSectionFile">
+                            <i class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        </div>
+                        <div  v-if="area == 'cn'">
+                            <div  class="pic-list-item" v-for="(pic, i) in form.cnImgUrl" :key="i">
+                                <el-image 
+                                    class="pic-list-item-img"
+                                    :src="pic" 
+                                    :preview-src-list="[pic]">
+                                </el-image>
+                            </div>
+                            <el-upload
+                            v-if="todo !== 'check'"
+                            class="upload-btn"
+                            :show-file-list="false"
+                            :action="'http://www.missbonbon.co:8021/file/uploadOss'"
+                            :http-request="uploadSectionFile">
+                            <i class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        </div>
+                        
+                    </div>
+                </el-row>
+
+                <el-row>
+                    <div class="pic-upload">
+                        <div class="pic-title">商品图片</div>
                         
                         <div class="pic-list-item" v-for="(pic, i) in form.goodsImgList" :key="i">
                             <span v-if="todo !== 'check'" class="del-icon" @click.stop="delPic(pic, i)">X</span>
@@ -401,7 +475,8 @@ import {
     getContainerPage,
     itemTransportRecord,
     getItemSellRecord,
-    addOrder
+    addOrder,
+    getType
      } from '@/api/index';
 import Big from 'big.js'
 import dict from '@/components/common/dict.js'
@@ -411,6 +486,7 @@ export default {
     data() {
         return {
             dict: {},
+            area: 'cn',
             getDict: null,
             todo: 'check', // check edit
             skuId: '',
@@ -424,11 +500,20 @@ export default {
             form: {goodsImgList: []},
             sizeOptions: [],
             colorOptions: [],
+            destroyedOptions: [],
             labelOptions: [],
             seasonOptions: [],
             componentOptions: [],
             ratioOptions: [],
             copyContainerOptions: [],
+            // 上级菜单
+            typeList: [],
+            formParentId: '',
+            cascaderProps: {
+                label: 'name',
+                value: 'id',
+                checkStrictly: true
+            },
             rules: {
 
             },
@@ -450,6 +535,7 @@ export default {
         };
     },
     mounted() {
+        this.area = localStorage.getItem('area') || 'eu'
         this.dict = dict
         this.getDict = dict.getDict
         this.getSelector()
@@ -500,12 +586,19 @@ export default {
                 container: '',
                 containerId: '',
                 mixtureAtio: '',
+                destroyed: '',
                 color: '',
                 quarter: '',
+                imgUrl: '',
+                cnImgUrl: '',
                 // skuType: '',
                 goodsImgList: [],
                 remark: '',
+                firstMenu: '',
+                secondMenu: '',
+                thirdMenu: '',
             }
+            this.formParentId = ''
             this.clearValidate()
         },
         clearValidate() {
@@ -596,6 +689,11 @@ export default {
         
 
         // 图片
+        // 上传封面
+        uploadSectionFile(param) {
+            this.fileuploadHandler(param, 'imgUrl')
+        },
+        // 上传图片群
         uploadListFile(param) {
             this.fileuploadHandler(param, 'goodsImgList')
         },
@@ -604,6 +702,11 @@ export default {
             let fileObj = param.file;
             let vm = this
             let fn = (urlObj, name) => {
+                if (from === 'imgUrl') {
+                    vm.form.cnImgUrl = [urlObj.cnUrl]
+                    vm.form.imgUrl = [urlObj.euUrl]
+                    vm.form.ossFilePathName = name
+                }
                 if (from === 'goodsImgList') {
                     vm.form.goodsImgList.push({
                         id: vm.form.secondMenu, 
@@ -638,6 +741,18 @@ export default {
             .catch(() => {});
         },
         getSelector() {
+            // 获取上级菜单
+            getType().then(res => {
+                try {
+                    res = res.filter(item => item.type !== 1)
+                    let str = JSON.stringify(res)
+                    let str2 = str.replace(/,"children":\[\]/g, '')
+                    this.typeList = JSON.parse(str2)
+                }
+                catch(err) {
+                    console.log(err);
+                }
+            })
             // 获取运输商
             getAllTransporter({}).then(res => {
                 this.transporterOptions = res
@@ -653,6 +768,7 @@ export default {
                 this.labelOptions = res[5]
                 this.componentOptions = res[2]
                 this.ratioOptions = res[4]
+                this.destroyedOptions = res[6]
             })
             getTitle({status: 'quarter'}).then(res => {
                 this.seasonOptions = res
@@ -689,8 +805,8 @@ export default {
         },
         getDetail() {
             goodsDetail({id: this.form.id}).then(res=> {
-            let {goodsImgList, id, name, size, specification,
-            profit,label,noticenum,component,container,containerId,mixtureAtio,
+            let {goodsImgList, id, name, size, specification,imgUrl,cnImgUrl,
+            profit,label,noticenum,component,container,containerId,mixtureAtio,destroyed,
             color,remark} = res
             let {costPrice, supplierName, supplierId, salePrice, caseNum, goodsTotal,tailBox,tailTotal,quarter} = res.sku
             this.skuId = res.sku.id
@@ -717,11 +833,14 @@ export default {
                 containerId: containerId,
                 oldContainerId: containerId,
                 mixtureAtio: mixtureAtio,
+                destroyed: destroyed,
                 color: color,
                 quarter: quarter,
                 // skuType: skuType,
                 goodsImgList: goodsImgList,
                 remark: remark,
+                imgUrl: imgUrl ? [imgUrl] : [],
+                cnImgUrl: cnImgUrl ? [cnImgUrl] : [],
             }
             this.clearValidate()
             this.getTransportData()
@@ -822,6 +941,13 @@ export default {
                     })
                 }
             })
+        },
+        // 单品上级菜单
+        formCascaderChange(v) {
+            this.formParentId = v
+            this.form.firstMenu = this.formParentId[0] || ''
+            this.form.secondMenu = this.formParentId[1] || ''
+            this.form.thirdMenu = this.formParentId[2] || ''
         },
         
         countProfit() {

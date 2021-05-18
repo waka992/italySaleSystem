@@ -80,6 +80,11 @@ const dict =  {
         {value: 1, label: '销售人员'},
         {value: 2, label: '管理员'},
     ],
+    customerLevel: [
+        {value: 1, label: '游客'},
+        {value: 2, label: '普通'},
+        {value: 3, label: 'VIP'},
+    ],
 
     // 字典
     getDict: function(value, dictName) {
