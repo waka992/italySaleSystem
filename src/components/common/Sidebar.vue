@@ -136,6 +136,26 @@ export default {
                         },
                     ]
                 },
+                 {
+                    icon: 'el-icon-lx-calendar',
+                    iconPic: require('../../assets/img/icon-mobile.png'),
+                    index: '4',
+                    title: 'app端管理',
+                    subs: [
+                        {
+                            index: 'typeform',
+                            title: '分类管理'
+                        },
+                        {
+                            index: 'hotlist',
+                            title: '热销管理'
+                        },
+                        {
+                            index: 'custommenu',
+                            title: '自定义菜单'
+                        },
+                    ]
+                },
                 {
                     icon: 'el-icon-setting',
                     index: 'setting',

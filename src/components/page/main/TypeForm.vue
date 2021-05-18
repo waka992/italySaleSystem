@@ -141,8 +141,8 @@
 </template>
 
 <script>
-import {  getType, createType, delType, editType } from '../../../api/index';
-import uploadPic from '../../../utils/uploadPic';
+import {  getType, createType, delType, editType } from '@/api/index';
+import uploadPic from '@/utils/uploadPic';
 
 import {uniqBy, cloneDeep} from 'lodash'
 export default {

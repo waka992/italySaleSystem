@@ -15,7 +15,7 @@
             </div>
         </div>
 
-         <div class="crumbs setting-crumbs">
+        <div class="crumbs setting-crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item >参数管理</el-breadcrumb-item>
             </el-breadcrumb>
@@ -39,12 +39,24 @@
                 <info-setting></info-setting>
             </div>
         </div>
+
+         <div class="crumbs setting-crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item >位置管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="box">
+            <div class="detail-box">
+                <location-setting></location-setting>
+            </div>
+        </div>
     </div>
 </template>
 <script>
 import ItemSetting from './ItemSetting'
 import TitleSetting from './TitleSetting'
 import InfoSetting from './InfoSetting'
+import LocationSetting from './LocationSetting'
 import dict from '@/components/common/dict.js'
 
 export default {
@@ -52,7 +64,8 @@ export default {
     components: {
         ItemSetting,
         TitleSetting,
-        InfoSetting
+        InfoSetting,
+        LocationSetting
     },
     data() {
         return {

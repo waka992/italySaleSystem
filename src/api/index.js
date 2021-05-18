@@ -370,10 +370,62 @@ export const updatePwd = query => {
     return post('user/updatePwd', query, true, true)
 }
 
-// app 端
+// app 端------------------------------------------------------------------------------------------------------------------------------------
 export const updateAppCompanyMsg = query => {
     return post('ht/myUs', query)
 }
 export const getCompanyMsg = query => {
     return get('app/us', query)
+}
+
+/** 分类管理 */
+// 创建分类目录
+export const createType = query => {
+    return post('ht/createShopType', query)
+}
+// 获取分级目录详情
+export const getTypeForDetail = query => {
+    return post('ht/typeForDetail', query)
+}
+// 删除分类
+export const delType = query => {
+    return post('ht/typeForDetele', query)
+}
+// 下拉框获取分级目录
+export const getTypeForFirst = query => {
+    return post('ht/typeForFirst', query)
+}
+// 分类查询
+export const getType = query => {
+    return get('ht/getMenus', query)
+}
+// 分类修改
+export const editType = query => {
+    return post('ht/typeForUpdate', query)
+}
+
+/* 热度列表 */
+// 添加管理热度商品
+export const addHotList = query => {
+    return post('ht/addHost', query)
+}
+
+// 删除热度商品
+export const delHotList = query => {
+    return post('ht/delHost', query)
+}
+
+// 获取后台热度商品
+export const getHotList  = query => {
+    return get('ht/getHost', query) // 热度
+}
+
+// 更新后台热度商品
+export const updateHotList  = query => {
+    return post('ht/updateHost', query)
+}
+/* 自定义菜单 */
+// 商品详情
+export const getGoodsByMenu = query => {
+    return post('ht/getGoodsByMenu', query)
 }

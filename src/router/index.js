@@ -136,6 +136,26 @@ export default new Router({
                     component: () => import(/* webpackChunkName: "user" */ '../components/page/main/UserManage.vue'),
                     meta: { title: '会员管理' }
                 },
+
+                {
+                    path: '/typeform',
+                    name: 'typeform',
+                    component: () => import(/* webpackChunkName: "typeform" */ '../components/page/main/app/TypeForm.vue'),
+                    meta: { title: 'app端 - 分类管理' }
+                },
+                {
+                    path: '/hotlist',
+                    name: 'hotlist',
+                    component: () => import(/* webpackChunkName: "hotlist" */ '../components/page/main/app/HotList.vue'),
+                    meta: { title: 'app端 - 热销菜单' }
+                },
+                {
+                    path: '/custommenu',
+                    name: 'custommenu',
+                    component: () => import(/* webpackChunkName: "custommenu" */ '../components/page/main/app/CustomList.vue'),
+                    meta: { title: 'app端 - 自定义菜单' }
+                },
+                
                
                 {
                     path: '/404',
