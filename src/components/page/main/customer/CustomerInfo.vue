@@ -179,8 +179,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="会员密码"  prop="password" v-if="operate === 'create'">
-                            <el-input class="form-input" placeholder="app登录密码" v-model="form.password"></el-input>
+                        <el-form-item label="会员密码"  prop="password">
+                            <el-input class="form-input" placeholder="app登录密码，如需修改请填写" v-model="form.password"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -237,7 +237,8 @@ import {
     registerCustomer,
     getBestCustomer,
     delCustomer,
-    userUpdate} from '@/api/index';
+    userUpdate,
+    userPwdUpdate} from '@/api/index';
 
 export default {
     name: 'ContainerInfo',
@@ -310,7 +311,6 @@ export default {
         },
         getBest() {
             getBestCustomer({}).then(res => {
-                console.log(res);
                 this.bestTableData = res.star
                 this.commonTableData = res.commonly
             })
@@ -336,6 +336,15 @@ export default {
                             })
                     }
                     if (this.operate == 'edit') {
+                        if (params.password) {
+                            let updatePwdParam = {
+                                memberName: params.memberName,
+                                password: params.password
+                            }
+                            userPwdUpdate(updatePwdParam).then(res => {
+
+                            })
+                        }
                         delete params.password
                         userUpdate(params).then(res => {
                             if (res) {
@@ -372,7 +381,7 @@ export default {
                 this.form = {
                     memberName:memberName,
                     appName:appName,
-                    password:password,
+                    password:'', // 密码默认不显示
                     status:Number(status),
                     level:level,
                     address:address,

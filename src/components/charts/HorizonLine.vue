@@ -66,7 +66,6 @@ export default {
     },
     methods: {
         setData(data) {
-            console.log(data);
             let res = data ? data : {} //  防止null
             let salePrice = res.salePrice || 0
             this.lineData[0].value[0].value = salePrice // 金额为标准60%
@@ -82,7 +81,6 @@ export default {
                 let porperty = res.saleProfit / sum * 100 - 100
                 // this.lineData[1].offset = porperty + '%'
                 this.lineData[1].offset = '-60%' // 不算了，图形表达不清楚
-                console.log(porperty);
             }
             // this.lineData = data
         }

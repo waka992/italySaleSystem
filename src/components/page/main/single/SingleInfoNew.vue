@@ -173,6 +173,18 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
+                        <el-form-item label="面料编号">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.componentHt" placeholder="请选择">
+                                <el-option
+                                v-for="(item,i) in componentHtOptions"
+                                :key="i"
+                                :label="item.arrtibute"
+                                :value="item.arrtibute">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                         <el-form-item prop="quarter">
                             <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">季度</span>
                             <el-select :disabled="todo === 'check'" size="mini" v-model="form.quarter" placeholder="请选择">
@@ -185,6 +197,13 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                  
+                 
+
+
+                </el-row>
+<!-- 六 -->
+                <el-row>
                     <el-col :span="8">
                         <el-form-item prop="container">
                             <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">货柜</span>
@@ -198,11 +217,6 @@
                             ></el-autocomplete>
                         </el-form-item>
                     </el-col>
-
-
-                </el-row>
-<!-- 六 -->
-                <el-row>
                     <el-col :span="8">
                         <el-form-item label="商品颜色">
                             <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.color" placeholder="请选择">
@@ -229,15 +243,16 @@
                         </el-form-item>
                     </el-col>
 
-                    <el-col :span="8">
-                        <el-form-item label="商品描述">
-                            <el-input :disabled="todo === 'check'" size="mini" v-model="form.remark" placeholder="备注信息">
-                            </el-input>
-                        </el-form-item>
-                    </el-col>
+                   
                 </el-row>
               
                 <el-row>
+                     <el-col :span="8">
+                        <el-form-item label="商品描述">
+                            <el-input :disabled="todo === 'check'" size="mini" v-model="form.goodsDetail" placeholder="备注信息">
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
                     <el-col :span="8">
                         <el-form-item label="上级分类">
                             <el-cascader :disabled="todo === 'check'" clearable v-model="formParentId" @change="formCascaderChange" :props="cascaderProps" :options="typeList"></el-cascader>
@@ -301,15 +316,30 @@
                 <el-row>
                     <div class="pic-upload">
                         <div class="pic-title">商品图片</div>
-                        
-                        <div class="pic-list-item" v-for="(pic, i) in form.goodsImgList" :key="i">
-                            <span v-if="todo !== 'check'" class="del-icon" @click.stop="delPic(pic, i)">X</span>
-                            <el-image 
-                                class="pic-list-item-img"
-                                :src="pic.cnImgUrl" 
-                                :preview-src-list="[pic.cnImgUrl]">
-                            </el-image>
-                        </div>
+                        <vuedraggable class="wrapper" v-model="form.goodsImgList" @change="onMove" v-if="area == 'eu'">
+                            <transition-group>
+                                <div class="pic-list-item" v-for="(pic, i) in form.goodsImgList" :key="i">
+                                    <span v-if="todo !== 'check'" class="del-icon" @click.stop="delPic(pic, i)">X</span>
+                                    <el-image 
+                                        class="pic-list-item-img"
+                                        :src="pic.imgUrl" 
+                                        :preview-src-list="[pic.imgUrl]">
+                                    </el-image>
+                                </div>
+                            </transition-group>
+                        </vuedraggable>
+                        <vuedraggable class="wrapper" v-model="form.goodsImgList" @change="onMove" v-if="area == 'cn'">
+                            <transition-group>
+                                <div class="pic-list-item" v-for="(pic, i) in form.goodsImgList" :key="i">
+                                    <span v-if="todo !== 'check'" class="del-icon" @click.stop="delPic(pic, i)">X</span>
+                                    <el-image 
+                                        class="pic-list-item-img"
+                                        :src="pic.cnImgUrl" 
+                                        :preview-src-list="[pic.cnImgUrl]">
+                                    </el-image>
+                                </div>
+                            </transition-group>
+                        </vuedraggable>
                         <el-upload
                             v-if="todo !== 'check'"
                             class="upload-btn"
@@ -462,6 +492,8 @@
 
 <script>
 import {cloneDeep} from 'lodash';
+import vuedraggable from 'vuedraggable';
+
 import uploadPic from '@/utils/uploadPic.js';
 import { 
     createGoods,
@@ -483,6 +515,9 @@ import dict from '@/components/common/dict.js'
 
 export default {
     name: 'SingleInfoNew',
+    components: {
+        vuedraggable
+    },
     data() {
         return {
             dict: {},
@@ -504,6 +539,7 @@ export default {
             labelOptions: [],
             seasonOptions: [],
             componentOptions: [],
+            componentHtOptions: [],
             ratioOptions: [],
             copyContainerOptions: [],
             // 上级菜单
@@ -583,6 +619,7 @@ export default {
                 tailTotal: 0,
                 noticenum: '',
                 component: '',
+                componentHt: '',
                 container: '',
                 containerId: '',
                 mixtureAtio: '',
@@ -593,7 +630,8 @@ export default {
                 cnImgUrl: '',
                 // skuType: '',
                 goodsImgList: [],
-                remark: '',
+                goodsDetail: '',
+                level: '',
                 firstMenu: '',
                 secondMenu: '',
                 thirdMenu: '',
@@ -650,6 +688,9 @@ export default {
                     if (params.oldContainerId == params.containerId) {
                         delete params.containerId
                     }
+                    // 图片参数处理
+                    params.imgUrl = params.imgUrl[0] || ''
+                    params.cnImgUrl = params.cnImgUrl[0] || ''
                     if (this.todo == 'new') {
                         createGoods(params).then(res => {
                             this.$message.success('添加成功')
@@ -767,6 +808,7 @@ export default {
                 this.sizeOptions = res[1]
                 this.labelOptions = res[5]
                 this.componentOptions = res[2]
+                this.componentHtOptions = res[7]
                 this.ratioOptions = res[4]
                 this.destroyedOptions = res[6]
             })
@@ -806,8 +848,9 @@ export default {
         getDetail() {
             goodsDetail({id: this.form.id}).then(res=> {
             let {goodsImgList, id, name, size, specification,imgUrl,cnImgUrl,
-            profit,label,noticenum,component,container,containerId,mixtureAtio,destroyed,
-            color,remark} = res
+            profit,label,noticenum,component,container,containerId,mixtureAtio,destroyed,componentHt,
+            level,firstMenu,secondMenu,
+            color,goodsDetail} = res
             let {costPrice, supplierName, supplierId, salePrice, caseNum, goodsTotal,tailBox,tailTotal,quarter} = res.sku
             this.skuId = res.sku.id
             this.pic = goodsImgList
@@ -829,6 +872,7 @@ export default {
                 tailTotal: tailTotal,
                 noticenum: noticenum,
                 component: component,
+                componentHt: componentHt,
                 container: container,
                 containerId: containerId,
                 oldContainerId: containerId,
@@ -838,10 +882,14 @@ export default {
                 quarter: quarter,
                 // skuType: skuType,
                 goodsImgList: goodsImgList,
-                remark: remark,
+                goodsDetail: goodsDetail,
+                level: level,
+                firstMenu: firstMenu,
+                secondMenu: secondMenu,
                 imgUrl: imgUrl ? [imgUrl] : [],
                 cnImgUrl: cnImgUrl ? [cnImgUrl] : [],
             }
+            this.formParentId = [firstMenu, secondMenu] // 显示上级分类
             this.clearValidate()
             this.getTransportData()
             this.getSellData()
@@ -947,7 +995,7 @@ export default {
             this.formParentId = v
             this.form.firstMenu = this.formParentId[0] || ''
             this.form.secondMenu = this.formParentId[1] || ''
-            this.form.thirdMenu = this.formParentId[2] || ''
+            // this.form.thirdMenu = this.formParentId[2] || ''
         },
         
         countProfit() {
@@ -957,7 +1005,16 @@ export default {
         },
 
         timeFormat(time) {
+            if (!time) {return ''}
+
             return this.$moment(time).format('YYYY-MM-DD')
+        },
+
+        onMove(val) {
+            if (this.todo !== 'edit'){return}
+            this.form.goodsImgList.forEach((ele, i) => {
+                ele.sort = i
+            })
         },
     }
 };
@@ -1073,6 +1130,9 @@ export default {
     padding: 0;
     overflow: hidden;
 
+    .wrapper {
+        background-color: #fff;
+    }
     .upload-btn {
         display: inline-block;
         vertical-align: top;
@@ -1101,14 +1161,14 @@ export default {
         position: relative;
         display: inline-block;
         width: 114px;
-        height: 114px;  
+        height: 171px;  
         margin: 14px;
         overflow: visible;
         vertical-align: top;
     }
     .pic-list-item-img {
         width: 114px;
-        height: 114px; 
+        height: 171px; 
     }
     .del-icon {
         display: inline-block;

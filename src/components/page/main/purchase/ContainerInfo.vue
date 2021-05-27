@@ -316,6 +316,7 @@ export default {
             this.getData();
         },
         timeFormat(time) {
+            if (!time) {return ''}
             return this.$moment(time).format('YYYY-MM-DD')
         },
         getSeason() {

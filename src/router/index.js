@@ -134,7 +134,7 @@ export default new Router({
                     path: '/user',
                     name: 'user',
                     component: () => import(/* webpackChunkName: "user" */ '../components/page/main/UserManage.vue'),
-                    meta: { title: '会员管理' }
+                    meta: { title: '用户管理' }
                 },
 
                 {
@@ -155,8 +155,13 @@ export default new Router({
                     component: () => import(/* webpackChunkName: "custommenu" */ '../components/page/main/app/CustomList.vue'),
                     meta: { title: 'app端 - 自定义菜单' }
                 },
+                {
+                    path: '/customermanage',
+                    name: 'customermanage',
+                    component: () => import(/* webpackChunkName: "customermanage" */ '../components/page/main/app/CustomerManage.vue'),
+                    meta: { title: 'app端 - 会员管理' }
+                },
                 
-               
                 {
                     path: '/404',
                     component: () => import(/* webpackChunkName: "404" */ '../components/page/404.vue'),

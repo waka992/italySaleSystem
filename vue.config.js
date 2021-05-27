@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
     publicPath: './',
     assetsDir: 'static',
@@ -41,7 +42,20 @@ module.exports = {
                   }
             },
             plugins: [
-                new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/) // 忽略momentjs语言包
+                new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/), // 忽略momentjs语言包
+                // new UglifyJsPlugin({
+                //     uglifyOptions: {
+                //         output: {
+                //             comments: true, // 去掉注释
+                //         },
+                //         warnings: false,
+                //         compress: {
+                //             drop_console: true,
+                //             drop_debugger: false,
+                //             pure_funcs: ['console.log'] //移除console
+                //         }
+                //     }
+                //   })
             ]
     }
     // devServer: {

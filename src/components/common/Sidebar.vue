@@ -154,6 +154,10 @@ export default {
                             index: 'custommenu',
                             title: '自定义菜单'
                         },
+                        // {
+                        //     index: 'customermanage',
+                        //     title: '会员管理'
+                        // },
                     ]
                 },
                 {

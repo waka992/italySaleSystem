@@ -48,6 +48,7 @@ const dict =  {
         {value: 2, label: '面料/Material'},
         {value: 4, label: '配比/Ratio'},
         {value: 6, label: '破洞/Destroyed'},
+        {value: 7, label: '面料(后台)/Material(back)'},
     ],
     containerStatus: [
         {value: 0, label: '未运输'},

@@ -348,7 +348,6 @@ export default {
         //     xhr.open("post", FileController, true);
         //     xhr.setRequestHeader('xc-token', localStorage.getItem('xc-token'))
         //     xhr.onload = function () {
-        //         console.log(xhr.response);
         //         try {
         //             let res = JSON.parse(xhr.response)
         //             if (res.code == 1) {
@@ -367,7 +366,6 @@ export default {
         //             }
         //         }
         //         catch(err) {
-        //             console.log(err);
         //         }
         //     };
         //     xhr.send(form);

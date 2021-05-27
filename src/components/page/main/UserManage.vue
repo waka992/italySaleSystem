@@ -173,7 +173,6 @@ export default {
                 userName: this.userName,
             }
             getUserList(obj).then(res => {
-                console.log(res.records);
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current

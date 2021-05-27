@@ -108,7 +108,7 @@
                 <el-table-column prop="specification" label="型号" align="center"></el-table-column>
                 <el-table-column prop="name" label="名称" align="center"></el-table-column>
                 <el-table-column prop="label" label="特色" align="center"></el-table-column>
-                <el-table-column prop="component" label="面料" align="center"></el-table-column>
+                <el-table-column prop="componentHt" label="面料" align="center"></el-table-column>
                 <el-table-column prop="size" label="尺码" align="center"></el-table-column>
                 <el-table-column prop="color" label="颜色" align="center"></el-table-column>
                 <el-table-column prop="skuStatus" label="状态" align="center" width="120">
@@ -279,7 +279,7 @@ export default {
             getAttrList().then(res => {
                 this.sizeOptions = res[1]
                 this.labelOptions = res[5]
-                this.componentOptions = res[2]
+                this.componentOptions = res[7] // 后台面料
                 this.colorOptions = res[0]
             })
 

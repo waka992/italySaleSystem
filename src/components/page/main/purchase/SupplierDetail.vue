@@ -520,6 +520,8 @@ export default {
         },
 
         timeFormat(time) {
+            if (!time) {return ''}
+
             return this.$moment(time).add(8, 'h').format('YYYY-MM-DD')
         },
         // 返回

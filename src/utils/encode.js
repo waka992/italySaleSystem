@@ -1,8 +1,8 @@
 // var key = CryptoJS.enc.Hex.parse("000102030405060708090a0b0c0d0e0f");
 // var iv = CryptoJS.enc.Hex.parse("101112131415161718191a1b1c1d1e1f");
+import CryptoJS from 'crypto-js'
 var key = CryptoJS.enc.Latin1.parse("missboomboom1234");
 var iv = CryptoJS.enc.Latin1.parse("missboomboom1234");
-import CryptoJS from 'crypto-js'
 const RSA =  {
     EncryptData: function(data) {
       var srcs = CryptoJS.enc.Utf8.parse(data);

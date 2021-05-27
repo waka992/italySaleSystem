@@ -58,9 +58,10 @@
             <div class="pagination">
                 <el-pagination
                     background
-                    layout="total, prev, pager, next"
+                    layout="total, prev, pager, next, sizes, jumper"
                     :current-page="hotpage.no"
-                    :page-size="hotpage.size"
+                    :page-sizes="[5,10,20]"
+                    @size-change="handleHotSizeChange"
                     :total="hotpage.total"
                     @current-change="handleHotPageChange"
                 ></el-pagination>
@@ -138,9 +139,10 @@
                 <div class="pagination">
                     <el-pagination
                         background
-                        layout="total, prev, pager, next"
+                        layout="total, prev, pager, next, sizes, jumper"
                         :current-page="page.no"
-                        :page-size="page.size"
+                        :page-sizes="[5,10,20]"
+                        @size-change="handleSizeChange"
                         :total="page.total"
                         @current-change="handlePageChange"
                     ></el-pagination>
@@ -191,12 +193,12 @@ export default {
             page: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             hotpage: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             form: {
                 name:'',
@@ -240,8 +242,19 @@ export default {
                 console.log(err);
             }
         },
-        handleHotPageChange() {
+        handleHotSizeChange(val) {
+            this.$set(this.hotpage, 'size', val);
+            this.$set(this.hotpage, 'no', 1);
+            this.getHot();
+        },
+        handleHotPageChange(p) {
+            this.hotpage.no = p
             this.getHot()
+        },
+        handleSizeChange(val) {
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getGoodList();
         },
         handlePageChange(p) {
             this.page.no = p
@@ -281,10 +294,16 @@ export default {
             })
         },
         getHot() {
-            getHotList().then(res => {
+            let obj = {
+                pageSize:  this.hotpage.size,
+                page:  this.hotpage.no,
+            }
+            getHotList(obj).then(res => {
                 this.hotTableData = res
-                // this.hotpage.total = res.total
-                // this.hotpage.no = res.current
+                if (res.total) {
+                    this.hotpage.total = res.total
+                    this.hotpage.no = res.current
+                }
             })
         },
         // 添加热销
@@ -393,6 +412,9 @@ export default {
 }
     .el-select {
         width: 100%;
+    }
+    .pagination {
+        margin-top: 10px;
     }
     .type-select {
         display: inline-block;

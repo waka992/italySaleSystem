@@ -79,10 +79,9 @@ export const userList = query => {
 export const userUpdate = query => {
     return post('user/ht/update', query)
 }
-
-// 会员注册
-export const userRegister = query => {
-    return post('user/ht/register', query)
+// 密码修改
+export const userPwdUpdate = query => {
+    return post('user/app/updatePwd', query)
 }
 
 export const test = query => {
@@ -377,6 +376,8 @@ export const updateAppCompanyMsg = query => {
 export const getCompanyMsg = query => {
     return get('app/us', query)
 }
+
+
 
 /** 分类管理 */
 // 创建分类目录

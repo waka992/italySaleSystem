@@ -276,6 +276,8 @@ export default {
         },
 
         timeFormat(time) {
+            if (!time) {return ''}
+
             return this.$moment(time).format('YYYY.MM.DD')
         }
     }

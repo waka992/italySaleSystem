@@ -173,7 +173,6 @@ export default {
 
 .w100 {
     margin-top: 20px;
-    width: 160px;
 }
 
 .setting-tags {

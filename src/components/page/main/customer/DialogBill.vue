@@ -145,7 +145,6 @@ export default {
             this.totalBoxes = 0
             this.totalValue = 0
 
-            console.log(res);
             this.tableList = res
             for (let i = 0; i < res.length; i++) {
                 const ele = res[i];

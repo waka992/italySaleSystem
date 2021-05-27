@@ -71,9 +71,10 @@
             <div class="pagination">
                 <el-pagination
                     background
-                    layout="total, prev, pager, next"
+                    layout="total, prev, pager, next, sizes, jumper"
                     :current-page="hotpage.no"
-                    :page-size="hotpage.size"
+                    :page-sizes="[5,10,20]"
+                    @size-change="handleHotSizeChange"
                     :total="hotpage.total"
                     @current-change="handleHotPageChange"
                 ></el-pagination>
@@ -151,9 +152,10 @@
                 <div class="pagination">
                     <el-pagination
                         background
-                        layout="total, prev, pager, next"
+                        layout="total, prev, pager, next, sizes, jumper"
                         :current-page="page.no"
-                        :page-size="page.size"
+                        :page-sizes="[5,10,20]"
+                        @size-change="handleSizeChange"
                         :total="page.total"
                         @current-change="handlePageChange"
                     ></el-pagination>
@@ -205,12 +207,12 @@ export default {
             page: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             hotpage: {
                 no: 1,
                 total: 0,
-                size: 20
+                size: 10
             },
             form: {
                 name:'',
@@ -255,8 +257,19 @@ export default {
                 console.log(err);
             }
         },
+        handleHotSizeChange(val) {
+            this.$set(this.hotpage, 'size', val);
+            this.$set(this.hotpage, 'no', 1);
+            this.getHot();
+        },
         handleHotPageChange(p) {
+            this.hotpage.no = p
             this.getHot()
+        },
+        handleSizeChange(val) {
+            this.$set(this.page, 'size', val);
+            this.$set(this.page, 'no', 1);
+            this.getGoodList();
         },
         handlePageChange(p) {
             this.page.no = p
@@ -289,7 +302,6 @@ export default {
                 obj.parentId = this.parentId
             }
             getGoodsByMenu(obj).then(res => {
-                console.log(res);
                 for (let i = 0; i < res.records.length; i++) {
                     const element = res.records[i];
                     // res.records[i].elementDetail = element.elementDetail.split(',')
@@ -297,7 +309,6 @@ export default {
                         res.records[i].label = element.label.split(',')
                     }
                 }
-                console.log(res.records);
                 this.tableData = res.records
                 this.page.total = res.total
                 this.page.no = res.current
@@ -305,8 +316,12 @@ export default {
         },
         getHot() {
             if (!this.menuId) {return}
-            getHotList({id: this.menuId}).then(res => {
-                console.log(res);
+             let obj = {
+                pageSize:  this.hotpage.size,
+                page:  this.hotpage.no,
+                id: this.menuId
+            }
+            getHotList(obj).then(res => {
                 this.hotTableData = res
                 // this.hotpage.total = res.total
                 // this.hotpage.no = res.current
@@ -408,9 +423,6 @@ export default {
             this.getGoodList()
         },
         menuCascaderChange(v) {
-            console.log(this.menuId);
-            console.log(v);
-            
             this.getHot()
         },
         
@@ -491,5 +503,8 @@ export default {
         margin-bottom: 20px;
         margin-left: 20px;
         display: inline-block;
+    }
+    .pagination {
+        margin-top: 10px;
     }
 </style>

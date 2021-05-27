@@ -301,9 +301,7 @@ export default {
         // 上传图片
         handleAvatarSuccess(res, file) {
             if (res.data) {
-                console.log(res.data);
                 this.$set(this.form, 'picture', res.data)
-                // this.form.picture = res.data
             }
         },
         uploadSectionFile(param) {
