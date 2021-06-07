@@ -18,6 +18,12 @@
                         size="mini"
                         @click="editReady"
                         >编辑</el-button>
+                        <el-button
+                        icon="el-icon-delete"
+                        type="danger"
+                        size="mini"
+                        @click="deleteSupplier"
+                        >删除</el-button>
                 </div>
                 <el-row class="detail-row">
                     <el-col :span="6">
@@ -184,18 +190,7 @@
         :close-on-click-modal='false'
         :show-close="false"
         :title="'编辑供应商信息'" :visible.sync="baseDialogVisible" width="551px">
-            <el-popover
-                popper-class="del-confirm"
-                placement="bottom"
-                width="210"
-                v-model="delVisible">
-                <div class="del-word">删除该供应商后，数据不可恢复，是否确认删除？</div>
-                <div style="text-align: right; margin: 0">
-                    <el-button class="del-btn1" size="mini" type="text" @click="delVisible = false">取消</el-button>
-                    <el-button class="del-btn2" size="mini" @click="delConfirm">确认删除</el-button>
-                </div>
-                <el-button class="del-btn2 outer" slot="reference">删除</el-button>
-            </el-popover>
+           
             <el-form ref="form" 
                 :model="form" label-width="158px"
                 :rules="rules"
@@ -298,7 +293,6 @@ export default {
             dict: {},
             seasonOptions: [],
             cooperationSeason: '',
-            delVisible: false,
             baseDialogVisible: false,
             incomeDialogVisible: false,
             page: {
@@ -383,16 +377,15 @@ export default {
             })
         },
 
-        delConfirm() {
+        deleteSupplier() {
             let id = this.$route.params.data.id
-            delSupplier({id: id}).then(res => {
-                if (res) {
-                    this.$message.success('删除成功')
-                    this.delVisible = false
-                    this.baseDialogVisible = false
-                    this.$router.push({name: 'supplier'})
-                }
-            })
+            this.$confirm('确认删除当前运输公司？').then(_ => {
+                    delSupplier({id: id}).then(res => {
+                        this.$message.success({message: '删除成功',});
+                        this.back()
+                    })
+                })
+            .catch(_ => {});
         },
         getSeason() {
             let obj = {

@@ -44,7 +44,9 @@
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">等级：</span>
-                        <span class="detail-content">{{comInfo.level == 1 ? '游客' : comInfo.level == 2 ? '普通' : comInfo.level == 3 ? 'VIP' : ''}}</span>
+                        <span class="detail-content">{{
+                            getDict(comInfo.level, 'customerLevel')
+                        }}</span>
                     </el-col>
                     <el-col :span="6">
                         <span class="detail-label">状态：</span>
@@ -109,6 +111,7 @@
                             <el-button v-if="scope.row.process == 0 || scope.row.process == 1" type="text" @click="showDialog('edit', scope.row.id)">编辑</el-button>
                             <el-button v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 2" type="text" @click="showDialog('pay', scope.row)">支付</el-button>
                             <el-button v-if="scope.row.process != 0 && scope.row.process != 1 && scope.row.process && scope.row.status == 1" type="text" @click="cancelPay(scope.row)">取消支付</el-button>
+                            <el-button @click="cancelOrder(scope.row.id)" type="text">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -343,6 +346,7 @@ import {
     userList,
     getCompPage,
     getCustomerPay,
+    delOrder,
     } from '@/api/index';
 export default {
     name: 'CustomerInfoDetail',
@@ -827,7 +831,16 @@ export default {
                 let height = document.querySelector('.right-box').offsetHeight
                 document.querySelector('.left-box').style.height = height + 'px'
             })
-        }
+        },
+        cancelOrder(id) {
+            this.$confirm('确认删除当前订单？').then(_ => {
+                delOrder({id: id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
+        },
     }
 };
 </script>

@@ -85,6 +85,7 @@ const dict =  {
         {value: 1, label: '游客'},
         {value: 2, label: '普通'},
         {value: 3, label: 'VIP'},
+        {value: 9, label: '隐藏'},
     ],
 
     // 字典

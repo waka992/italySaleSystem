@@ -21,8 +21,8 @@
                 header-cell-class-name="table-header"
             >
                 <el-table-column prop="name" label="公司名称" align="center"></el-table-column>
-                <el-table-column prop="corporation" label="法人代表" align="center" width="80"></el-table-column>
-                <el-table-column label="状态" align="center"  width="90">
+                <el-table-column prop="corporation" label="法人代表" align="center"></el-table-column>
+                <el-table-column label="状态" align="center">
                     <template slot-scope="scope">{{scope.row.status == 0 ? '注销' : '正常'}}</template>
                 </el-table-column>
                 <el-table-column prop="address" label="地址" align="center"></el-table-column>

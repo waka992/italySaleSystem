@@ -156,11 +156,12 @@ export default new Router({
                     meta: { title: 'app端 - 自定义菜单' }
                 },
                 {
-                    path: '/customermanage',
-                    name: 'customermanage',
-                    component: () => import(/* webpackChunkName: "customermanage" */ '../components/page/main/app/CustomerManage.vue'),
+                    path: '/appuser',
+                    name: 'appuser',
+                    component: () => import(/* webpackChunkName: "appuser" */ '../components/page/main/app/AppUser.vue'),
                     meta: { title: 'app端 - 会员管理' }
                 },
+               
                 
                 {
                     path: '/404',

@@ -80,6 +80,10 @@
                             @click="showDialog('review', scope.row.id)"
                             type="text"
                         >预览</el-button>
+                        <el-button
+                            @click="cancelOrder(scope.row.id)"
+                            type="text"
+                        >删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -221,6 +225,15 @@ export default {
                     })
                 })
             }
+        },
+        cancelOrder(id) {
+            this.$confirm('确认删除当前订单？').then(_ => {
+                delOrder({id: id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
         },
 
         // 查

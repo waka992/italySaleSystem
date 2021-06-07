@@ -220,6 +220,9 @@ export const createGoods = query => {
 export const goodsDetail = query => {
     return post('ht/goodsForDetail', query)
 }
+export const deleteGoods = query => {
+    return post('ht/goodsForDelete', query)
+}
 export const updateGoods = query => {
     return post('ht/goodsForUpdate', query)
 }
@@ -375,6 +378,9 @@ export const updateAppCompanyMsg = query => {
 }
 export const getCompanyMsg = query => {
     return get('app/us', query)
+}
+export const newAppUser = query => {
+    return post('user/app/register', query)
 }
 
 

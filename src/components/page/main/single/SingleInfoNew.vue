@@ -77,7 +77,7 @@
                     </el-col>
                     <el-col :span="8">
                          <el-form-item label="供应商">
-                            <el-select :disabled="todo === 'check'" v-model="form.supplierName" placeholder="请选择">
+                            <el-select :disabled="todo === 'check'" v-model="form.supplierName" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="item in supplierOptions"
                                 :key="item.id"
@@ -122,6 +122,7 @@
                     <el-col :span="8">
                         <el-form-item label="商品特色">
                             <el-select :disabled="todo === 'check'" size="mini" v-model="form.label" placeholder="请选择"
+                            clearable
                             filterable allow-create>
                                 <el-option
                                 v-for="(item,i) in labelOptions"
@@ -147,7 +148,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="配比">
-                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.mixtureAtio" placeholder="请选择">
+                            <el-select :disabled="todo === 'check'" size="mini" v-model="form.mixtureAtio" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="(item,i) in ratioOptions"
                                 :key="i"
@@ -162,7 +163,7 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="面料信息">
-                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.component" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.component" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="(item,i) in componentOptions"
                                 :key="i"
@@ -174,7 +175,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="面料编号">
-                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.componentHt" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.componentHt" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="(item,i) in componentHtOptions"
                                 :key="i"
@@ -208,6 +209,7 @@
                         <el-form-item prop="container">
                             <span slot="label" :style="todo == 'check' ? '' : 'color: #F25643;'">货柜</span>
                             <el-autocomplete
+                                clearable
                                 :disabled="todo === 'check'"
                                 size="mini"
                                 v-model="form.container"
@@ -219,7 +221,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="商品颜色">
-                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.color" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.color" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="(item,i) in colorOptions"
                                 :key="i"
@@ -232,7 +234,7 @@
 
                     <el-col :span="8">
                         <el-form-item label="破洞">
-                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.destroyed" placeholder="请选择">
+                            <el-select filterable allow-create :disabled="todo === 'check'" size="mini" v-model="form.destroyed" placeholder="请选择" clearable>
                                 <el-option
                                 v-for="(item,i) in destroyedOptions"
                                 :key="i"

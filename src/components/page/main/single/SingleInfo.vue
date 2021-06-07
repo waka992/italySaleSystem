@@ -132,6 +132,10 @@
                             @click="checkDetail(scope.row.id, 'check')"
                             type="text"
                         >查看详情</el-button>
+                        <el-button
+                            @click="delGoods(scope.row.id)"
+                            type="text"
+                        >删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -156,6 +160,7 @@ import {
     getGoods,
     getAttrList,
     getStockStatistics,
+    deleteGoods,
     getTitle} from '@/api/index';
 import dict from '@/components/common/dict.js'
 
@@ -295,6 +300,15 @@ export default {
 
         checkDetail(id, todo) {
             this.$router.push({name: 'iteminfonew', params: {id: id, todo: todo}})
+        },
+        delGoods(id) {
+            this.$confirm('确认删除当前单品？').then(_ => {
+                deleteGoods({id: id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
         },
 
         // 分页导航

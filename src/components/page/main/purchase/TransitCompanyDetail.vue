@@ -18,6 +18,12 @@
                         size="mini"
                         @click="editReady"
                         >编辑</el-button>
+                    <el-button
+                        icon="el-icon-delete"
+                        type="danger"
+                        size="mini"
+                        @click="delCompany"
+                        >删除</el-button>
                 </div>
                 <el-row class="detail-row">
                     <el-col :span="6">
@@ -387,6 +393,15 @@ export default {
                 this.seasonOptions = data || []
                 console.log(this.seasonOptions);
             })
+        },
+        delCompany() {
+            this.$confirm('确认删除当前运输公司？').then(_ => {
+                delTransporter({id: this.comInfo.id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.back()
+                })
+            })
+            .catch(_ => {});
         },
     }
 };

@@ -8,7 +8,7 @@
         <div class="box">
             <div class="handle-box">
                 <div class="customer-title">客户信息</div>
-                <el-input v-model="userName" class="name-search" size="mini" suffix-icon="el-icon-search" placeholder="输入客户名称"></el-input>
+                <el-input v-model="userName" clearable class="name-search" size="mini" placeholder="输入客户名称"></el-input>
                 <!-- <el-date-picker
                     v-model="timePicker"
                     type="daterange"
@@ -16,7 +16,7 @@
                     start-placeholder="开始日期"
                     end-placeholder="结束日期">
                 </el-date-picker> -->
-                <el-button icon="el-icon-search" circle @click="getData"></el-button>
+                <el-button icon="el-icon-search" size="mini" circle @click="getData"></el-button>
                 <el-button
                     class="new-btn"
                     type="primary"
@@ -180,7 +180,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="会员密码"  prop="password">
-                            <el-input class="form-input" placeholder="app登录密码，如需修改请填写" v-model="form.password"></el-input>
+                            <el-input class="form-input" placeholder="如需修改请填写，长度至少6位" minlength=6 v-model="form.password"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -301,7 +301,8 @@ export default {
             let obj = {
                 pageSize:  this.page.size,
                 page:  this.page.no,
-                userName: this.userName
+                userName: this.userName,
+                isApp: 0, // 客户
             }
             userList(obj).then(res => {
                 this.tableData = res.records
@@ -363,7 +364,6 @@ export default {
         },
         // 编辑/删除
         operateUser(com, data) {
-            console.log(com, data);
             if (com == 'edit') {
                 this.operate = 'edit'
                 let {   memberName,
@@ -395,7 +395,6 @@ export default {
                 this.baseDialogVisible = true
             }
             else if (com == 'del') {
-                this.$confirm
                 this.$confirm('确定要删除吗？', '提示', {
                     type: 'warning'
                 })
@@ -501,8 +500,9 @@ export default {
     
     .name-search {
         display: inline-block;
+        vertical-align: middle;
         width: 178px;
-        margin-right: 36px;
+        margin-right: 16px;
     }
 
     .status,.time {

@@ -73,6 +73,7 @@
                         >查看详情</el-button> -->
                         <el-button type="text" @click="checkDetail(scope.row)">详情</el-button>
                         <el-button type="text" v-show="scope.row.contaninerType == 0" @click="sendContainer(scope.row)">发货</el-button>
+                        <el-button type="text" @click="cancelContainer(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -328,6 +329,15 @@ export default {
                 this.seasonOptions = data || []
             })
         },
+        cancelContainer(row) {
+             this.$confirm('确认删除当前货柜？').then(_ => {
+                delContainer({id: row.id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
+        }
     }
 };
 </script>
