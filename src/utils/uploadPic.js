@@ -43,7 +43,8 @@ let clientEUGet = new OSS({
  * @param {*} from 海外/海内
  */
 const uploadPic = async (file, fn, errfn) => {
-    let storeAs = '2020/' + file.name
+    let dateNow = new Date().getTime()
+    let storeAs = '2020/' + file.name + dateNow
 
     await clientEU.multipartUpload(storeAs, file).then((res) => {
         console.log('eu完成');
