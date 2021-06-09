@@ -986,9 +986,11 @@ export default {
                     }
                     let params = cloneDeep(this.addForm)
                     addOrder(params).then(res=> {
-                        this.$message.success('加单成功')
-                        this.addOrderVisible = false
-                        this.getDetail()
+                        if (res !== undefined) {
+                            this.$message.success('加单成功')
+                            this.addOrderVisible = false
+                            this.getDetail()
+                        }
                     })
                 }
             })
