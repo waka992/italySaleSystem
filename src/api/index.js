@@ -180,6 +180,9 @@ export const updateContainer = query => {
 export const itemTransportRecord = query => {
     return get('ca/getSkuCon', query)
 }
+export const delTransportRecord = query => {
+    return get('ca/delDetail', query)
+}
 
 /**
  * 采购 - 运输公司

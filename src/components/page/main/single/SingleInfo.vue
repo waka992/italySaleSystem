@@ -26,7 +26,7 @@
         </div>
         <div class="box">
             <div class="handle-box">
-                <el-input class="name-search" v-model="search.name" size="mini" suffix-icon="el-icon-search" placeholder="输入关键词"></el-input>
+                <el-input class="name-search" v-model="search.name" size="mini" suffix-icon="el-icon-search" placeholder="输入型号"></el-input>
                 <el-button icon="el-icon-search" circle @click="getData"></el-button>
                 <div style="padding-top: 10px;">
                     <div class="status">

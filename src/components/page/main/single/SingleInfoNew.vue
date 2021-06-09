@@ -693,6 +693,7 @@ export default {
                     // 图片参数处理
                     params.imgUrl = params.imgUrl[0] || ''
                     params.cnImgUrl = params.cnImgUrl[0] || ''
+                    params.skuType = 0 // 0入货 1加单
                     if (this.todo == 'new') {
                         createGoods(params).then(res => {
                             this.$message.success('添加成功')

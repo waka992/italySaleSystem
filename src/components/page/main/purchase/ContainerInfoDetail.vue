@@ -109,6 +109,14 @@
                             {{scope.row.isTail == 0 ? '否' : scope.row.isTail == 1 ? '是' : ''}}
                         </template>
                     </el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button
+                                @click="delTransRecord(scope.row.id)"
+                                type="text"
+                            >删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <!-- <div class="pagination">
                     <el-pagination
@@ -204,6 +212,7 @@ import {
     confirmArrival,
     delContainer,
     getContainerPage,
+    delTransportRecord,
     containerDetail,
     } from '@/api/index';
 import dict from '@/components/common/dict.js'
@@ -330,6 +339,15 @@ export default {
         },
         downPdf() {
             pdfservice('#containerInfoDetail', '货柜详情')
+        },
+        delTransRecord(id) {
+            this.$confirm('确认删除当前单品？').then(_ => {
+                delTransportRecord({id: id}).then(res => {
+                    this.$message.success({message: '删除成功',});
+                    this.getData()
+                })
+            })
+            .catch(_ => {});
         }
     }
 };
