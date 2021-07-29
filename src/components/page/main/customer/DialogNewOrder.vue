@@ -98,9 +98,11 @@
                         ></el-autocomplete>
                     </div>
                     <div class="list-item">
+                        <!-- 箱数 -->
                         <el-input size="mini" v-model="list.caseNum" @change="val => changaItem(val, list, i, 'caseNum')"></el-input>
                     </div>
                     <div class="list-item">
+                        <!-- 件数/箱 -->
                         <el-input size="mini" v-model="list.goodsTotal" disabled @change="val => changaItem(val, list, i, 'goodsTotal')"></el-input>
                     </div>
                     <div class="list-item">
@@ -116,7 +118,7 @@
                         {{list.stock}}
                     </div>
                     <div class="list-item">
-                        {{list.caseNum * list.goodsTotal * list.goodsPrice || 0}}
+                        {{getListTotalPrice(list) || 0}}
                     </div>
                     <div class="del-btn" @click="delList(i)">
                         <el-button type="text"  icon="el-icon-close"></el-button>
@@ -409,9 +411,12 @@ export default {
             let defectTotal = 0
             for (let i = 0; i < this.goodsList.length; i++) {
                 const ele = this.goodsList[i];
+                let listTotal = this.getListTotalPrice(ele) 
+                let eleDefectTotal = ele.defectTotal || 0
+                let eleGoodsPrice = ele.goodsPrice || 0
                 caseNum += Number(ele.caseNum)
-                total += Number(ele.caseNum * ele.goodsTotal * ele.goodsPrice)
-                defectTotal += Number(ele.defectTotal) * ele.goodsPrice
+                total += listTotal
+                defectTotal += new Big(eleDefectTotal).times(eleGoodsPrice).toNumber() 
             }
             if (tar == 'caseNum') {
                 return caseNum
@@ -431,6 +436,15 @@ export default {
             if (tar == 'defect') {
                 return -defectTotal
             }
+        },
+        getListTotalPrice(list) {
+            let {caseNum = 0, goodsTotal= 0, goodsPrice = 0} = list
+            caseNum = caseNum || 0
+            goodsTotal = goodsTotal || 0
+            goodsPrice = goodsPrice || 0
+            let big = new Big(caseNum)
+            let res = big.times(goodsTotal).times(goodsPrice)
+            return res.toNumber()
         }
     }
 }

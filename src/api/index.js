@@ -26,7 +26,7 @@ function post(name, query, limit = true, encode = false) {
         return donothingPromise
     }
     sessionStorage.setItem(name, true)
-    // 加密
+        // 加密
     if (encode === true) {
         console.log(query);
         query = RSA.EncryptData(JSON.stringify(query))
@@ -56,13 +56,11 @@ function get(path, query, limit = false, encode = false) {
     let param = ''
     try {
         param = qs.stringify(query)
-    }
-    catch(err) {
+    } catch (err) {
         param = ''
-    }
-    finally {
+    } finally {
         // sessionStorage.setItem(path, true)
-        return axiosGet(path +'?'+ param)
+        return axiosGet(path + '?' + param)
     }
 }
 // 登陆
@@ -77,19 +75,19 @@ export const userList = query => {
 
 // 会员修改 
 export const userUpdate = query => {
-    return post('user/ht/update', query)
-}
-// 密码修改
+        return post('user/ht/update', query)
+    }
+    // 密码修改
 export const userPwdUpdate = query => {
     return post('user/app/updatePwd', query)
 }
 
 export const test = query => {
-    return post('user/test', query)
-}
-/**
- *  公司 - 
- */
+        return post('user/test', query)
+    }
+    /**
+     *  公司 - 
+     */
 export const addCompAccount = query => {
     return post('cm/addAccount', query)
 }
@@ -210,13 +208,13 @@ export const registerCustomer = query => {
 }
 export const getBestCustomer = query => {
     return get('me/star', query)
-} 
+}
 export const delCustomer = query => {
-    return get('user/ht/delete', query)
-} 
-/** 
- * 单品
- */
+        return get('user/ht/delete', query)
+    }
+    /** 
+     * 单品
+     */
 export const createGoods = query => {
     return post('ht/createGoods', query)
 }
@@ -276,51 +274,51 @@ export const payOrder = query => {
 export const deletePayOrder = query => {
     return get('order/delPay', query)
 }
-export const settleOrder= query => {
+export const settleOrder = query => {
     return post('order/settle', query)
 }
-export const addDeFect= query => {
+export const addDeFect = query => {
     return post('order/addDeFect', query)
 }
 
-export const delDeFect= query => {
+export const delDeFect = query => {
     return get('order/delDeFect', query)
 }
-export const getCustomerPay= query => {
+export const getCustomerPay = query => {
     return get('order/getCustomerPay', query)
 }
 export const checkSkuOrder = query => {
-    return post('sku/orderSku', query)
+    return post('sku/orderSku', query, false)
 }
 
 /**
  * 参数
  */
-export const getAttrList  = query => {
+export const getAttrList = query => {
     return get('ht/getArrtibute')
 }
-export const createAttr  = query => {
+export const createAttr = query => {
     return post('ht/addArrtibute', query)
 }
-export const deleteAttr  = query => {
+export const deleteAttr = query => {
     return post('ht/delArrtibute', query)
 }
-export const updateAttr  = query => {
+export const updateAttr = query => {
     return post('ht/updateArrtibute', query)
 }
 
-export const createTitle  = query => {
+export const createTitle = query => {
     return post('ht/createTitle', query)
 }
-export const getTitle  = query => {
+export const getTitle = query => {
     return get('ht/getTitle', query)
 }
-export const delTitle  = query => {
+export const delTitle = query => {
     return get('ht/delTitle', query)
 }
 
 // 统计
-export const customerStatistics  = query => {
+export const customerStatistics = query => {
     return get('sa/customerStatistics', query)
 }
 
@@ -391,25 +389,25 @@ export const newAppUser = query => {
 /** 分类管理 */
 // 创建分类目录
 export const createType = query => {
-    return post('ht/createShopType', query)
-}
-// 获取分级目录详情
+        return post('ht/createShopType', query)
+    }
+    // 获取分级目录详情
 export const getTypeForDetail = query => {
-    return post('ht/typeForDetail', query)
-}
-// 删除分类
+        return post('ht/typeForDetail', query)
+    }
+    // 删除分类
 export const delType = query => {
-    return post('ht/typeForDetele', query)
-}
-// 下拉框获取分级目录
+        return post('ht/typeForDetele', query)
+    }
+    // 下拉框获取分级目录
 export const getTypeForFirst = query => {
-    return post('ht/typeForFirst', query)
-}
-// 分类查询
+        return post('ht/typeForFirst', query)
+    }
+    // 分类查询
 export const getType = query => {
-    return get('ht/getMenus', query)
-}
-// 分类修改
+        return get('ht/getMenus', query)
+    }
+    // 分类修改
 export const editType = query => {
     return post('ht/typeForUpdate', query)
 }
@@ -426,16 +424,16 @@ export const delHotList = query => {
 }
 
 // 获取后台热度商品
-export const getHotList  = query => {
+export const getHotList = query => {
     return get('ht/getHost', query) // 热度
 }
 
 // 更新后台热度商品
-export const updateHotList  = query => {
-    return post('ht/updateHost', query)
-}
-/* 自定义菜单 */
-// 商品详情
+export const updateHotList = query => {
+        return post('ht/updateHost', query)
+    }
+    /* 自定义菜单 */
+    // 商品详情
 export const getGoodsByMenu = query => {
     return post('ht/getGoodsByMenu', query)
 }
